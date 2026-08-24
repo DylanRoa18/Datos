@@ -54,11 +54,13 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
 <header class="bg-white border-b shadow-sm" style="border-color:var(--border)">
   <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div class="flex items-center gap-4">
-      <!-- Logos institucionales Alquería & Eficacia -->
+      <!-- Identidad Corporativa segura basada en texto/badge profesional -->
       <div class="flex items-center gap-3 pr-4 border-r" style="border-color:var(--border)">
-        <img src="https://www.alqueria.com.co/o/alqueria-theme/images/logo_alqueria.png" alt="Alquería" class="h-9 object-contain" onerror="this.src='https://via.placeholder.com/100x35?text=Alqueria'">
-        <span class="text-xs font-bold text-slate-300">|</span>
-        <img src="https://www.eficacia.com.co/wp-content/uploads/2023/03/logo-eficacia-2023.png" alt="Eficacia" class="h-8 object-contain" onerror="this.src='https://via.placeholder.com/90x30?text=Eficacia'">
+        <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border" style="border-color:var(--border)">
+          <span class="font-black text-sm tracking-tight text-slate-800" style="font-family:'Sora',sans-serif">ALQUERÍA</span>
+          <span class="text-xs text-slate-300 font-light">×</span>
+          <span class="font-bold text-sm tracking-tight text-red-700" style="font-family:'Sora',sans-serif">EFICACIA</span>
+        </div>
       </div>
       <div>
         <h1 class="text-lg font-bold tracking-tight">Gestión de Inventario POP</h1>
@@ -243,7 +245,7 @@ function formatDate(val){
   if(!isNaN(d.getTime())){
     return d.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
   }
-  return val; // Si ya viene formateado como texto
+  return val;
 }
 
 function cumplimientoColor(pct){
@@ -463,7 +465,7 @@ function renderKPIs(data){
 }
 
 // ---------------------------------------------------------
-// Gráficas ECharts (con estéticas optimizadas para evitar solapamiento)
+// Gráficas ECharts
 // ---------------------------------------------------------
 function renderChartCampana(data){
   if(!chartCampana) chartCampana = echarts.init(document.getElementById('chart-campana'));
@@ -609,7 +611,6 @@ function renderTable(data){
     const c = cumplimientoColor(pct);
     const popTitle = (r.POP||r.Articulo||'').replace(/"/g,'&quot;');
     
-    // Extracción segura de fechas (buscando variaciones comunes en nombres de columnas)
     const fechaEntrada = formatDate(r.FECHA_ENTREGA || r.FECHA_LLEGA || r.FECHA_ENTRADA);
     const fechaSalida = formatDate(r.FECHA_SALIDA || r.FECHA_DESPACHO);
 
