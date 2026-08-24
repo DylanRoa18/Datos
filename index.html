@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Inventario POP · Alquería</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+<!-- Leaflet CSS para el mapa interactivo de Colombia -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#F6F8F6;
+  --surface:#FFFFFF;
+  --border:#E3E8E4;
+  --text:#182420;
+  --text-muted:#657069;
+  --brand:#0E6E55;
+  --brand-dark:#0A5443;
+  --brand-light:#E4F3EE;
+  --brand-mid:#8FC9B7;
+  --amber:#B9750C;
+  --amber-bg:#FBF0DD;
+  --rose:#C0403F;
+  --rose-bg:#FBEAEA;
+  --green:#1F8F5F;
+  --green-bg:#E7F6EE;
+}
+*{box-sizing:border-box}
+body{font-family:'Inter',sans-serif; background:var(--bg); color:var(--text)}
+h1,h2,h3,.font-display{font-family:'Sora',sans-serif}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:16px}
+.tabular{font-variant-numeric: tabular-nums}
+select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-offset:1px}
+::-webkit-scrollbar{height:8px; width:8px}
+::-webkit-scrollbar-thumb{background:#CBD5D0; border-radius:8px}
+.badge{display:inline-flex; align-items:center; padding:2px 10px; border-radius:9999px; font-size:12px; font-weight:600}
+@media(prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+</style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- ===================== HEADER ===================== -->
+<header class="bg-white border-b" style="border-color:var(--border)">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:var(--brand)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight">Gestión de Inventario POP</h1>
+        <p class="text-sm" style="color:var(--text-muted)">Control de flujo, asignación y despacho de material · Grupo Alquería</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="connection-status" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background:var(--amber-bg); color:var(--amber)">
+        <span class="w-2 h-2 mr-1.5 rounded-full animate-pulse" style="background:var(--amber)"></span>
+        Conectando...
+      </span>
+      <span id="updated-label" class="text-xs hidden sm:inline" style="color:var(--text-muted)"></span>
+      <button onclick="fetchData()" class="px-3 py-1.5 text-white text-xs font-semibold rounded-lg shadow-sm transition-all hover:opacity-90" style="background:var(--brand)">
+        Actualizar datos
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+
+  <div id="error-box" class="hidden text-sm rounded-xl p-4 whitespace-pre-wrap" style="background:var(--rose-bg); color:var(--rose); border:1px solid #EFCBCB"></div>
+
+  <!-- ===================== FILTROS ===================== -->
+  <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-semibold">Campaña</span>
+      <select id="filter-campana" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white" style="border-color:var(--border)">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-semibold">Región</span>
+      <select id="filter-region" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white" style="border-color:var(--border)">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-semibold">Artículo</span>
+      <select id="filter-articulo" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white max-w-[200px]" style="border-color:var(--border)">
+        <option value="">Todos</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-semibold">Ejecución</span>
+      <select id="filter-ejecucion" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white" style="border-color:var(--border)">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <button id="btn-reset" onclick="resetFilters()" class="text-sm font-semibold px-3 py-1.5 rounded-lg border ml-auto hover:bg-slate-50" style="border-color:var(--border); color:var(--text-muted)">
+      Limpiar filtros
+    </button>
+  </div>
+
+  <!-- ===================== KPIs ===================== -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="card p-5">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:var(--brand-light)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="M3.3 7 12 12l8.7-5"></path><path d="M12 22V12"></path></svg>
+      </div>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-muted)">Saldo actual de inventario</p>
+      <h3 id="kpi-saldo" class="text-3xl font-bold mt-1 tabular font-display">0</h3>
+      <p class="text-xs mt-1" style="color:var(--text-muted)">unidades saldo en campañas</p>
+    </div>
+
+    <div class="card p-5">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:var(--green-bg)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg>
+      </div>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-muted)">Entrada total de material</p>
+      <h3 id="kpi-llega" class="text-3xl font-bold mt-1 tabular font-display">0</h3>
+      <p class="text-xs mt-1" style="color:var(--text-muted)">unidades recibidas en CEDI</p>
+    </div>
+
+    <div class="card p-5">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:var(--amber-bg)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+      </div>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-muted)">Salida total de material</p>
+      <h3 id="kpi-salida" class="text-3xl font-bold mt-1 tabular font-display">0</h3>
+      <p class="text-xs mt-1" style="color:var(--text-muted)">unidades despachadas</p>
+    </div>
+
+    <div class="card p-5">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:#EEF0FB">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4C4FBF" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v9l6.5 3.5"></path></svg>
+      </div>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-muted)">Cumplimiento general</p>
+      <h3 id="kpi-cumplimiento" class="text-3xl font-bold mt-1 tabular font-display">0%</h3>
+      <p id="kpi-cumplimiento-note" class="text-xs mt-1 font-semibold"></p>
+    </div>
+  </section>
+
+  <!-- ===================== MAPA INTERACTIVO (LEAFLET COLOMBIA) ===================== -->
+  <section class="card p-6">
+    <h3 class="text-base font-bold">Mapa interactivo — Colombia</h3>
+    <p class="text-sm mb-4" style="color:var(--text-muted)">Haz clic en una región o zona geográfica para filtrar el dashboard.</p>
+    <div id="map-container" class="relative w-full rounded-xl overflow-hidden border" style="height:380px; border-color:var(--border)"></div>
+  </section>
+
+  <!-- ===================== GRAFICAS FILA 1 ===================== -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <h3 class="text-base font-bold">Asignado vs. salida por campaña</h3>
+      <p class="text-sm mb-2" style="color:var(--text-muted)">Comparativa de cantidades asignadas frente a las despachadas</p>
+      <div id="chart-campana" class="w-full h-72"></div>
+      <p id="insight-campana" class="text-xs mt-2" style="color:var(--text-muted)"></p>
+    </div>
+    <div class="card p-6">
+      <h3 class="text-base font-bold">% de cumplimiento por campaña</h3>
+      <p class="text-sm mb-2" style="color:var(--text-muted)">Porcentaje de material despachado respecto al asignado</p>
+      <div id="chart-cumplimiento" class="w-full h-72"></div>
+      <p id="insight-cumplimiento" class="text-xs mt-2" style="color:var(--text-muted)"></p>
+    </div>
+  </section>
+
+  <!-- ===================== GRAFICAS FILA 2 ===================== -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <h3 class="text-base font-bold">Distribución por región</h3>
+      <p class="text-sm mb-2" style="color:var(--text-muted)">Saldo e inventario actual por cada regional</p>
+      <div id="chart-region" class="w-full h-72"></div>
+      <p id="insight-region" class="text-xs mt-2" style="color:var(--text-muted)"></p>
+    </div>
+    <div class="card p-6">
+      <h3 class="text-base font-bold">Top artículos por saldo</h3>
+      <p class="text-sm mb-2" style="color:var(--text-muted)">Materiales POP con mayor inventario pendiente de despacho</p>
+      <div id="chart-articulos" class="w-full h-72"></div>
+      <p id="insight-articulos" class="text-xs mt-2" style="color:var(--text-muted)"></p>
+    </div>
+  </section>
+
+  <!-- ===================== TABLA DETALLE ===================== -->
+  <section class="card p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div>
+        <h3 class="text-base font-bold">Detalle de material POP por campaña y región</h3>
+        <p class="text-sm" style="color:var(--text-muted)">Datos operativos completos con indicador de cumplimiento</p>
+      </div>
+      <input id="table-search" type="text" placeholder="Buscar artículo, campaña, material..." class="text-sm rounded-lg border px-3 py-1.5 w-full sm:w-72" style="border-color:var(--border)">
+    </div>
+    <div class="overflow-auto rounded-xl border" style="border-color:var(--border); max-height:480px">
+      <table class="w-full text-sm">
+        <thead class="sticky top-0" style="background:var(--bg)">
+          <tr class="text-left" style="color:var(--text-muted)">
+            <th class="px-4 py-3 font-semibold">Campaña</th>
+            <th class="px-4 py-3 font-semibold">Material POP</th>
+            <th class="px-4 py-3 font-semibold">Producto foco</th>
+            <th class="px-4 py-3 font-semibold">Región</th>
+            <th class="px-4 py-3 font-semibold text-right">Asignado</th>
+            <th class="px-4 py-3 font-semibold text-right">Llegó</th>
+            <th class="px-4 py-3 font-semibold text-right">Salida</th>
+            <th class="px-4 py-3 font-semibold text-right">Saldo</th>
+            <th class="px-4 py-3 font-semibold text-right">Cumplimiento</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <p id="table-count" class="text-xs mt-3" style="color:var(--text-muted)"></p>
+  </section>
+
+</main>
+
+<footer class="text-center py-6 text-xs" style="color:var(--text-muted)">
+  Dashboard Analítica PO © 2026 · Grupo Alquería · Conectado a Google Sheets en tiempo real
+</footer>
+
+<script>
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxaoUvsTHC_W_yKr2J3VKQCmJO7WOAAK8neewYE4LhGETrUOiy8p3QHsK3w4xYT0JLi/exec';
+
+let RAW_DATA = [];
+let state = { campana:'', region:'', articulo:'', ejecucion:'', search:'' };
+let mapInstance = null;
+
+function formatNumber(num){ return new Intl.NumberFormat('es-CO').format(Number(num)||0); }
+function cumplimientoColor(pct){
+  if(pct >= 70) return { text:'var(--green)', bg:'var(--green-bg)' };
+  if(pct >= 40) return { text:'var(--amber)', bg:'var(--amber-bg)' };
+  return { text:'var(--rose)', bg:'var(--rose-bg)' };
+}
+
+function setStatus(type,text){
+  const status=document.getElementById('connection-status');
+  if(type==='success'){
+    status.style.background='var(--green-bg)'; status.style.color='var(--green)';
+    status.innerHTML='<span class="w-2 h-2 mr-1.5 rounded-full inline-block" style="background:var(--green)"></span>'+text;
+  }else if(type==='error'){
+    status.style.background='var(--rose-bg)'; status.style.color='var(--rose)';
+    status.innerHTML='<span class="w-2 h-2 mr-1.5 rounded-full inline-block" style="background:var(--rose)"></span>'+text;
+  }else{
+    status.style.background='var(--amber-bg)'; status.style.color='var(--amber)';
+    status.innerHTML='<span class="w-2 h-2 mr-1.5 rounded-full inline-block animate-pulse" style="background:var(--amber)"></span>'+text;
+  }
+}
+function showError(title, message){
+  const box=document.getElementById('error-box');
+  box.classList.remove('hidden');
+  box.innerHTML='<strong>⚠ ' + title + '</strong><br><br>' + message;
+}
+function hideError(){ document.getElementById('error-box').classList.add('hidden'); }
+
+// ---------------------------------------------------------
+// Carga de datos vía JSONP
+// ---------------------------------------------------------
+let jsonpTimeoutId = null;
+
+function fetchData(){
+  hideError();
+  setStatus('loading','Sincronizando...');
+
+  const callbackName = 'jsonpCallback_' + Date.now();
+  function cleanup(scriptTag){
+    if(jsonpTimeoutId){ clearTimeout(jsonpTimeoutId); jsonpTimeoutId=null; }
+    delete window[callbackName];
+    if(scriptTag && scriptTag.parentNode){ scriptTag.parentNode.removeChild(scriptTag); }
+  }
+
+  window[callbackName] = function(data){
+    cleanup(scriptTag);
+    try{
+      if(data && data.error){ throw new Error(data.message || 'Error interno del script de Google.'); }
+      if(!Array.isArray(data)){ throw new Error('La respuesta recibida no es un listado válido de registros.'); }
+      if(data.length===0){ throw new Error('La consulta se completó pero la pestaña no tiene registros devueltos.'); }
+
+      setStatus('success','Conectado a Google Sheets');
+      RAW_DATA = data;
+      buildFilterOptions();
+      initMap();
+      renderAll();
+      updateTimestamp();
+    }catch(error){
+      console.error('Error detallado:', error);
+      setStatus('error','Error de conexión');
+      showError('Fallo en la comunicación con la Hoja de Cálculo', error.message || error.toString());
+    }
+  };
+
+  const separator = APPS_SCRIPT_URL.indexOf('?') === -1 ? '?' : '&';
+  const scriptTag = document.createElement('script');
+  scriptTag.src = APPS_SCRIPT_URL + separator + 'callback=' + callbackName;
+
+  scriptTag.onerror = function(){
+    cleanup(scriptTag);
+    setStatus('error','Error de conexión');
+    showError('Fallo en la comunicación', 'No se pudo cargar el script de Google Apps Script.');
+  };
+
+  jsonpTimeoutId = setTimeout(function(){
+    cleanup(scriptTag);
+    setStatus('error','Error de conexión');
+    showError('Tiempo de espera agotado', 'Google Apps Script no respondió en 15 segundos.');
+  }, 15000);
+
+  document.body.appendChild(scriptTag);
+}
+
+function updateTimestamp(){
+  const label = document.getElementById('updated-label');
+  const now = new Date();
+  label.textContent = 'Actualizado: ' + now.toLocaleDateString('es-CO', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ---------------------------------------------------------
+// Filtros
+// ---------------------------------------------------------
+function buildFilterOptions(){
+  const campanas = [...new Set(RAW_DATA.map(r=>r.CAMPAÑA).filter(Boolean))].sort();
+  const regiones = [...new Set(RAW_DATA.map(r=>r.REGIONAL).filter(Boolean))].sort();
+  const articulos = [...new Set(RAW_DATA.map(r=>r.POP || r.Articulo).filter(Boolean))].sort();
+  const ejecuciones = [...new Set(RAW_DATA.map(r=>r.EJECUCION || r.Ejecucion || r.PRODUCTO_FOCO).filter(Boolean))].sort();
+
+  const selCampana = document.getElementById('filter-campana');
+  const selRegion = document.getElementById('filter-region');
+  const selArticulo = document.getElementById('filter-articulo');
+  const selEjecucion = document.getElementById('filter-ejecucion');
+
+  selCampana.innerHTML = '<option value="">Todas</option>' + campanas.map(c=>`<option value="${c}">${c}</option>`).join('');
+  selRegion.innerHTML = '<option value="">Todas</option>' + regiones.map(r=>`<option value="${r}">${r}</option>`).join('');
+  selArticulo.innerHTML = '<option value="">Todos</option>' + articulos.map(a=>`<option value="${a}">${a}</option>`).join('');
+  selEjecucion.innerHTML = '<option value="">Todas</option>' + ejecuciones.map(e=>`<option value="${e}">${e}</option>`).join('');
+
+  selCampana.onchange = () => { state.campana = selCampana.value; renderAll(); };
+  selRegion.onchange = () => { state.region = selRegion.value; renderAll(); };
+  selArticulo.onchange = () => { state.articulo = selArticulo.value; renderAll(); };
+  selEjecucion.onchange = () => { state.ejecucion = selEjecucion.value; renderAll(); };
+  document.getElementById('table-search').oninput = (e) => { state.search = e.target.value.toLowerCase(); renderTable(getFilteredData()); };
+}
+
+function resetFilters(){
+  state = { campana:'', region:'', articulo:'', ejecucion:'', search:'' };
+  document.getElementById('filter-campana').value = '';
+  document.getElementById('filter-region').value = '';
+  document.getElementById('filter-articulo').value = '';
+  document.getElementById('filter-ejecucion').value = '';
+  document.getElementById('table-search').value = '';
+  renderAll();
+}
+
+function getFilteredData(){
+  return RAW_DATA.filter(r=>{
+    if(state.campana && r.CAMPAÑA !== state.campana) return false;
+    if(state.region && r.REGIONAL !== state.region) return false;
+    if(state.articulo && (r.POP !== state.articulo && r.Articulo !== state.articulo)) return false;
+    if(state.ejecucion && (r.EJECUCION !== state.ejecucion && r.Ejecucion !== state.ejecucion && r.PRODUCTO_FOCO !== state.ejecucion)) return false;
+    return true;
+  });
+}
+
+// ---------------------------------------------------------
+// Mapa Leaflet Colombia
+// ---------------------------------------------------------
+function initMap(){
+  if(mapInstance) return;
+  mapInstance = L.map('map-container').setView([4.57085, -74.29733], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 10,
+    attribution: '© OpenStreetMap'
+  }).addTo(mapInstance);
+
+  // Coordenadas aproximadas por defecto para las regiones comerciales principales
+  const regionCoords = {
+    'Atlantico': [10.9685, -74.7813],
+    'Costa Periferia': [10.4229, -75.5361],
+    'Antioquia': [6.2442, -75.5812],
+    'Bogota': [4.7110, -74.0721],
+    'Este': [4.1513, -73.6376],
+    'Eje': [4.8133, -75.6961],
+    'Pacifico': [3.4516, -76.5320],
+    'Ibague': [4.4389, -75.2322],
+    'Tolima': [3.8156, -75.1278],
+    'Meta': [4.1420, -73.6266]
+  };
+
+  Object.entries(regionCoords).forEach(([reg, coords]) => {
+    const marker = L.circleMarker(coords, {
+      radius: 10,
+      fillColor: '#0E6E55',
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.8
+    }).addTo(mapInstance);
+
+    marker.bindPopup(`<b>${reg}</b>`);
+    marker.on('click', () => {
+      state.region = (state.region === reg) ? '' : reg;
+      document.getElementById('filter-region').value = state.region;
+      renderAll();
+    });
+  });
+}
+
+// ---------------------------------------------------------
+// Render orquestador
+// ---------------------------------------------------------
+let chartCampana, chartCumplimiento, chartRegion, chartArticulos;
+
+function renderAll(){
+  const data = getFilteredData();
+  renderKPIs(data);
+  renderChartCampana(data);
+  renderChartCumplimiento(data);
+  renderChartRegion(data);
+  renderChartArticulos(data);
+  renderTable(data);
+}
+
+// ---------------------------------------------------------
+// KPIs
+// ---------------------------------------------------------
+function renderKPIs(data){
+  let asignado=0, llega=0, salida=0, saldo=0;
+  data.forEach(r=>{
+    asignado += Number(r.CANTIDAD_ASIGNADA)||0;
+    llega += Number(r.CANTIDAD_LLEGA)||0;
+    salida += Number(r.CANTIDAD_SALIDA)||0;
+    saldo += Number(r.SALDO)||0;
+  });
+
+  document.getElementById('kpi-saldo').textContent = formatNumber(saldo);
+  document.getElementById('kpi-llega').textContent = formatNumber(llega);
+  document.getElementById('kpi-salida').textContent = formatNumber(salida);
+
+  const cumplimiento = asignado > 0 ? (salida/asignado*100) : 0;
+  document.getElementById('kpi-cumplimiento').textContent = cumplimiento.toFixed(1)+'%';
+
+  const note = document.getElementById('kpi-cumplimiento-note');
+  if(cumplimiento >= 70){ note.textContent = '↗ En buen curso'; note.style.color='var(--green)'; }
+  else if(cumplimiento >= 40){ note.textContent = '→ Seguimiento normal'; note.style.color='var(--amber)'; }
+  else{ note.textContent = '↘ Requiere atención'; note.style.color='var(--rose)'; }
+}
+
+// ---------------------------------------------------------
+// Gráficas ECharts
+// ---------------------------------------------------------
+function renderChartCampana(data){
+  if(!chartCampana) chartCampana = echarts.init(document.getElementById('chart-campana'));
+  const map = {};
+  data.forEach(r=>{
+    const c = r.CAMPAÑA || 'Sin campaña';
+    if(!map[c]) map[c] = { asignado:0, salida:0 };
+    map[c].asignado += Number(r.CANTIDAD_ASIGNADA)||0;
+    map[c].salida += Number(r.CANTIDAD_SALIDA)||0;
+  });
+  const names = Object.keys(map);
+  chartCampana.setOption({
+    tooltip:{ trigger:'axis' },
+    legend:{ data:['Asignado','Salida'], bottom:0, textStyle:{fontSize:11} },
+    grid:{ top:20, bottom:40, left:50, right:10 },
+    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate: names.length>4?20:0 } },
+    yAxis:{ type:'value' },
+    series:[
+      { name:'Asignado', type:'bar', data:names.map(n=>map[n].asignado), itemStyle:{ color:'#0E6E55', borderRadius:[4,4,0,0] } },
+      { name:'Salida', type:'bar', data:names.map(n=>map[n].salida), itemStyle:{ color:'#B9750C', borderRadius:[4,4,0,0] } }
+    ]
+  }, true);
+
+  if(names.length){
+    const top = names.map(n=>({n, r: map[n].asignado>0?map[n].salida/map[n].asignado*100:0})).sort((a,b)=>b.r-a.r)[0];
+    document.getElementById('insight-campana').textContent = `La campaña con mayor despacho relativo es ${top.n} con ${top.r.toFixed(1)}% de cumplimiento.`;
+  } else { document.getElementById('insight-campana').textContent = ''; }
+}
+
+function renderChartCumplimiento(data){
+  if(!chartCumplimiento) chartCumplimiento = echarts.init(document.getElementById('chart-cumplimiento'));
+  const map = {};
+  data.forEach(r=>{
+    const c = r.CAMPAÑA || 'Sin campaña';
+    if(!map[c]) map[c] = { asignado:0, salida:0 };
+    map[c].asignado += Number(r.CANTIDAD_ASIGNADA)||0;
+    map[c].salida += Number(r.CANTIDAD_SALIDA)||0;
+  });
+  const rows = Object.keys(map).map(n=>({ n, pct: map[n].asignado>0 ? map[n].salida/map[n].asignado*100 : 0 })).sort((a,b)=>a.pct-b.pct);
+
+  chartCumplimiento.setOption({
+    tooltip:{ trigger:'axis', valueFormatter: v => v.toFixed(1)+'%' },
+    grid:{ top:10, bottom:20, left:10, right:50, containLabel:true },
+    xAxis:{ type:'value', max:100, axisLabel:{ formatter:'{value}%' } },
+    yAxis:{ type:'category', data:rows.map(r=>r.n), axisLabel:{ fontSize:11 } },
+    series:[{
+      type:'bar',
+      data: rows.map(r=>({ value:r.pct.toFixed(1), itemStyle:{ color: r.pct>=70?'#1F8F5F':(r.pct>=40?'#B9750C':'#C0403F'), borderRadius:[0,4,4,0] } })),
+      label:{ show:true, position:'right', formatter:'{c}%', fontSize:11 },
+      barMaxWidth:22
+    }]
+  }, true);
+
+  if(rows.length){
+    const worst = rows[0];
+    const over70 = rows.filter(r=>r.pct>=70).length;
+    document.getElementById('insight-cumplimiento').textContent = `${over70} de ${rows.length} campañas superan el 70% de cumplimiento. La más baja es ${worst.n} con ${worst.pct.toFixed(1)}%.`;
+  } else { document.getElementById('insight-cumplimiento').textContent = ''; }
+}
+
+function renderChartRegion(data){
+  if(!chartRegion) chartRegion = echarts.init(document.getElementById('chart-region'));
+  const map = {};
+  data.forEach(r=>{
+    const reg = r.REGIONAL || 'Sin Regional';
+    if(!map[reg]) map[reg] = { saldo:0, salida:0 };
+    map[reg].saldo += Number(r.SALDO)||0;
+    map[reg].salida += Number(r.CANTIDAD_SALIDA)||0;
+  });
+  const names = Object.keys(map).sort((a,b)=>map[b].saldo-map[a].saldo);
+
+  chartRegion.setOption({
+    tooltip:{ trigger:'axis' },
+    legend:{ data:['Saldo','Salida'], bottom:0, textStyle:{fontSize:11} },
+    grid:{ top:20, bottom:40, left:50, right:10 },
+    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate:30 } },
+    yAxis:{ type:'value' },
+    series:[
+      { name:'Saldo', type:'bar', stack:'total', data:names.map(n=>map[n].saldo), itemStyle:{ color:'#0E6E55' } },
+      { name:'Salida', type:'bar', stack:'total', data:names.map(n=>map[n].salida), itemStyle:{ color:'#B9750C' } }
+    ]
+  }, true);
+
+  if(names.length){
+    document.getElementById('insight-region').textContent = `${names[0]} concentra el mayor saldo de inventario con ${formatNumber(map[names[0]].saldo)} unidades.`;
+  } else { document.getElementById('insight-region').textContent = ''; }
+}
+
+function renderChartArticulos(data){
+  if(!chartArticulos) chartArticulos = echarts.init(document.getElementById('chart-articulos'));
+  const map = {};
+  data.forEach(r=>{
+    const key = r.POP || r.Articulo || 'Sin material';
+    if(!map[key]) map[key] = 0;
+    map[key] += Number(r.SALDO)||0;
+  });
+  const rows = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,8).reverse();
+
+  chartArticulos.setOption({
+    tooltip:{ trigger:'axis' },
+    grid:{ top:10, bottom:20, left:10, right:20, containLabel:true },
+    xAxis:{ type:'value' },
+    yAxis:{ type:'category', data: rows.map(r=>r[0].length>28 ? r[0].slice(0,28)+'…' : r[0]), axisLabel:{ fontSize:10 } },
+    series:[{
+      type:'bar', data: rows.map(r=>r[1]),
+      itemStyle:{ color:'#0E6E55', borderRadius:[0,4,4,0] },
+      barMaxWidth:18
+    }]
+  }, true);
+
+  if(rows.length){
+    document.getElementById('insight-articulos').textContent = `${rows[rows.length-1][0]} es el material con mayor saldo pendiente: ${formatNumber(rows[rows.length-1][1])} unidades.`;
+  } else { document.getElementById('insight-articulos').textContent = ''; }
+}
+
+// ---------------------------------------------------------
+// Tabla de detalle
+// ---------------------------------------------------------
+function renderTable(data){
+  let rows = data;
+  if(state.search){
+    rows = rows.filter(r =>
+      (r.CAMPAÑA||'').toLowerCase().includes(state.search) ||
+      (r.POP||'').toLowerCase().includes(state.search) ||
+      (r.PRODUCTO_FOCO||'').toLowerCase().includes(state.search) ||
+      (r.REGIONAL||'').toLowerCase().includes(state.search) ||
+      (r.Articulo||'').toLowerCase().includes(state.search)
+    );
+  }
+
+  const body = document.getElementById('table-body');
+  body.innerHTML = rows.map(r=>{
+    const asignado = Number(r.CANTIDAD_ASIGNADA)||0;
+    const salida = Number(r.CANTIDAD_SALIDA)||0;
+    const pct = asignado>0 ? (salida/asignado*100) : 0;
+    const c = cumplimientoColor(pct);
+    const popTitle = (r.POP||r.Articulo||'').replace(/"/g,'&quot;');
+    return `<tr class="border-t hover:bg-slate-50" style="border-color:var(--border)">
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.CAMPAÑA||''}</td>
+      <td class="px-4 py-2.5 max-w-[220px] truncate" title="${popTitle}">${r.POP||r.Articulo||''}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.PRODUCTO_FOCO||r.EJECUCION||r.Ejecucion||''}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.REGIONAL||''}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.CANTIDAD_ASIGNADA)}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.CANTIDAD_LLEGA)}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.CANTIDAD_SALIDA)}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.SALDO)}</td>
+      <td class="px-4 py-2.5 text-right"><span class="badge" style="color:${c.text}; background:${c.bg}">${pct.toFixed(1)}%</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('table-count').textContent = `Mostrando ${rows.length} de ${RAW_DATA.length} registros`;
+}
+
+window.addEventListener('resize', () => {
+  [chartCampana, chartCumplimiento, chartRegion, chartArticulos].forEach(c => c && c.resize());
+  if(mapInstance) mapInstance.invalidateSize();
+});
+document.addEventListener('DOMContentLoaded', fetchData);
+</script>
+</body>
+</html>
