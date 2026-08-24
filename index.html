@@ -44,6 +44,8 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
 ::-webkit-scrollbar{height:8px; width:8px}
 ::-webkit-scrollbar-thumb{background:#CBD5D0; border-radius:8px}
 .badge{display:inline-flex; align-items:center; padding:2px 10px; border-radius:9999px; font-size:12px; font-weight:600}
+.brand-logo{height:32px; width:auto; object-fit:contain}
+.brand-divider{width:1px; align-self:stretch; background:var(--border)}
 @media(prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
 </style>
 </head>
@@ -53,7 +55,12 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
 <!-- ===================== HEADER ===================== -->
 <header class="bg-white border-b" style="border-color:var(--border)">
   <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-4">
+      <!-- Logos corporativos: reemplaza los src por tus archivos reales -->
+      <div class="flex items-center gap-2 mr-6 pr-6" style="border-right:1px solid var(--border)">
+        <img src="Eficacia_logo.png" alt="Eficacia SAS" class="brand-logo">
+        <img src="alqueria.png" alt="Grupo Alquería" class="brand-logo">
+      </div>
       <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:var(--brand)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
       </div>
@@ -210,6 +217,8 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
             <th class="px-4 py-3 font-semibold text-right">Salida</th>
             <th class="px-4 py-3 font-semibold text-right">Saldo</th>
             <th class="px-4 py-3 font-semibold text-right">Cumplimiento</th>
+            <th class="px-4 py-3 font-semibold whitespace-nowrap">Fecha ingreso CEDI</th>
+            <th class="px-4 py-3 font-semibold whitespace-nowrap">Fecha última salida</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -232,6 +241,20 @@ let state = { campana:'', region:'', articulo:'', ejecucion:'', search:'' };
 let mapInstance = null;
 
 function formatNumber(num){ return new Intl.NumberFormat('es-CO').format(Number(num)||0); }
+function formatDate(value){
+  if(value === null || value === undefined || value === '') return '—';
+  let d;
+  if(typeof value === 'number'){
+    // Fecha serial de Google Sheets/Excel (días desde 1899-12-30)
+    d = new Date(Math.round((value - 25569) * 86400 * 1000));
+  } else if(typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)){
+    d = new Date(value);
+  } else {
+    d = new Date(value);
+  }
+  if(isNaN(d.getTime())) return value;
+  return d.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
 function cumplimientoColor(pct){
   if(pct >= 70) return { text:'var(--green)', bg:'var(--green-bg)' };
   if(pct >= 40) return { text:'var(--amber)', bg:'var(--amber-bg)' };
@@ -463,10 +486,16 @@ function renderChartCampana(data){
   });
   const names = Object.keys(map);
   chartCampana.setOption({
-    tooltip:{ trigger:'axis' },
-    legend:{ data:['Asignado','Salida'], bottom:0, textStyle:{fontSize:11} },
-    grid:{ top:20, bottom:40, left:50, right:10 },
-    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate: names.length>4?20:0 } },
+    tooltip:{ trigger:'axis', formatter: (params) => {
+      const idx = params[0].dataIndex;
+      let html = `<strong>${names[idx]}</strong><br>`;
+      params.forEach(p => { html += `${p.marker} ${p.seriesName}: ${formatNumber(p.value)}<br>`; });
+      return html;
+    }},
+    legend:{ data:['Asignado','Salida'], top:0, right:0, textStyle:{fontSize:11} },
+    grid:{ top:40, bottom:70, left:50, right:10 },
+    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate:35, interval:0,
+      formatter: (val) => val.length>16 ? val.slice(0,16)+'…' : val } },
     yAxis:{ type:'value' },
     series:[
       { name:'Asignado', type:'bar', data:names.map(n=>map[n].asignado), itemStyle:{ color:'#0E6E55', borderRadius:[4,4,0,0] } },
@@ -523,10 +552,16 @@ function renderChartRegion(data){
   const names = Object.keys(map).sort((a,b)=>map[b].saldo-map[a].saldo);
 
   chartRegion.setOption({
-    tooltip:{ trigger:'axis' },
-    legend:{ data:['Saldo','Salida'], bottom:0, textStyle:{fontSize:11} },
-    grid:{ top:20, bottom:40, left:50, right:10 },
-    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate:30 } },
+    tooltip:{ trigger:'axis', formatter: (params) => {
+      const idx = params[0].dataIndex;
+      let html = `<strong>${names[idx]}</strong><br>`;
+      params.forEach(p => { html += `${p.marker} ${p.seriesName}: ${formatNumber(p.value)}<br>`; });
+      return html;
+    }},
+    legend:{ data:['Saldo','Salida'], top:0, right:0, textStyle:{fontSize:11} },
+    grid:{ top:40, bottom:60, left:50, right:10 },
+    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate:35, interval:0,
+      formatter: (val) => val.length>14 ? val.slice(0,14)+'…' : val } },
     yAxis:{ type:'value' },
     series:[
       { name:'Saldo', type:'bar', stack:'total', data:names.map(n=>map[n].saldo), itemStyle:{ color:'#0E6E55' } },
@@ -598,6 +633,8 @@ function renderTable(data){
       <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.CANTIDAD_SALIDA)}</td>
       <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.SALDO)}</td>
       <td class="px-4 py-2.5 text-right"><span class="badge" style="color:${c.text}; background:${c.bg}">${pct.toFixed(1)}%</span></td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${formatDate(r['FECHA_INGRESO'])}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${formatDate(r['FECHA_ULTIMA_SALIDA'])}</td>
     </tr>`;
   }).join('');
 
