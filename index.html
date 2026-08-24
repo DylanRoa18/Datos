@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestión de Inventario POP · Alquería & Eficacia</title>
+<title>Gestión de Inventario POP · Alquería</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 
-<!-- Leaflet CSS -->
+<!-- Leaflet CSS para el mapa interactivo de Colombia -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -19,30 +19,30 @@
 
 <style>
 :root{
-  --bg:#F8F9FA;
+  --bg:#F6F8F6;
   --surface:#FFFFFF;
-  --border:#E2E8F0;
-  --text:#1E293B;
-  --text-muted:#64748B;
-  --brand:#D32F2F;        /* Rojo corporativo principal */
-  --brand-dark:#B71C1C;
-  --brand-light:#FFEBEE;
-  --brand-mid:#EF9A9A;
-  --amber:#D97706;
-  --amber-bg:#FEF3C7;
-  --rose:#DC2626;
-  --rose-bg:#FEE2E2;
-  --green:#16A34A;
-  --green-bg:#DCFCE7;
+  --border:#E3E8E4;
+  --text:#182420;
+  --text-muted:#657069;
+  --brand:#0E6E55;
+  --brand-dark:#0A5443;
+  --brand-light:#E4F3EE;
+  --brand-mid:#8FC9B7;
+  --amber:#B9750C;
+  --amber-bg:#FBF0DD;
+  --rose:#C0403F;
+  --rose-bg:#FBEAEA;
+  --green:#1F8F5F;
+  --green-bg:#E7F6EE;
 }
 *{box-sizing:border-box}
 body{font-family:'Inter',sans-serif; background:var(--bg); color:var(--text)}
 h1,h2,h3,.font-display{font-family:'Sora',sans-serif}
-.card{background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:16px}
 .tabular{font-variant-numeric: tabular-nums}
 select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-offset:1px}
 ::-webkit-scrollbar{height:8px; width:8px}
-::-webkit-scrollbar-thumb{background:#CBD5E1; border-radius:8px}
+::-webkit-scrollbar-thumb{background:#CBD5D0; border-radius:8px}
 .badge{display:inline-flex; align-items:center; padding:2px 10px; border-radius:9999px; font-size:12px; font-weight:600}
 @media(prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
 </style>
@@ -50,21 +50,16 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
 
 <body class="min-h-screen">
 
-<!-- ===================== HEADER CORPORATIVO ===================== -->
-<header class="bg-white border-b shadow-sm" style="border-color:var(--border)">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <div class="flex items-center gap-4">
-      <!-- Identidad Corporativa segura basada en texto/badge profesional -->
-      <div class="flex items-center gap-3 pr-4 border-r" style="border-color:var(--border)">
-        <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border" style="border-color:var(--border)">
-          <span class="font-black text-sm tracking-tight text-slate-800" style="font-family:'Sora',sans-serif">ALQUERÍA</span>
-          <span class="text-xs text-slate-300 font-light">×</span>
-          <span class="font-bold text-sm tracking-tight text-red-700" style="font-family:'Sora',sans-serif">EFICACIA</span>
-        </div>
+<!-- ===================== HEADER ===================== -->
+<header class="bg-white border-b" style="border-color:var(--border)">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:var(--brand)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
       </div>
       <div>
-        <h1 class="text-lg font-bold tracking-tight">Gestión de Inventario POP</h1>
-        <p class="text-xs" style="color:var(--text-muted)">Control de flujo, asignación y despacho · Alianza Operativa</p>
+        <h1 class="text-xl font-bold tracking-tight">Gestión de Inventario POP</h1>
+        <p class="text-sm" style="color:var(--text-muted)">Control de flujo, asignación y despacho de material · Grupo Alquería</p>
       </div>
     </div>
     <div class="flex items-center gap-3">
@@ -73,7 +68,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
         Conectando...
       </span>
       <span id="updated-label" class="text-xs hidden sm:inline" style="color:var(--text-muted)"></span>
-      <button onclick="fetchData()" class="px-3.5 py-2 text-white text-xs font-semibold rounded-lg shadow-sm transition-all hover:opacity-90" style="background:var(--brand)">
+      <button onclick="fetchData()" class="px-3 py-1.5 text-white text-xs font-semibold rounded-lg shadow-sm transition-all hover:opacity-90" style="background:var(--brand)">
         Actualizar datos
       </button>
     </div>
@@ -82,35 +77,35 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
 
 <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
 
-  <div id="error-box" class="hidden text-sm rounded-xl p-4 whitespace-pre-wrap" style="background:var(--rose-bg); color:var(--rose); border:1px solid #FCA5A5"></div>
+  <div id="error-box" class="hidden text-sm rounded-xl p-4 whitespace-pre-wrap" style="background:var(--rose-bg); color:var(--rose); border:1px solid #EFCBCB"></div>
 
   <!-- ===================== FILTROS ===================== -->
   <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
     <div class="flex items-center gap-2">
-      <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Campaña</span>
+      <span class="text-sm font-semibold">Campaña</span>
       <select id="filter-campana" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white" style="border-color:var(--border)">
         <option value="">Todas</option>
       </select>
     </div>
     <div class="flex items-center gap-2">
-      <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Región</span>
+      <span class="text-sm font-semibold">Región</span>
       <select id="filter-region" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white" style="border-color:var(--border)">
         <option value="">Todas</option>
       </select>
     </div>
     <div class="flex items-center gap-2">
-      <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Artículo</span>
-      <select id="filter-articulo" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white max-w-[180px]" style="border-color:var(--border)">
+      <span class="text-sm font-semibold">Artículo</span>
+      <select id="filter-articulo" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white max-w-[200px]" style="border-color:var(--border)">
         <option value="">Todos</option>
       </select>
     </div>
     <div class="flex items-center gap-2">
-      <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Ejecución</span>
+      <span class="text-sm font-semibold">Ejecución</span>
       <select id="filter-ejecucion" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white" style="border-color:var(--border)">
         <option value="">Todas</option>
       </select>
     </div>
-    <button id="btn-reset" onclick="resetFilters()" class="text-xs font-semibold px-3 py-2 rounded-lg border ml-auto hover:bg-slate-50" style="border-color:var(--border); color:var(--text-muted)">
+    <button id="btn-reset" onclick="resetFilters()" class="text-sm font-semibold px-3 py-1.5 rounded-lg border ml-auto hover:bg-slate-50" style="border-color:var(--border); color:var(--text-muted)">
       Limpiar filtros
     </button>
   </div>
@@ -145,8 +140,8 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
     </div>
 
     <div class="card p-5">
-      <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:#EEF2FF">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v9l6.5 3.5"></path></svg>
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:#EEF0FB">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4C4FBF" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v9l6.5 3.5"></path></svg>
       </div>
       <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-muted)">Cumplimiento general</p>
       <h3 id="kpi-cumplimiento" class="text-3xl font-bold mt-1 tabular font-display">0%</h3>
@@ -154,10 +149,10 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
     </div>
   </section>
 
-  <!-- ===================== MAPA INTERACTIVO ===================== -->
+  <!-- ===================== MAPA INTERACTIVO (LEAFLET COLOMBIA) ===================== -->
   <section class="card p-6">
     <h3 class="text-base font-bold">Mapa interactivo — Colombia</h3>
-    <p class="text-sm mb-4" style="color:var(--text-muted)">Haz clic en una zona geográfica para filtrar instantáneamente el dashboard.</p>
+    <p class="text-sm mb-4" style="color:var(--text-muted)">Haz clic en una región o zona geográfica para filtrar el dashboard.</p>
     <div id="map-container" class="relative w-full rounded-xl overflow-hidden border" style="height:380px; border-color:var(--border)"></div>
   </section>
 
@@ -166,14 +161,14 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
     <div class="card p-6">
       <h3 class="text-base font-bold">Asignado vs. salida por campaña</h3>
       <p class="text-sm mb-2" style="color:var(--text-muted)">Comparativa de cantidades asignadas frente a las despachadas</p>
-      <div id="chart-campana" class="w-full h-80"></div>
-      <p id="insight-campana" class="text-xs mt-2 font-medium" style="color:var(--text-muted)"></p>
+      <div id="chart-campana" class="w-full h-72"></div>
+      <p id="insight-campana" class="text-xs mt-2" style="color:var(--text-muted)"></p>
     </div>
     <div class="card p-6">
       <h3 class="text-base font-bold">% de cumplimiento por campaña</h3>
       <p class="text-sm mb-2" style="color:var(--text-muted)">Porcentaje de material despachado respecto al asignado</p>
-      <div id="chart-cumplimiento" class="w-full h-80"></div>
-      <p id="insight-cumplimiento" class="text-xs mt-2 font-medium" style="color:var(--text-muted)"></p>
+      <div id="chart-cumplimiento" class="w-full h-72"></div>
+      <p id="insight-cumplimiento" class="text-xs mt-2" style="color:var(--text-muted)"></p>
     </div>
   </section>
 
@@ -182,14 +177,14 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
     <div class="card p-6">
       <h3 class="text-base font-bold">Distribución por región</h3>
       <p class="text-sm mb-2" style="color:var(--text-muted)">Saldo e inventario actual por cada regional</p>
-      <div id="chart-region" class="w-full h-80"></div>
-      <p id="insight-region" class="text-xs mt-2 font-medium" style="color:var(--text-muted)"></p>
+      <div id="chart-region" class="w-full h-72"></div>
+      <p id="insight-region" class="text-xs mt-2" style="color:var(--text-muted)"></p>
     </div>
     <div class="card p-6">
       <h3 class="text-base font-bold">Top artículos por saldo</h3>
       <p class="text-sm mb-2" style="color:var(--text-muted)">Materiales POP con mayor inventario pendiente de despacho</p>
-      <div id="chart-articulos" class="w-full h-80"></div>
-      <p id="insight-articulos" class="text-xs mt-2 font-medium" style="color:var(--text-muted)"></p>
+      <div id="chart-articulos" class="w-full h-72"></div>
+      <p id="insight-articulos" class="text-xs mt-2" style="color:var(--text-muted)"></p>
     </div>
   </section>
 
@@ -198,20 +193,18 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
       <div>
         <h3 class="text-base font-bold">Detalle de material POP por campaña y región</h3>
-        <p class="text-sm" style="color:var(--text-muted)">Datos operativos completos con seguimiento de fechas y cumplimiento</p>
+        <p class="text-sm" style="color:var(--text-muted)">Datos operativos completos con indicador de cumplimiento</p>
       </div>
-      <input id="table-search" type="text" placeholder="Buscar artículo, campaña, material..." class="text-sm rounded-lg border px-3 py-2 w-full sm:w-72 shadow-sm" style="border-color:var(--border)">
+      <input id="table-search" type="text" placeholder="Buscar artículo, campaña, material..." class="text-sm rounded-lg border px-3 py-1.5 w-full sm:w-72" style="border-color:var(--border)">
     </div>
     <div class="overflow-auto rounded-xl border" style="border-color:var(--border); max-height:480px">
-      <table class="w-full text-xs sm:text-sm">
-        <thead class="sticky top-0 bg-slate-50" style="border-bottom:1px solid var(--border)">
+      <table class="w-full text-sm">
+        <thead class="sticky top-0" style="background:var(--bg)">
           <tr class="text-left" style="color:var(--text-muted)">
             <th class="px-4 py-3 font-semibold">Campaña</th>
             <th class="px-4 py-3 font-semibold">Material POP</th>
             <th class="px-4 py-3 font-semibold">Producto foco</th>
             <th class="px-4 py-3 font-semibold">Región</th>
-            <th class="px-4 py-3 font-semibold text-center">Fecha Entrada</th>
-            <th class="px-4 py-3 font-semibold text-center">Fecha Salida</th>
             <th class="px-4 py-3 font-semibold text-right">Asignado</th>
             <th class="px-4 py-3 font-semibold text-right">Llegó</th>
             <th class="px-4 py-3 font-semibold text-right">Salida</th>
@@ -222,13 +215,13 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
         <tbody id="table-body"></tbody>
       </table>
     </div>
-    <p id="table-count" class="text-xs mt-3 font-medium" style="color:var(--text-muted)"></p>
+    <p id="table-count" class="text-xs mt-3" style="color:var(--text-muted)"></p>
   </section>
 
 </main>
 
-<footer class="text-center py-6 text-xs border-t bg-white mt-10" style="border-color:var(--border); color:var(--text-muted)">
-  Dashboard Analítica Operativa © 2026 · Alianza Estratégica Grupo Alquería & Eficacia · Sincronizado en tiempo real
+<footer class="text-center py-6 text-xs" style="color:var(--text-muted)">
+  Dashboard Analítica PO © 2026 · Grupo Alquería · Conectado a Google Sheets en tiempo real
 </footer>
 
 <script>
@@ -239,15 +232,6 @@ let state = { campana:'', region:'', articulo:'', ejecucion:'', search:'' };
 let mapInstance = null;
 
 function formatNumber(num){ return new Intl.NumberFormat('es-CO').format(Number(num)||0); }
-function formatDate(val){
-  if(!val) return '-';
-  const d = new Date(val);
-  if(!isNaN(d.getTime())){
-    return d.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
-  }
-  return val;
-}
-
 function cumplimientoColor(pct){
   if(pct >= 70) return { text:'var(--green)', bg:'var(--green-bg)' };
   if(pct >= 40) return { text:'var(--amber)', bg:'var(--amber-bg)' };
@@ -392,6 +376,7 @@ function initMap(){
     attribution: '© OpenStreetMap'
   }).addTo(mapInstance);
 
+  // Coordenadas aproximadas por defecto para las regiones comerciales principales
   const regionCoords = {
     'Atlantico': [10.9685, -74.7813],
     'Costa Periferia': [10.4229, -75.5361],
@@ -407,12 +392,12 @@ function initMap(){
 
   Object.entries(regionCoords).forEach(([reg, coords]) => {
     const marker = L.circleMarker(coords, {
-      radius: 9,
-      fillColor: '#D32F2F',
+      radius: 10,
+      fillColor: '#0E6E55',
       color: '#fff',
       weight: 2,
       opacity: 1,
-      fillOpacity: 0.85
+      fillOpacity: 0.8
     }).addTo(mapInstance);
 
     marker.bindPopup(`<b>${reg}</b>`);
@@ -477,21 +462,15 @@ function renderChartCampana(data){
     map[c].salida += Number(r.CANTIDAD_SALIDA)||0;
   });
   const names = Object.keys(map);
-  const truncatedNames = names.map(n => n.length > 18 ? n.slice(0, 16) + '…' : n);
-
   chartCampana.setOption({
     tooltip:{ trigger:'axis' },
     legend:{ data:['Asignado','Salida'], bottom:0, textStyle:{fontSize:11} },
-    grid:{ top:20, bottom:65, left:55, right:15 },
-    xAxis:{ 
-      type:'category', 
-      data: truncatedNames, 
-      axisLabel:{ fontSize:10, interval:0, rotate:25 } 
-    },
-    yAxis:{ type:'value', splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
+    grid:{ top:20, bottom:40, left:50, right:10 },
+    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate: names.length>4?20:0 } },
+    yAxis:{ type:'value' },
     series:[
-      { name:'Asignado', type:'bar', data:names.map(n=>map[n].asignado), itemStyle:{ color:'#D32F2F', borderRadius:[4,4,0,0] } },
-      { name:'Salida', type:'bar', data:names.map(n=>map[n].salida), itemStyle:{ color:'#D97706', borderRadius:[4,4,0,0] } }
+      { name:'Asignado', type:'bar', data:names.map(n=>map[n].asignado), itemStyle:{ color:'#0E6E55', borderRadius:[4,4,0,0] } },
+      { name:'Salida', type:'bar', data:names.map(n=>map[n].salida), itemStyle:{ color:'#B9750C', borderRadius:[4,4,0,0] } }
     ]
   }, true);
 
@@ -511,18 +490,17 @@ function renderChartCumplimiento(data){
     map[c].salida += Number(r.CANTIDAD_SALIDA)||0;
   });
   const rows = Object.keys(map).map(n=>({ n, pct: map[n].asignado>0 ? map[n].salida/map[n].asignado*100 : 0 })).sort((a,b)=>a.pct-b.pct);
-  const truncatedY = rows.map(r => r.n.length > 20 ? r.n.slice(0, 18) + '…' : r.n);
 
   chartCumplimiento.setOption({
     tooltip:{ trigger:'axis', valueFormatter: v => v.toFixed(1)+'%' },
-    grid:{ top:10, bottom:20, left:10, right:55, containLabel:true },
-    xAxis:{ type:'value', max:100, axisLabel:{ formatter:'{value}%' }, splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
-    yAxis:{ type:'category', data:truncatedY, axisLabel:{ fontSize:10 } },
+    grid:{ top:10, bottom:20, left:10, right:50, containLabel:true },
+    xAxis:{ type:'value', max:100, axisLabel:{ formatter:'{value}%' } },
+    yAxis:{ type:'category', data:rows.map(r=>r.n), axisLabel:{ fontSize:11 } },
     series:[{
       type:'bar',
-      data: rows.map(r=>({ value:r.pct.toFixed(1), itemStyle:{ color: r.pct>=70?'#16A34A':(r.pct>=40?'#D97706':'#DC2626'), borderRadius:[0,4,4,0] } })),
-      label:{ show:true, position:'right', formatter:'{c}%', fontSize:10 },
-      barMaxWidth:20
+      data: rows.map(r=>({ value:r.pct.toFixed(1), itemStyle:{ color: r.pct>=70?'#1F8F5F':(r.pct>=40?'#B9750C':'#C0403F'), borderRadius:[0,4,4,0] } })),
+      label:{ show:true, position:'right', formatter:'{c}%', fontSize:11 },
+      barMaxWidth:22
     }]
   }, true);
 
@@ -547,12 +525,12 @@ function renderChartRegion(data){
   chartRegion.setOption({
     tooltip:{ trigger:'axis' },
     legend:{ data:['Saldo','Salida'], bottom:0, textStyle:{fontSize:11} },
-    grid:{ top:20, bottom:50, left:50, right:15 },
-    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, interval:0, rotate:25 } },
-    yAxis:{ type:'value', splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
+    grid:{ top:20, bottom:40, left:50, right:10 },
+    xAxis:{ type:'category', data:names, axisLabel:{ fontSize:10, rotate:30 } },
+    yAxis:{ type:'value' },
     series:[
-      { name:'Saldo', type:'bar', stack:'total', data:names.map(n=>map[n].saldo), itemStyle:{ color:'#D32F2F' } },
-      { name:'Salida', type:'bar', stack:'total', data:names.map(n=>map[n].salida), itemStyle:{ color:'#D97706' } }
+      { name:'Saldo', type:'bar', stack:'total', data:names.map(n=>map[n].saldo), itemStyle:{ color:'#0E6E55' } },
+      { name:'Salida', type:'bar', stack:'total', data:names.map(n=>map[n].salida), itemStyle:{ color:'#B9750C' } }
     ]
   }, true);
 
@@ -573,12 +551,12 @@ function renderChartArticulos(data){
 
   chartArticulos.setOption({
     tooltip:{ trigger:'axis' },
-    grid:{ top:10, bottom:20, left:10, right:25, containLabel:true },
-    xAxis:{ type:'value', splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
-    yAxis:{ type:'category', data: rows.map(r=>r[0].length>26 ? r[0].slice(0,24)+'…' : r[0]), axisLabel:{ fontSize:10 } },
+    grid:{ top:10, bottom:20, left:10, right:20, containLabel:true },
+    xAxis:{ type:'value' },
+    yAxis:{ type:'category', data: rows.map(r=>r[0].length>28 ? r[0].slice(0,28)+'…' : r[0]), axisLabel:{ fontSize:10 } },
     series:[{
       type:'bar', data: rows.map(r=>r[1]),
-      itemStyle:{ color:'#D32F2F', borderRadius:[0,4,4,0] },
+      itemStyle:{ color:'#0E6E55', borderRadius:[0,4,4,0] },
       barMaxWidth:18
     }]
   }, true);
@@ -610,22 +588,16 @@ function renderTable(data){
     const pct = asignado>0 ? (salida/asignado*100) : 0;
     const c = cumplimientoColor(pct);
     const popTitle = (r.POP||r.Articulo||'').replace(/"/g,'&quot;');
-    
-    const fechaEntrada = formatDate(r.FECHA_ENTREGA || r.FECHA_LLEGA || r.FECHA_ENTRADA);
-    const fechaSalida = formatDate(r.FECHA_SALIDA || r.FECHA_DESPACHO);
-
-    return `<tr class="border-t hover:bg-slate-50 transition-colors" style="border-color:var(--border)">
-      <td class="px-4 py-3 whitespace-nowrap font-medium">${r.CAMPAÑA||''}</td>
-      <td class="px-4 py-3 max-w-[200px] truncate" title="${popTitle}">${r.POP||r.Articulo||''}</td>
-      <td class="px-4 py-3 whitespace-nowrap">${r.PRODUCTO_FOCO||r.EJECUCION||r.Ejecucion||''}</td>
-      <td class="px-4 py-3 whitespace-nowrap">${r.REGIONAL||''}</td>
-      <td class="px-4 py-3 text-center whitespace-nowrap tabular text-slate-600">${fechaEntrada}</td>
-      <td class="px-4 py-3 text-center whitespace-nowrap tabular text-slate-600">${fechaSalida}</td>
-      <td class="px-4 py-3 text-right tabular">${formatNumber(r.CANTIDAD_ASIGNADA)}</td>
-      <td class="px-4 py-3 text-right tabular">${formatNumber(r.CANTIDAD_LLEGA)}</td>
-      <td class="px-4 py-3 text-right tabular">${formatNumber(r.CANTIDAD_SALIDA)}</td>
-      <td class="px-4 py-3 text-right tabular font-semibold">${formatNumber(r.SALDO)}</td>
-      <td class="px-4 py-3 text-right"><span class="badge" style="color:${c.text}; background:${c.bg}">${pct.toFixed(1)}%</span></td>
+    return `<tr class="border-t hover:bg-slate-50" style="border-color:var(--border)">
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.CAMPAÑA||''}</td>
+      <td class="px-4 py-2.5 max-w-[220px] truncate" title="${popTitle}">${r.POP||r.Articulo||''}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.PRODUCTO_FOCO||r.EJECUCION||r.Ejecucion||''}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.REGIONAL||''}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.CANTIDAD_ASIGNADA)}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.CANTIDAD_LLEGA)}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.CANTIDAD_SALIDA)}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.SALDO)}</td>
+      <td class="px-4 py-2.5 text-right"><span class="badge" style="color:${c.text}; background:${c.bg}">${pct.toFixed(1)}%</span></td>
     </tr>`;
   }).join('');
 
