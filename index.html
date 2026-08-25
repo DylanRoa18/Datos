@@ -616,6 +616,24 @@ function renderTable(data){
     );
   }
 
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  
+  // Si viene una fecha limpia "YYYY-MM-DD" con o sin espacio/hora, evitamos objetos Date
+  const cleanStr = String(dateStr).split(/[ T]/)[0]; 
+  const parts = cleanStr.split(/[-/]/);
+  
+  if (parts.length === 3 && parts[0].length === 4) {
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  }
+  
+  // Respaldo por si viene en otro formato exótico
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  return `${String(date.getUTCDate()).padStart(2, '0')}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${date.getUTCFullYear()}`;
+}
+
   const body = document.getElementById('table-body');
   body.innerHTML = rows.map(r=>{
     const asignado = Number(r.CANTIDAD_ASIGNADA)||0;
