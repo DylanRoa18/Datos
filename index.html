@@ -107,6 +107,10 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
       </select>
     </div>
     <div class="flex items-center gap-2">
+      <span class="text-sm font-semibold">Código Artículo</span>
+      <input id="filter-codigo-articulo" type="text" placeholder="Escribe el código..." class="text-sm rounded-lg border px-2.5 py-1.5 bg-white w-40" style="border-color:var(--border)">
+    </div>
+    <div class="flex items-center gap-2">
       <span class="text-sm font-semibold">Ejecución</span>
       <select id="filter-ejecucion" class="text-sm rounded-lg border px-2.5 py-1.5 bg-white" style="border-color:var(--border)">
         <option value="">Todas</option>
@@ -195,6 +199,47 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
     </div>
   </section>
 
+  <!-- ===================== PLAN OPERATIVO (RESUMEN DINÁMICO) ===================== -->
+  <section class="rounded-2xl overflow-hidden shadow-sm" style="border:1px solid var(--border)">
+    <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 relative overflow-hidden" style="background:linear-gradient(120deg, #7A2624 0%, var(--rose) 55%, #D9635F 100%)">
+      <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image:repeating-linear-gradient(135deg, #fff 0px, #fff 2px, transparent 2px, transparent 14px)"></div>
+      <div class="flex items-center gap-3 relative">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(255,255,255,0.16)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2h8"/><path d="M9 2v7.5a3 3 0 0 1-.6 1.8L5 17a3 3 0 0 0 2.4 4.8h9.2a3 3 0 0 0 2.4-4.8l-3.4-5.7a3 3 0 0 1-.6-1.8V2"/></svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white font-display leading-tight">Plan Operativo</h3>
+          <p class="text-xs" style="color:rgba(255,255,255,0.85)">Resumen dinámico por campaña, artículo y regional · Grupo Alquería</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 relative">
+        <span class="text-sm font-semibold" style="color:rgba(255,255,255,0.9)">Ordenar por</span>
+        <select id="resumen-agrupar" class="text-sm rounded-lg border-0 px-2.5 py-1.5 bg-white shadow-sm font-medium" style="color:#7A2624">
+          <option value="CAMPANA">Campaña</option>
+          <option value="ARTICULO">Artículo</option>
+        </select>
+      </div>
+    </div>
+    <div class="p-6 bg-white">
+      <div class="overflow-auto rounded-xl border" style="border-color:var(--border); max-height:360px">
+        <table class="w-full text-sm">
+          <thead class="sticky top-0" style="background:var(--rose-bg)">
+            <tr class="text-left" style="color:#7A2624">
+              <th class="px-4 py-3 font-semibold">Campaña</th>
+              <th class="px-4 py-3 font-semibold">Artículo</th>
+              <th class="px-4 py-3 font-semibold">Código Artículo</th>
+              <th class="px-4 py-3 font-semibold">Región</th>
+              <th class="px-4 py-3 font-semibold text-right">Asignado</th>
+              <th class="px-4 py-3 font-semibold text-right">Salida</th>
+              <th class="px-4 py-3 font-semibold text-right">Faltante por enviar</th>
+            </tr>
+          </thead>
+          <tbody id="resumen-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== TABLA DETALLE ===================== -->
   <section class="card p-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
@@ -219,6 +264,8 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
             <th class="px-4 py-3 font-semibold text-right">Cumplimiento</th>
             <th class="px-4 py-3 font-semibold whitespace-nowrap">Fecha ingreso CEDI</th>
             <th class="px-4 py-3 font-semibold whitespace-nowrap">Fecha última salida</th>
+            <th class="px-4 py-3 font-semibold whitespace-nowrap">Alerta recepción</th>
+            <th class="px-4 py-3 font-semibold whitespace-nowrap">Estado ejecución</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -237,23 +284,133 @@ select:focus, button:focus, input:focus{outline:2px solid var(--brand); outline-
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxaoUvsTHC_W_yKr2J3VKQCmJO7WOAAK8neewYE4LhGETrUOiy8p3QHsK3w4xYT0JLi/exec';
 
 let RAW_DATA = [];
-let state = { campana:'', region:'', articulo:'', ejecucion:'', search:'' };
+let state = { campana:'', region:'', articulo:'', ejecucion:'', codigoArticulo:'', search:'' };
 let mapInstance = null;
 
 function formatNumber(num){ return new Intl.NumberFormat('es-CO').format(Number(num)||0); }
+
+// Formatea fechas para mostrar en pantalla como dd/mm/yyyy, sin usar
+// new Date(str).toLocaleDateString() directo (eso puede correr la fecha
+// un día según la zona horaria del navegador). Si el valor no es una
+// fecha reconocible (p.ej. texto libre como "AGOTAR EXISTENCIA"), se
+// devuelve tal cual.
 function formatDate(value){
   if(value === null || value === undefined || value === '') return '—';
-  let d;
   if(typeof value === 'number'){
-    // Fecha serial de Google Sheets/Excel (días desde 1899-12-30)
-    d = new Date(Math.round((value - 25569) * 86400 * 1000));
-  } else if(typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)){
-    d = new Date(value);
-  } else {
-    d = new Date(value);
+    const d = new Date(Math.round((value - 25569) * 86400 * 1000));
+    if(isNaN(d.getTime())) return String(value);
+    return `${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()}`;
   }
-  if(isNaN(d.getTime())) return value;
-  return d.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const str = String(value).trim();
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(iso){ return `${iso[3]}/${iso[2]}/${iso[1]}`; }
+  const dmy = str.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(dmy){ return `${dmy[1].padStart(2,'0')}/${dmy[2].padStart(2,'0')}/${dmy[3]}`; }
+  return str;
+}
+
+// Reconoce fechas escritas en español dentro de un texto libre, por
+// ejemplo "15 de agosto a 31 de agosto" o "1 al 31 de agosto de 2026".
+// Devuelve la ÚLTIMA fecha encontrada en el texto (la fecha de fin,
+// que es la que importa para saber si la ejecución ya terminó).
+const MESES_ES = { enero:0, febrero:1, marzo:2, abril:3, mayo:4, junio:5,
+  julio:6, agosto:7, septiembre:8, setiembre:8, octubre:9, noviembre:10, diciembre:11 };
+
+function parseSpanishDateRangeEnd(str){
+  const regex = /(\d{1,2})\s*(?:de)?\s*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)(?:\s*(?:de)?\s*(\d{4}))?/gi;
+  const hoy = new Date();
+  let match, ultima = null;
+  while((match = regex.exec(str)) !== null){
+    const dia = Number(match[1]);
+    const mes = MESES_ES[match[2].toLowerCase()];
+    const anio = match[3] ? Number(match[3]) : hoy.getFullYear();
+    const fecha = new Date(anio, mes, dia);
+    if(!isNaN(fecha.getTime())) ultima = fecha;
+  }
+  return ultima;
+}
+
+// Convierte un valor de fecha (serial, "yyyy-MM-dd", "dd/mm/yyyy", etc.)
+// a un objeto Date local a medianoche, para poder restar días sin líos
+// de huso horario. Devuelve null si no es una fecha reconocible.
+function parseDateOnly(value){
+  if(value === null || value === undefined || value === '') return null;
+  if(typeof value === 'number'){
+    const d = new Date(Math.round((value - 25569) * 86400 * 1000));
+    return isNaN(d.getTime()) ? null : new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  }
+  const str = String(value).trim();
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(iso){ return new Date(Number(iso[1]), Number(iso[2])-1, Number(iso[3])); }
+  const dmy = str.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(dmy){ return new Date(Number(dmy[3]), Number(dmy[2])-1, Number(dmy[1])); }
+  return null;
+}
+
+function daysBetween(from, to){
+  const MS_DAY = 86400000;
+  const a = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate());
+  const b = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate());
+  return Math.round((b - a) / MS_DAY);
+}
+
+// Alerta de retraso en recepción: compara FECHA_RECEPCION_POP (fecha
+// negociada/esperada de llegada) contra la fecha real de llegada.
+// - Si el material ya llegó (CANTIDAD_LLEGA > 0), compara FECHA_INGRESO
+//   (fecha real en la que ingresó al CEDI) contra la fecha esperada:
+//     · si ingresó después de lo esperado -> "Recibido con X días de retraso"
+//     · si ingresó en la fecha esperada o antes -> "Recibido a tiempo"
+// - Si aún no ha llegado, mantiene el conteo regresivo/retraso sobre la
+//   fecha esperada, igual que antes.
+function calcAlertaRecepcion(row){
+  const raw = row.FECHA_RECEPCION_POP;
+  if(!raw) return { text:'Indefinido', color:'var(--text-muted)', bg:'transparent' };
+  const fechaEsperada = parseDateOnly(raw);
+  if(!fechaEsperada) return { text:'Indefinido', color:'var(--text-muted)', bg:'transparent' };
+
+  const llego = (Number(row.CANTIDAD_LLEGA)||0) > 0;
+
+  if(llego){
+    const fechaIngreso = parseDateOnly(row.FECHA_INGRESO);
+    if(!fechaIngreso){
+      // Llegó pero no hay fecha real de ingreso para comparar
+      return { text:'Recibido', color:'var(--green)', bg:'var(--green-bg)' };
+    }
+    const diffRecepcion = daysBetween(fechaEsperada, fechaIngreso);
+    if(diffRecepcion > 0){
+      return { text:`Recibido con ${diffRecepcion} día${diffRecepcion===1?'':'s'} de retraso`, color:'var(--rose)', bg:'var(--rose-bg)' };
+    }
+    return { text:'Recibido a tiempo', color:'var(--green)', bg:'var(--green-bg)' };
+  }
+
+  const diff = daysBetween(fechaEsperada, new Date());
+  if(diff > 0) return { text:`${diff} día${diff===1?'':'s'} de retraso`, color:'var(--rose)', bg:'var(--rose-bg)' };
+  if(diff === 0) return { text:'Vence hoy', color:'var(--amber)', bg:'var(--amber-bg)' };
+  return { text:`Faltan ${-diff} día${(-diff)===1?'':'s'}`, color:'var(--brand)', bg:'var(--brand-light)' };
+}
+
+// Estado del periodo de ejecución de campaña, según FECHA_EJECUCION.
+// Si el texto menciona "agotar existencia" o "fin existencia" / "fin de
+// existencia" (con o sin fecha de inicio antes, ej. "1 de Septiembre a
+// Fin Existencia"), se trata como un periodo abierto sin fecha de cierre
+// -> se marca como "Agotar existencia" en lugar de intentar parsear una
+// fecha de fin (que terminaría tomando por error la fecha de INICIO).
+// Si en cambio es un rango con fecha de fin real (ej. "3 a 31 de agosto"),
+// se calculan los días que faltan o que ya pasaron desde hoy.
+function calcEstadoEjecucion(row){
+  const raw = row.FECHA_EJECUCION;
+  if(!raw) return { text:'Indefinido', color:'var(--text-muted)', bg:'transparent' };
+
+  const rawStr = String(raw).trim();
+  if(/agotar|fin\s*(?:de)?\s*existencia/i.test(rawStr)) return { text:'Agotar existencia', color:'var(--brand)', bg:'var(--brand-light)' };
+
+  const fechaFin = parseDateOnly(rawStr) || parseSpanishDateRangeEnd(rawStr);
+  if(!fechaFin) return { text:'Indefinido', color:'var(--text-muted)', bg:'transparent' };
+
+  const diff = daysBetween(new Date(), fechaFin);
+  if(diff > 0) return { text:`${diff} día${diff===1?'':'s'} por finalizar`, color:'var(--amber)', bg:'var(--amber-bg)' };
+  if(diff === 0) return { text:'Finaliza hoy', color:'var(--amber)', bg:'var(--amber-bg)' };
+  return { text:`${-diff} día${(-diff)===1?'':'s'} de retraso`, color:'var(--rose)', bg:'var(--rose-bg)' };
 }
 function cumplimientoColor(pct){
   if(pct >= 70) return { text:'var(--green)', bg:'var(--green-bg)' };
@@ -297,19 +454,20 @@ function fetchData(){
     if(scriptTag && scriptTag.parentNode){ scriptTag.parentNode.removeChild(scriptTag); }
   }
 
-  window[callbackName] = function(data){
+  window[callbackName] = function(response){
     cleanup(scriptTag);
     try{
-      if(data && data.error){ throw new Error(data.message || 'Error interno del script de Google.'); }
-      if(!Array.isArray(data)){ throw new Error('La respuesta recibida no es un listado válido de registros.'); }
-      if(data.length===0){ throw new Error('La consulta se completó pero la pestaña no tiene registros devueltos.'); }
+      if(response && response.error){ throw new Error(response.message || 'Error interno del script de Google.'); }
+      const records = response && response.records;
+      if(!Array.isArray(records)){ throw new Error('La respuesta recibida no es un listado válido de registros.'); }
+      if(records.length===0){ throw new Error('La consulta se completó pero la pestaña no tiene registros devueltos.'); }
 
       setStatus('success','Conectado a Google Sheets');
-      RAW_DATA = data;
+      RAW_DATA = records;
       buildFilterOptions();
       initMap();
       renderAll();
-      updateTimestamp();
+      updateTimestamp(response.lastUpdated);
     }catch(error){
       console.error('Error detallado:', error);
       setStatus('error','Error de conexión');
@@ -336,10 +494,11 @@ function fetchData(){
   document.body.appendChild(scriptTag);
 }
 
-function updateTimestamp(){
+function updateTimestamp(lastUpdatedStr){
   const label = document.getElementById('updated-label');
-  const now = new Date();
-  label.textContent = 'Actualizado: ' + now.toLocaleDateString('es-CO', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  let d = lastUpdatedStr ? new Date(lastUpdatedStr) : null;
+  if(!d || isNaN(d.getTime())) d = new Date();
+  label.textContent = 'Actualizado: ' + d.toLocaleDateString('es-CO', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
 // ---------------------------------------------------------
@@ -365,15 +524,17 @@ function buildFilterOptions(){
   selRegion.onchange = () => { state.region = selRegion.value; renderAll(); };
   selArticulo.onchange = () => { state.articulo = selArticulo.value; renderAll(); };
   selEjecucion.onchange = () => { state.ejecucion = selEjecucion.value; renderAll(); };
+  document.getElementById('filter-codigo-articulo').oninput = (e) => { state.codigoArticulo = e.target.value.trim().toLowerCase(); renderAll(); };
   document.getElementById('table-search').oninput = (e) => { state.search = e.target.value.toLowerCase(); renderTable(getFilteredData()); };
 }
 
 function resetFilters(){
-  state = { campana:'', region:'', articulo:'', ejecucion:'', search:'' };
+  state = { campana:'', region:'', articulo:'', ejecucion:'', codigoArticulo:'', search:'' };
   document.getElementById('filter-campana').value = '';
   document.getElementById('filter-region').value = '';
   document.getElementById('filter-articulo').value = '';
   document.getElementById('filter-ejecucion').value = '';
+  document.getElementById('filter-codigo-articulo').value = '';
   document.getElementById('table-search').value = '';
   renderAll();
 }
@@ -384,6 +545,7 @@ function getFilteredData(){
     if(state.region && r.REGIONAL !== state.region) return false;
     if(state.articulo && (r.POP !== state.articulo && r.Articulo !== state.articulo)) return false;
     if(state.ejecucion && (r.EJECUCION !== state.ejecucion && r.Ejecucion !== state.ejecucion && r.PRODUCTO_FOCO !== state.ejecucion)) return false;
+    if(state.codigoArticulo && !String(r.Articulo||'').toLowerCase().includes(state.codigoArticulo)) return false;
     return true;
   });
 }
@@ -444,6 +606,7 @@ function renderAll(){
   renderChartCumplimiento(data);
   renderChartRegion(data);
   renderChartArticulos(data);
+  renderResumen(data);
   renderTable(data);
 }
 
@@ -579,26 +742,79 @@ function renderChartArticulos(data){
   const map = {};
   data.forEach(r=>{
     const key = r.POP || r.Articulo || 'Sin material';
-    if(!map[key]) map[key] = 0;
-    map[key] += Number(r.SALDO)||0;
+    if(!map[key]) map[key] = { saldo:0, asignado:0, salida:0 };
+    map[key].saldo += Number(r.SALDO)||0;
+    map[key].asignado += Number(r.CANTIDAD_ASIGNADA)||0;
+    map[key].salida += Number(r.CANTIDAD_SALIDA)||0;
   });
-  const rows = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,8).reverse();
+  const rows = Object.entries(map)
+    .map(([name, v]) => ({ name, saldo:v.saldo, faltante: Math.max(v.asignado - v.salida, 0) }))
+    .sort((a,b)=>b.saldo-a.saldo)
+    .slice(0,8)
+    .reverse();
 
   chartArticulos.setOption({
     tooltip:{ trigger:'axis' },
-    grid:{ top:10, bottom:20, left:10, right:20, containLabel:true },
+    legend:{ data:['Saldo','Faltante p/cumplir'], top:0, right:0, textStyle:{fontSize:11} },
+    grid:{ top:40, bottom:20, left:10, right:20, containLabel:true },
     xAxis:{ type:'value' },
-    yAxis:{ type:'category', data: rows.map(r=>r[0].length>28 ? r[0].slice(0,28)+'…' : r[0]), axisLabel:{ fontSize:10 } },
-    series:[{
-      type:'bar', data: rows.map(r=>r[1]),
-      itemStyle:{ color:'#0E6E55', borderRadius:[0,4,4,0] },
-      barMaxWidth:18
-    }]
+    yAxis:{ type:'category', data: rows.map(r=>r.name.length>28 ? r.name.slice(0,28)+'…' : r.name), axisLabel:{ fontSize:10 } },
+    series:[
+      { name:'Saldo', type:'bar', data: rows.map(r=>r.saldo), itemStyle:{ color:'#0E6E55', borderRadius:[0,4,4,0] }, barMaxWidth:14 },
+      { name:'Faltante p/cumplir', type:'bar', data: rows.map(r=>r.faltante), itemStyle:{ color:'#C0403F', borderRadius:[0,4,4,0] }, barMaxWidth:14 }
+    ]
   }, true);
 
   if(rows.length){
-    document.getElementById('insight-articulos').textContent = `${rows[rows.length-1][0]} es el material con mayor saldo pendiente: ${formatNumber(rows[rows.length-1][1])} unidades.`;
+    const top = rows[rows.length-1];
+    document.getElementById('insight-articulos').textContent = `${top.name} es el material con mayor saldo pendiente: ${formatNumber(top.saldo)} unidades (faltan ${formatNumber(top.faltante)} para cumplir lo asignado).`;
   } else { document.getElementById('insight-articulos').textContent = ''; }
+}
+
+// ---------------------------------------------------------
+// Plan Operativo — resumen dinámico por Campaña + Artículo + Regional.
+// El selector "Ordenar por" define qué dimensión encabeza el orden
+// (Campaña o Artículo), pero ambas columnas se muestran siempre.
+// ---------------------------------------------------------
+function renderResumen(data){
+  const selResumen = document.getElementById('resumen-agrupar');
+  const modo = selResumen ? selResumen.value : 'CAMPANA';
+
+  const map = {};
+  data.forEach(r=>{
+    const campana = r.CAMPAÑA || 'Sin campaña';
+    const articulo = r.POP || r.Articulo || 'Sin artículo';
+    const codigo = r.Articulo || '—';
+    const reg = r.REGIONAL || 'Sin Regional';
+    const key = campana + '|' + articulo + '|' + codigo + '|' + reg;
+    if(!map[key]) map[key] = { campana, articulo, codigo, reg, asignado:0, salida:0 };
+    map[key].asignado += Number(r.CANTIDAD_ASIGNADA)||0;
+    map[key].salida += Number(r.CANTIDAD_SALIDA)||0;
+  });
+
+  const rows = Object.values(map).sort((a,b)=>{
+    const primary = modo === 'ARTICULO'
+      ? a.articulo.localeCompare(b.articulo) || a.campana.localeCompare(b.campana)
+      : a.campana.localeCompare(b.campana) || a.articulo.localeCompare(b.articulo);
+    if(primary !== 0) return primary;
+    return (b.asignado-b.salida) - (a.asignado-a.salida);
+  });
+
+  const body = document.getElementById('resumen-body');
+  if(!body) return;
+  body.innerHTML = rows.map(r=>{
+    const faltante = Math.max(r.asignado - r.salida, 0);
+    const faltanteColor = faltante > 0 ? 'var(--rose)' : 'var(--green)';
+    return `<tr class="border-t hover:bg-slate-50" style="border-color:var(--border)">
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.campana}</td>
+      <td class="px-4 py-2.5 max-w-[220px] truncate" title="${String(r.articulo).replace(/"/g,'&quot;')}">${r.articulo}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.codigo}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap">${r.reg}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.asignado)}</td>
+      <td class="px-4 py-2.5 text-right tabular">${formatNumber(r.salida)}</td>
+      <td class="px-4 py-2.5 text-right tabular font-semibold" style="color:${faltanteColor}">${formatNumber(faltante)}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ---------------------------------------------------------
@@ -616,30 +832,14 @@ function renderTable(data){
     );
   }
 
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  
-  // Si viene una fecha limpia "YYYY-MM-DD" con o sin espacio/hora, evitamos objetos Date
-  const cleanStr = String(dateStr).split(/[ T]/)[0]; 
-  const parts = cleanStr.split(/[-/]/);
-  
-  if (parts.length === 3 && parts[0].length === 4) {
-    const [year, month, day] = parts;
-    return `${day}/${month}/${year}`;
-  }
-  
-  // Respaldo por si viene en otro formato exótico
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr;
-  return `${String(date.getUTCDate()).padStart(2, '0')}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${date.getUTCFullYear()}`;
-}
-
   const body = document.getElementById('table-body');
   body.innerHTML = rows.map(r=>{
     const asignado = Number(r.CANTIDAD_ASIGNADA)||0;
     const salida = Number(r.CANTIDAD_SALIDA)||0;
     const pct = asignado>0 ? (salida/asignado*100) : 0;
     const c = cumplimientoColor(pct);
+    const alertaRecepcion = calcAlertaRecepcion(r);
+    const estadoEjecucion = calcEstadoEjecucion(r);
     const popTitle = (r.POP||r.Articulo||'').replace(/"/g,'&quot;');
     return `<tr class="border-t hover:bg-slate-50" style="border-color:var(--border)">
       <td class="px-4 py-2.5 whitespace-nowrap">${r.CAMPAÑA||''}</td>
@@ -653,6 +853,8 @@ function formatDate(dateStr) {
       <td class="px-4 py-2.5 text-right"><span class="badge" style="color:${c.text}; background:${c.bg}">${pct.toFixed(1)}%</span></td>
       <td class="px-4 py-2.5 whitespace-nowrap">${formatDate(r['FECHA_INGRESO'])}</td>
       <td class="px-4 py-2.5 whitespace-nowrap">${formatDate(r['FECHA_ULTIMA_SALIDA'])}</td>
+      <td class="px-4 py-2.5 whitespace-nowrap"><span class="badge" style="color:${alertaRecepcion.color}; background:${alertaRecepcion.bg}">${alertaRecepcion.text}</span></td>
+      <td class="px-4 py-2.5 whitespace-nowrap"><span class="badge" style="color:${estadoEjecucion.color}; background:${estadoEjecucion.bg}">${estadoEjecucion.text}</span></td>
     </tr>`;
   }).join('');
 
@@ -663,7 +865,11 @@ window.addEventListener('resize', () => {
   [chartCampana, chartCumplimiento, chartRegion, chartArticulos].forEach(c => c && c.resize());
   if(mapInstance) mapInstance.invalidateSize();
 });
-document.addEventListener('DOMContentLoaded', fetchData);
+document.addEventListener('DOMContentLoaded', () => {
+  const selResumen = document.getElementById('resumen-agrupar');
+  if(selResumen){ selResumen.onchange = () => renderResumen(getFilteredData()); }
+  fetchData();
+});
 </script>
 </body>
 </html>
