@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -351,14 +351,10 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
       <div>
         <h3 class="text-base font-bold tracking-tight font-display">Ejecución en Punto de Venta (PDV)</h3>
-        <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Importa tu Excel de ejecución cuando quieras: reemplaza automáticamente los datos anteriores. Se cruza con la Regional seleccionada en el mapa de arriba.</p>
+        <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Datos de ejecución sincronizados automáticamente desde Google Sheets. Se cruza con la Regional seleccionada en el mapa de arriba.</p>
       </div>
       <div class="flex items-center gap-3">
-        <span id="ejecucion-status" class="text-xs font-semibold" style="color:var(--text-muted)">Sin datos cargados</span>
-        <input type="file" id="ejecucion-file-input" accept=".xlsx,.xls" class="hidden">
-        <button onclick="document.getElementById('ejecucion-file-input').click()" class="px-4 py-2 text-white text-xs font-bold rounded-xl shadow-sm transition-all hover:opacity-90" style="background:var(--eficacia-blue)">
-          Importar Excel
-        </button>
+        <span id="ejecucion-status" class="text-xs font-semibold" style="color:var(--text-muted)">Sincronizando datos...</span>
       </div>
     </div>
 
@@ -588,6 +584,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
 
 <script>
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxaoUvsTHC_W_yKr2J3VKQCmJO7WOAAK8neewYE4LhGETrUOiy8p3QHsK3w4xYT0JLi/exec';
+const APPS_SCRIPT_PDV_URL='https://script.google.com/macros/s/AKfycbyaGzkHulrZBrYyTzxmeJ-LNeLDxI5JwmS82vbRL0xCJWgwddtBmdFrMjpph-MBO7pMhA/exec';
 
 let RAW_DATA = [];
 let state = { campana:'', region:'', articulo:'', ejecucion:'', codigoArticulo:'', search:'', criticalMode:'' };
@@ -1583,8 +1580,7 @@ class EjecucionPDV {
   }
 
   init(){
-    this.fileInput = document.getElementById('ejecucion-file-input');
-    if(this.fileInput) this.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+    this.loadFromAppsScript();
 
     ['supervisor','lider','ruta','plan'].forEach(key => {
       const el = document.getElementById('ej-filter-' + key);
@@ -1619,39 +1615,81 @@ class EjecucionPDV {
     this.render();
   }
 
-  handleFile(file){
-    if(!file) return;
+  loadFromAppsScript(){
     const statusEl = document.getElementById('ejecucion-status');
-    if(statusEl){ statusEl.textContent = 'Leyendo archivo...'; statusEl.style.color = 'var(--amber)'; }
+    if(statusEl){
+      statusEl.textContent = 'Sincronizando datos...';
+      statusEl.style.color = 'var(--amber)';
+    }
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
+    const callbackName = 'jsonpPDVCallback_' + Date.now();
+    const scriptTag = document.createElement('script');
+    let finished = false;
+
+    const cleanup = () => {
+      try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
+      if(scriptTag.parentNode) scriptTag.parentNode.removeChild(scriptTag);
+    };
+
+    const fail = (message) => {
+      if(finished) return;
+      finished = true;
+      cleanup();
+      if(statusEl){
+        statusEl.textContent = 'Error al sincronizar: ' + message;
+        statusEl.style.color = 'var(--alqueria-red)';
+      }
+    };
+
+    window[callbackName] = (response) => {
+      if(finished) return;
+      finished = true;
+      cleanup();
       try{
-        const workbook = XLSX.read(evt.target.result, { type:'array', cellDates:true });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rawRows = XLSX.utils.sheet_to_json(sheet, { defval:'', raw:false });
-        if(!rawRows.length) throw new Error('El archivo no tiene registros.');
+        if(response && response.error) throw new Error(response.error);
+        const records = response && response.records;
+        if(!Array.isArray(records)) throw new Error('La respuesta de Google Sheets no contiene registros válidos.');
+        if(!records.length) throw new Error('No hay registros de ejecución en Google Sheets.');
 
-        // Reemplaza por completo los datos anteriores con el nuevo Excel.
-        this.data = rawRows.map(row => this._normalizeRow(row));
+        this.data = records.map(row => this._normalizeRemoteRow(row));
         this.allGrouped = this.getGroupedByPDV(this.data);
         this.buildFilterOptions();
         this.resetFilters();
 
         if(statusEl){
-          statusEl.textContent = `${this.data.length.toLocaleString('es-CO')} registros cargados`;
+          statusEl.textContent = `${this.data.length.toLocaleString('es-CO')} registros sincronizados`;
           statusEl.style.color = 'var(--green)';
         }
       }catch(err){
-        if(statusEl){ statusEl.textContent = 'Error al leer el Excel: ' + (err.message||err); statusEl.style.color = 'var(--alqueria-red)'; }
-      }finally{
-        if(this.fileInput) this.fileInput.value = '';
+        if(statusEl){
+          statusEl.textContent = 'Error al procesar datos: ' + (err.message || err);
+          statusEl.style.color = 'var(--alqueria-red)';
+        }
       }
     };
-    reader.onerror = () => {
-      if(statusEl){ statusEl.textContent = 'No se pudo leer el archivo.'; statusEl.style.color = 'var(--alqueria-red)'; }
-    };
-    reader.readAsArrayBuffer(file);
+
+    scriptTag.onerror = () => fail('No se pudo conectar con Google Sheets.');
+    const separator = APPS_SCRIPT_PDV_URL.indexOf('?') === -1 ? '?' : '&';
+    scriptTag.src = APPS_SCRIPT_PDV_URL + separator + 'callback=' + encodeURIComponent(callbackName);
+    document.head.appendChild(scriptTag);
+
+    setTimeout(() => {
+      if(!finished) fail('La solicitud tardó demasiado.');
+    }, 20000);
+  }
+
+  _normalizeRemoteRow(row){
+    const record = {};
+    Object.keys(this.FIELD_MAP).forEach(expectedHeader => {
+      const field = this.FIELD_MAP[expectedHeader];
+      record[field] = String(row?.[field] ?? '').trim();
+    });
+    record.cantidadObjetivo = Number(String(record.cantidadObjetivo).replace(/,/g,'.')) || 0;
+    record.objetivo = Number(String(record.objetivo).replace(/,/g,'.')) || 0;
+    record.cantidadImplementada = Number(String(record.cantidadImplementada).replace(/,/g,'.')) || 0;
+    record.pctImplementacion = Number(String(record.pctImplementacion).replace('%','').replace(',','.')) || 0;
+    record.faltante = Math.max(record.cantidadObjetivo - record.cantidadImplementada, 0);
+    return record;
   }
 
   // Traduce una fila cruda del Excel (con sus encabezados tal cual vienen)
