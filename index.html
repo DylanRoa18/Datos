@@ -1088,7 +1088,14 @@ function fetchData(){
   const callbackName = 'jsonpCallback_' + Date.now();
   function cleanup(scriptTag){
     if(jsonpTimeoutId){ clearTimeout(jsonpTimeoutId); jsonpTimeoutId=null; }
-    delete window[callbackName];
+    // No borramos window[callbackName] de inmediato: quitar el <script> del DOM
+    // no cancela la petición HTTP ya enviada. Si Google Apps Script responde
+    // tarde (después del timeout), su JSONP igual intentará invocar el callback;
+    // si ya no existe, revienta con "ReferenceError: ... is not defined" en consola.
+    // Lo dejamos como no-op y lo eliminamos de verdad más tarde, cuando ya no
+    // puede llegar una respuesta tardía.
+    window[callbackName] = function(){};
+    setTimeout(() => { try { delete window[callbackName]; } catch(e){} }, 30000);
     if(scriptTag && scriptTag.parentNode){ scriptTag.parentNode.removeChild(scriptTag); }
   }
 
@@ -1799,7 +1806,13 @@ class EjecucionPDV {
     let finished = false;
 
     const cleanup = () => {
-      try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
+      // Igual que en fetchData(): no borramos el callback de inmediato porque
+      // quitar el <script> no cancela la petición ya enviada. Si la respuesta
+      // llega tarde, JSONP igual intenta invocar el callback; si ya no existe,
+      // lanza "ReferenceError: ... is not defined" en consola. Lo dejamos como
+      // no-op y lo eliminamos de verdad pasado un margen prudente.
+      window[callbackName] = function(){};
+      setTimeout(() => { try { delete window[callbackName]; } catch(e){} }, 30000);
       if(scriptTag.parentNode) scriptTag.parentNode.removeChild(scriptTag);
     };
 
