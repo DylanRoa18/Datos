@@ -435,7 +435,8 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       </div>
       <div class="flex items-center gap-2">
         <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">PDV / Cliente</span>
-        <input id="ej-filter-pdv" type="text" placeholder="Buscar PDV, cliente o código..." class="text-xs rounded-xl border px-3 py-2 bg-white w-56 font-semibold" style="border-color:var(--border)">
+        <input id="ej-filter-pdv" type="text" list="ej-pdv-datalist" placeholder="Todos (elige o escribe para buscar)..." class="text-xs rounded-xl border px-3 py-2 bg-white w-64 font-semibold" style="border-color:var(--border)" autocomplete="off">
+        <datalist id="ej-pdv-datalist"></datalist>
       </div>
       <button onclick="ejecucionModule.resetFilters()" class="text-xs font-bold px-4 py-2 rounded-xl border ml-auto hover:bg-slate-50 transition-colors" style="border-color:var(--border); color:var(--text-muted)">Limpiar ✕</button>
     </div>
@@ -1081,13 +1082,23 @@ function showError(title, message){
 function hideError(){ document.getElementById('error-box').classList.add('hidden'); }
 
 let jsonpTimeoutId = null;
+let jsonpElapsedIntervalId = null;
 
-function fetchData(){
+function fetchData(isRetry){
   hideError();
-  setStatus('loading','Sincronizando...');
+  const startedAt = Date.now();
+  if(jsonpElapsedIntervalId) clearInterval(jsonpElapsedIntervalId);
+  const updateLoadingLabel = () => {
+    const secs = Math.round((Date.now() - startedAt) / 1000);
+    setStatus('loading', `Sincronizando${isRetry ? ' (2do intento)' : ''}... ${secs}s`);
+  };
+  updateLoadingLabel();
+  jsonpElapsedIntervalId = setInterval(updateLoadingLabel, 1000);
+
   const callbackName = 'jsonpCallback_' + Date.now();
   function cleanup(scriptTag){
     if(jsonpTimeoutId){ clearTimeout(jsonpTimeoutId); jsonpTimeoutId=null; }
+    if(jsonpElapsedIntervalId){ clearInterval(jsonpElapsedIntervalId); jsonpElapsedIntervalId=null; }
     // No borramos window[callbackName] de inmediato: quitar el <script> del DOM
     // no cancela la petición HTTP ya enviada. Si Google Apps Script responde
     // tarde (después del timeout), su JSONP igual intentará invocar el callback;
@@ -1095,7 +1106,7 @@ function fetchData(){
     // Lo dejamos como no-op y lo eliminamos de verdad más tarde, cuando ya no
     // puede llegar una respuesta tardía.
     window[callbackName] = function(){};
-    setTimeout(() => { try { delete window[callbackName]; } catch(e){} }, 30000);
+    setTimeout(() => { try { delete window[callbackName]; } catch(e){} }, 60000);
     if(scriptTag && scriptTag.parentNode){ scriptTag.parentNode.removeChild(scriptTag); }
   }
 
@@ -1128,11 +1139,21 @@ function fetchData(){
     showError('Fallo', 'No se pudo cargar el script.');
   };
 
+  // Google Apps Script suele tardar mucho en su primera ejecución ("cold start"),
+  // sobre todo si lleva rato sin usarse; 15s era muy poco y disparaba el timeout
+  // casi siempre. Subimos a 40s y, si aun así falla, reintentamos una vez de forma
+  // automática: la segunda ejecución del script suele ser mucho más rápida porque
+  // ya no parte de frío.
   jsonpTimeoutId = setTimeout(function(){
     cleanup(scriptTag);
-    setStatus('error','Timeout');
-    showError('Tiempo agotado', 'Sin respuesta en 15s.');
-  }, 15000);
+    if(!isRetry){
+      console.warn('Sincronización sin respuesta en 40s, reintentando automáticamente...');
+      fetchData(true);
+    } else {
+      setStatus('error','Timeout');
+      showError('Tiempo agotado', 'Google Apps Script no respondió tras dos intentos (40s cada uno). Revisa que el despliegue del script tenga acceso "Cualquier usuario" y que no esté haciendo lecturas celda por celda de la hoja (usa getValues() en bloque).');
+    }
+  }, 40000);
 
   document.body.appendChild(scriptTag);
 }
@@ -1794,25 +1815,32 @@ class EjecucionPDV {
     this.render();
   }
 
-  loadFromAppsScript(){
+  loadFromAppsScript(isRetry){
     const statusEl = document.getElementById('ejecucion-status');
-    if(statusEl){
-      statusEl.textContent = 'Sincronizando datos...';
+    const startedAt = Date.now();
+    let elapsedIntervalId = null;
+    const updateLoadingLabel = () => {
+      if(!statusEl) return;
+      const secs = Math.round((Date.now() - startedAt) / 1000);
+      statusEl.textContent = `Sincronizando datos${isRetry ? ' (2do intento)' : ''}... ${secs}s`;
       statusEl.style.color = 'var(--amber)';
-    }
+    };
+    updateLoadingLabel();
+    elapsedIntervalId = setInterval(updateLoadingLabel, 1000);
 
     const callbackName = 'jsonpPDVCallback_' + Date.now();
     const scriptTag = document.createElement('script');
     let finished = false;
 
     const cleanup = () => {
+      if(elapsedIntervalId){ clearInterval(elapsedIntervalId); elapsedIntervalId=null; }
       // Igual que en fetchData(): no borramos el callback de inmediato porque
       // quitar el <script> no cancela la petición ya enviada. Si la respuesta
       // llega tarde, JSONP igual intenta invocar el callback; si ya no existe,
       // lanza "ReferenceError: ... is not defined" en consola. Lo dejamos como
       // no-op y lo eliminamos de verdad pasado un margen prudente.
       window[callbackName] = function(){};
-      setTimeout(() => { try { delete window[callbackName]; } catch(e){} }, 30000);
+      setTimeout(() => { try { delete window[callbackName]; } catch(e){} }, 60000);
       if(scriptTag.parentNode) scriptTag.parentNode.removeChild(scriptTag);
     };
 
@@ -1858,9 +1886,20 @@ class EjecucionPDV {
     scriptTag.src = APPS_SCRIPT_PDV_URL + separator + 'callback=' + encodeURIComponent(callbackName);
     document.head.appendChild(scriptTag);
 
+    // 20s era muy poco para el "cold start" de Apps Script, por eso fallaba casi
+    // siempre. Subimos a 40s y reintentamos una vez automáticamente: la segunda
+    // ejecución del script suele responder mucho más rápido.
     setTimeout(() => {
-      if(!finished) fail('La solicitud tardó demasiado.');
-    }, 20000);
+      if(finished) return;
+      if(!isRetry){
+        console.warn('Sincronización PDV sin respuesta en 40s, reintentando automáticamente...');
+        cleanup();
+        finished = true; // cierra este intento para no disparar fail() más tarde
+        this.loadFromAppsScript(true);
+      } else {
+        fail('Google Apps Script no respondió tras dos intentos (40s cada uno). Revisa que el despliegue del script tenga acceso "Cualquier usuario" y que no esté haciendo lecturas celda por celda de la hoja (usa getValues() en bloque).');
+      }
+    }, 40000);
   }
 
   _normalizeRemoteRow(row){
@@ -1921,6 +1960,17 @@ class EjecucionPDV {
     fill('ej-filter-ruta', unique('ruta'), 'Todas');
     fill('ej-filter-plan', unique('nombrePlan'), 'Todos');
     fill('ej-filter-mercaderista', unique('mercaderista'), 'Todos');
+
+    // Datalist del filtro PDV/Cliente: alimenta el desplegable nativo del
+    // input con todos los PDV disponibles, sin perder la posibilidad de
+    // escribir libremente (el input sigue siendo de texto normal).
+    const pdvList = document.getElementById('ej-pdv-datalist');
+    if(pdvList){
+      pdvList.innerHTML = unique('pdv').map(v => {
+        const safe = String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return `<option value="${safe}"></option>`;
+      }).join('');
+    }
   }
 
   // Filtros propios del módulo + Regional global (state.region), para que
