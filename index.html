@@ -2002,6 +2002,7 @@ class EjecucionPDV {
       const key = (r.codigoCliente || r.pdv) + '|' + r.pdv;
       if(!map[key]){
         map[key] = {
+          pdvKey:key, codigoCliente:r.codigoCliente,
           pdv:r.pdv, razonSocial:r.razonSocial, ruta:r.ruta, regional:r.regional,
           supervisor:r.supervisor, liderEjecucion:r.liderEjecucion, mercaderista:r.mercaderista,
           campanas:new Set(), exhibiciones:new Set(),
@@ -2022,6 +2023,39 @@ class EjecucionPDV {
       row.pct = row.objetivo > 0 ? (row.implementado / row.objetivo * 100) : 0;
       return row;
     }).sort((a,b) => b.faltante - a.faltante);
+  }
+
+  // Igual que getGroupedByPDV, pero sin combinar las campañas entre sí:
+  // agrupa cada fila por PDV + Campaña, para poder mostrar el detalle de
+  // qué falta implementar campaña por campaña (Objetivo/Implementado/
+  // Brecha/Qué quedó implementado/Causal), en vez de un único total por PDV.
+  getGroupedByPDVyCampana(data){
+    const map = {};
+    data.forEach(r => {
+      const pdvKey = (r.codigoCliente || r.pdv) + '|' + r.pdv;
+      const nombreCampana = String(r.nombrePlan || '').trim() || 'Sin campaña asignada';
+      const key = pdvKey + '|' + nombreCampana;
+      if(!map[key]){
+        map[key] = {
+          pdvKey, campana:nombreCampana,
+          objetivo:0, implementado:0,
+          exhibiciones:new Set(), causales:new Set()
+        };
+      }
+      map[key].objetivo += r.cantidadObjetivo;
+      map[key].implementado += r.cantidadImplementada;
+      if(r.tipoExhibicionImplementada) map[key].exhibiciones.add(String(r.tipoExhibicionImplementada).trim());
+      if(r.causal) map[key].causales.add(String(r.causal).trim());
+    });
+    return Object.values(map).map(row => {
+      row.faltante = Math.max(row.objetivo - row.implementado, 0);
+      row.pct = row.objetivo > 0 ? (row.implementado / row.objetivo * 100) : 0;
+      row.tipoExhibicion = [...row.exhibiciones].join(' · ') || 'Sin tipo implementado';
+      row.causal = [...row.causales].join(' · ') || 'Sin causal';
+      delete row.exhibiciones;
+      delete row.causales;
+      return row;
+    });
   }
 
   toggleKpiFilter(filter){
@@ -2308,6 +2342,7 @@ class VistaMercaderista {
 
     const misRegistros = ejecucionModule.data.filter(r => normalizeDeptoName(r.mercaderista) === normalizeDeptoName(this.nombreActual));
     const misPDV = ejecucionModule.getGroupedByPDV(misRegistros);
+    const misCampanas = ejecucionModule.getGroupedByPDVyCampana(misRegistros);
     let completos = misPDV.filter(r => r.faltante === 0);
     let pendientes = misPDV.filter(r => r.faltante > 0).sort((a,b) => b.faltante - a.faltante);
 
@@ -2346,7 +2381,10 @@ class VistaMercaderista {
     const pendEmpty = document.getElementById('mv-pendientes-empty');
     const buscEmpty = document.getElementById('mv-busqueda-empty');
     const totalPendientesSinFiltro = misPDV.filter(r => r.faltante > 0).length;
-    if(pendList) pendList.innerHTML = pendientes.map((r,i) => this.itemTemplate(r, false, i)).join('');
+    if(pendList) pendList.innerHTML = pendientes.map((r,i) => {
+      const campanasPendientes = misCampanas.filter(c => c.pdvKey === r.pdvKey && c.faltante > 0).sort((a,b) => b.faltante - a.faltante);
+      return this.itemTemplate(r, false, i, campanasPendientes);
+    }).join('');
     if(pendEmpty) pendEmpty.classList.toggle('hidden', !(totalPendientesSinFiltro === 0));
     if(buscEmpty) buscEmpty.classList.toggle('hidden', !(totalPendientesSinFiltro > 0 && pendientes.length === 0));
 
@@ -2356,26 +2394,53 @@ class VistaMercaderista {
     if(compEmpty) compEmpty.classList.toggle('hidden', misPDV.filter(r => r.faltante === 0).length > 0);
   }
 
-  itemTemplate(r, esCompleto, indice){
+  itemTemplate(r, esCompleto, indice, campanasPendientes){
     const c = cumplimientoColor(r.pct);
     const esPrioridad = !esCompleto && typeof indice === 'number' && indice < 3;
-    const infoChips = [r.campana, r.tipoExhibicion].filter(v => v && v !== '—');
-    return `<div class="flex items-start justify-between gap-3 p-4 rounded-xl border" style="border-color:${esPrioridad ? 'var(--alqueria-red)' : 'var(--border)'}">
-      <div class="min-w-0">
-        <div class="flex items-center gap-2 flex-wrap">
-          <p class="font-bold text-sm truncate">${r.pdv||'—'}</p>
-          ${esPrioridad ? `<span class="badge" style="color:var(--alqueria-red); background:var(--alqueria-red-bg); font-size:9.5px; padding:2px 8px">PRIORIDAD</span>` : ''}
+    const detalle = (!esCompleto && Array.isArray(campanasPendientes)) ? campanasPendientes : [];
+    return `<div class="p-4 rounded-xl border" style="border-color:${esPrioridad ? 'var(--alqueria-red)' : 'var(--border)'}">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="font-bold text-sm truncate">${r.pdv||'—'}</p>
+            ${esPrioridad ? `<span class="badge" style="color:var(--alqueria-red); background:var(--alqueria-red-bg); font-size:9.5px; padding:2px 8px">PRIORIDAD</span>` : ''}
+          </div>
+          <p class="text-xs truncate mt-0.5" style="color:var(--text-muted)">${r.razonSocial||'—'} · ${r.ruta||'—'}</p>
         </div>
-        <p class="text-xs truncate mt-0.5" style="color:var(--text-muted)">${r.razonSocial||'—'} · ${r.ruta||'—'}</p>
-        ${infoChips.length ? `<p class="text-[11px] truncate mt-1 font-semibold" style="color:var(--eficacia-blue)">${infoChips.join(' · ')}</p>` : ''}
+        <div class="flex items-center gap-3 shrink-0 ml-3">
+          ${esCompleto ? '' : `<div class="text-right">
+            <p class="text-xs font-extrabold" style="color:var(--alqueria-red)">Faltan ${formatNumber(r.faltante)}</p>
+            <p class="text-xs" style="color:var(--text-muted)">${formatNumber(r.implementado)}/${formatNumber(r.objetivo)} un</p>
+          </div>`}
+          <span class="badge" style="color:${c.text}; background:${c.bg}">${r.pct.toFixed(1)}%</span>
+        </div>
       </div>
-      <div class="flex items-center gap-3 shrink-0 ml-3">
-        ${esCompleto ? '' : `<div class="text-right">
-          <p class="text-xs font-extrabold" style="color:var(--alqueria-red)">Faltan ${formatNumber(r.faltante)}</p>
-          <p class="text-xs" style="color:var(--text-muted)">${formatNumber(r.implementado)}/${formatNumber(r.objetivo)} un</p>
-        </div>`}
-        <span class="badge" style="color:${c.text}; background:${c.bg}">${r.pct.toFixed(1)}%</span>
-      </div>
+      ${detalle.length ? `<div class="mt-3 pt-3 space-y-2.5" style="border-top:1px dashed var(--border)">
+        ${detalle.map(camp => `
+          <div class="rounded-lg px-3 py-2.5" style="background:#F8FAFC">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <p class="text-xs font-extrabold" style="color:var(--eficacia-blue)">${camp.campana}</p>
+              <span class="badge" style="color:var(--alqueria-red); background:var(--alqueria-red-bg); font-size:10px; padding:2px 8px">Faltan ${formatNumber(camp.faltante)}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <div>
+                <p class="text-[9.5px] font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Objetivo</p>
+                <p class="text-xs font-bold mt-0.5">${formatNumber(camp.objetivo)}</p>
+              </div>
+              <div>
+                <p class="text-[9.5px] font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Implementado</p>
+                <p class="text-xs font-bold mt-0.5">${formatNumber(camp.implementado)}</p>
+              </div>
+              <div>
+                <p class="text-[9.5px] font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Brecha</p>
+                <p class="text-xs font-bold mt-0.5" style="color:var(--alqueria-red)">${formatNumber(camp.faltante)}</p>
+              </div>
+            </div>
+            <p class="text-[11px] mt-2" style="color:var(--text-muted)">Qué quedó implementado: <span class="font-semibold" style="color:var(--text)">${camp.tipoExhibicion}</span></p>
+            <p class="text-[11px] mt-0.5" style="color:var(--text-muted)">Causal: <span class="font-semibold" style="color:var(--text)">${camp.causal}</span></p>
+          </div>
+        `).join('')}
+      </div>` : (esCompleto ? `<p class="text-[11px] mt-2 font-semibold" style="color:var(--eficacia-blue)">${[r.campana, r.tipoExhibicion].filter(v => v && v !== '—').join(' · ')}</p>` : '')}
     </div>`;
   }
 
