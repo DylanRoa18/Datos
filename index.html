@@ -71,6 +71,63 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
      texto largo (nombre de la pestaña, buscador, etc.) */
   .btn-export{ white-space:nowrap; }
 }
+/* ===================== NAVEGACIÓN APP MÓVIL ===================== */
+.mobile-menu-btn{display:none;width:40px;height:40px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text);align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+.mobile-menu-btn svg{width:19px;height:19px}
+.mobile-nav-overlay{display:none}
+.mobile-nav-close{display:none}
+@media (max-width: 1023px){
+  body{padding-bottom:24px}
+  .mobile-menu-btn{display:inline-flex}
+  header .max-w-7xl{padding-top:9px!important;padding-bottom:9px!important}
+  header .brand-logo{height:22px}
+  header h1{font-size:13px!important;line-height:1.25}
+  header p{font-size:9px!important;line-height:1.25}
+  #connection-status{font-size:9px!important;padding:5px 8px!important}
+  header button[onclick="fetchData()"]{padding:7px 10px!important;font-size:10px!important}
+  #mobile-nav-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(2px);z-index:55}
+  #mobile-nav-overlay.is-open{display:block}
+  #dashboard-sidebar{position:fixed;top:0;right:0;bottom:0;width:min(82vw,320px);z-index:60;transform:translateX(105%);transition:transform .24s ease;padding:12px!important;background:#fff;overflow-y:auto;box-shadow:-16px 0 40px rgba(15,23,42,.18)}
+  #dashboard-sidebar.is-open{transform:translateX(0)}
+  #dashboard-sidebar nav{height:100%;border-radius:18px;box-shadow:none!important}
+  #dashboard-sidebar .sidebar-label{display:block!important}
+  #dashboard-sidebar .sidebar-footer{display:block!important}
+  #dashboard-sidebar .mobile-nav-close{display:flex}
+  #dashboard-sidebar .mobile-nav-close button{width:36px;height:36px;border:1px solid var(--border);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center}
+  #dashboard-sidebar .mobile-nav-close svg{width:18px;height:18px}
+  #dashboard-sidebar .flex.lg\\:flex-col{flex-direction:column!important;flex-wrap:nowrap!important}
+  #dashboard-sidebar .vista-nav-btn{flex:none;width:100%;justify-content:flex-start!important;padding:12px 13px!important;border-radius:12px}
+  #dashboard-sidebar .vista-nav-btn.is-active{padding-left:16px!important}
+  #dashboard-main{width:100%;min-width:0}
+  main.max-w-7xl{padding-left:10px!important;padding-right:10px!important;padding-top:10px!important}
+  main.max-w-7xl>.flex{display:block!important}
+  .card{border-radius:16px}
+  .card.p-6{padding:14px}
+  .card.p-5{padding:13px}
+  .space-y-6>*+*{margin-top:14px!important}
+  .card.px-5.py-4.flex.flex-wrap{display:grid!important;grid-template-columns:1fr!important;gap:9px!important}
+  .card.px-5.py-4.flex.flex-wrap>div{width:100%;min-width:0;display:grid;grid-template-columns:76px 1fr;gap:7px;align-items:center}
+  .card.px-5.py-4.flex.flex-wrap>div select{width:100%;min-width:0}
+  .card.px-5.py-4.flex.flex-wrap>button{width:100%;margin-left:0!important;padding:9px 10px;border-top:1px solid var(--border);margin-top:2px}
+  [id^="chart-"]{max-width:100%;overflow:hidden}
+  #chart-venta-tendencia,#chart-venta-regional,#chart-venta-marca,#chart-part-tendencia,#chart-part-marca,#chart-part-regional,#chart-cob-ruta,#chart-cob-canal,#chart-cob-distribucion,#chart-agot-tendencia,#chart-agot-causal,#chart-agot-estado,#chart-fc-tendencia,#chart-fc-categoria,#chart-dev-tendencia,#chart-dev-motivo,#chart-dev-marca{height:225px!important}
+  #chart-venta-gauge-proyectado,#chart-venta-gauge-real{height:160px!important}
+  #chart-gauge-proyectado-general,#chart-gauge-real-general{height:175px!important}
+  #chart-ej-relacion{min-width:0!important}
+  .ej-relacion-chart-scroll{max-height:360px;overflow:auto!important}
+  .ej-relacion-chart-scroll #chart-ej-relacion{height:360px!important}
+  .mini-kpi,.ej-kpi-card{padding:12px!important;border-radius:14px}
+  .mini-kpi h3,.ej-kpi-card h3{font-size:20px!important}
+  .text-3xl{font-size:1.35rem!important}.text-2xl{font-size:1.15rem!important}.text-lg{font-size:1rem!important}.text-base{font-size:.9rem!important}
+  #vista-mercaderista .grid{gap:10px!important}
+  #vista-mercaderista .mv-mobile-kpi-grid{grid-template-columns:1fr!important}
+  #vista-mercaderista .mv-mobile-kpi{min-height:112px}
+  #vista-mercaderista #mv-select-mercaderista{min-height:44px;font-size:13px}
+  #vista-mercaderista #mv-btn-export{min-height:42px}
+  .overflow-auto,.overflow-x-auto,.ejecucion-table-scroll{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .overflow-auto table,.overflow-x-auto table{min-width:620px}
+}
+
 @media (max-width: 400px){
   .mini-kpi{ padding:12px; }
   .badge{ font-size:10px; padding:3px 8px; }
@@ -273,7 +330,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
   <!-- ===================== SIDEBAR DE NAVEGACIÓN ===================== -->
-  <aside class="w-full lg:w-60 lg:sticky lg:top-[96px] shrink-0 z-20">
+  <aside id="dashboard-sidebar" class="w-full lg:w-60 lg:sticky lg:top-[96px] shrink-0 z-20">
     <nav class="card p-2 lg:p-3">
       <p class="sidebar-label hidden lg:block">Navegación</p>
       <div class="flex lg:flex-col gap-1.5 flex-wrap">
@@ -319,9 +376,10 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       </div>
     </nav>
   </aside>
+  <div id="mobile-nav-overlay" onclick="toggleMobileNav(false)"></div>
 
   <!-- ===================== CONTENIDO ===================== -->
-  <div class="flex-1 min-w-0">
+  <div id="dashboard-main" class="flex-1 min-w-0">
   <div id="vista-general" class="space-y-6">
 
   <div id="error-box" class="hidden text-sm rounded-xl p-4 whitespace-pre-wrap shadow-sm" style="background:var(--rose-bg); color:var(--rose); border:1px solid #FECDD3"></div>
@@ -893,9 +951,28 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         <p id="mv-completados-empty" class="hidden text-sm font-semibold text-center py-6 mt-4" style="color:var(--text-muted)">Aún no tienes PDV completados.</p>
       </div>
 
+      <!-- Resumen visual: salud de mis PDV en Fechas Cortas, Participación
+           y Devoluciones, cruzando por código de cliente con las otras
+           tablas de Supabase. -->
+      <!-- Resumen operativo: tres KPIs de control cruzado -->
+      <div class="card p-6">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold tracking-tight font-display mb-1">Resumen de Control en mis PDV</h3>
+            <p class="text-[11px] font-medium" style="color:var(--text-muted)">Tres indicadores para revisar rápidamente fechas cortas, participación y devoluciones.</p>
+          </div>
+          <span class="badge" style="background:var(--eficacia-blue-bg);color:var(--eficacia-blue)">Control 360°</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mv-mobile-kpi-grid">
+          <div class="mini-kpi mv-mobile-kpi"><div class="flex items-center justify-between"><div><p class="text-xs font-extrabold uppercase tracking-wider">Fechas Cortas</p><p class="text-[10px] mt-0.5" style="color:var(--text-muted)">PDV sin riesgo</p></div><span class="badge" style="background:var(--amber-bg);color:var(--amber)">FC</span></div><div id="mv-gauge-fc" style="height:125px"></div><p id="mv-extra-fc-note" class="text-[10.5px] font-semibold text-center" style="color:var(--text-muted)">0 PDV con riesgo</p></div>
+          <div class="mini-kpi mv-mobile-kpi"><div class="flex items-center justify-between"><div><p class="text-xs font-extrabold uppercase tracking-wider">Participación</p><p class="text-[10px] mt-0.5" style="color:var(--text-muted)">Promedio registrado</p></div><span class="badge" style="background:var(--eficacia-blue-bg);color:var(--eficacia-blue)">%</span></div><div id="mv-gauge-part" style="height:125px"></div><p id="mv-extra-part-note" class="text-[10.5px] font-semibold text-center" style="color:var(--text-muted)">0 visitas con dato</p></div>
+          <div class="mini-kpi mv-mobile-kpi"><div class="flex items-center justify-between"><div><p class="text-xs font-extrabold uppercase tracking-wider">Devoluciones</p><p class="text-[10px] mt-0.5" style="color:var(--text-muted)">PDV sin devolución</p></div><span class="badge" style="background:var(--rose-bg);color:var(--rose)">DEV</span></div><div id="mv-gauge-dev" style="height:125px"></div><p id="mv-extra-dev-note" class="text-[10.5px] font-semibold text-center" style="color:var(--text-muted)">0 PDV con devolución</p></div>
+        </div>
+      </div>
+
       <!-- Complemento: Agotados y Fechas Cortas en mis PDV (tablas Supabase) -->
       <div class="card p-6">
-        <h3 class="text-base font-bold tracking-tight font-display mb-4">Otros Pendientes en mis PDV</h3>
+        <h3 class="text-base font-bold tracking-tight font-display mb-4">Detalle de Hallazgos en mis PDV</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="mini-kpi">
             <div class="flex items-center justify-between mb-1">
@@ -989,14 +1066,6 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Venta Neta vs Cuota por Regional</h3><div id="chart-venta-regional" style="height:280px"></div></div>
       <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Venta Neta por Marca (Top 8)</h3><div id="chart-venta-marca" style="height:280px"></div></div>
-    </div>
-    <div class="card p-6" style="border-left:3px solid var(--eficacia-blue)">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-bold font-display">Cruce: Venta vs Participación por Marca</h3>
-        <button onclick="analiticaComercial.exportVentaCruce()" class="btn-export">⬇ Exportar</button>
-      </div>
-      <p class="text-xs mb-3" style="color:var(--text-muted)">Cada punto es una marca: a la derecha, más venta neta; arriba, más % de participación en la categoría. El tamaño del punto también refleja la venta.</p>
-      <div id="chart-venta-cruce" style="height:400px"></div>
     </div>
     <div class="card p-6">
       <div class="flex items-center justify-between mb-3">
@@ -3189,15 +3258,66 @@ class VistaMercaderista {
   renderExtra(){
     if(!this.nombreActual) return;
     const nombre = normalizeDeptoName(this.nombreActual);
+    const misRegistros = ejecucionModule.data.filter(r => normalizeDeptoName(r.mercaderista) === nombre);
+    const codigosPDV = new Set(misRegistros.map(r => String(r.codigoCliente||r.pdv||'').trim()).filter(Boolean));
+    const totalPDV = codigosPDV.size;
 
-    const misAgotados = (SUPABASE_TABLES.agotados||[]).filter(r => normalizeDeptoName(r.mercaderista) === nombre);
-    const misFechasCortas = (SUPABASE_TABLES.fechasCortas||[]).filter(r => normalizeDeptoName(r.mercaderista) === nombre);
+    // Las tablas analíticas no siempre traen el campo mercaderista.
+    // Por eso el cruce se hace por código de cliente y, como respaldo, PDV.
+    const perteneceAMisPDV = r => {
+      const key = String(r.codigoCliente||r.puntoVenta||'').trim();
+      return key && codigosPDV.has(key);
+    };
+    const misAgotados = (SUPABASE_TABLES.agotados||[]).filter(perteneceAMisPDV);
+    const misFechasCortas = (SUPABASE_TABLES.fechasCortas||[]).filter(perteneceAMisPDV);
+    const misDevoluciones = (SUPABASE_TABLES.devoluciones||[]).filter(perteneceAMisPDV);
+
+    const fcPDV = new Set(misFechasCortas.map(r => String(r.codigoCliente||r.puntoVenta||'').trim()).filter(Boolean));
+    const devPDV = new Set(misDevoluciones.map(r => String(r.codigoCliente||r.puntoVenta||'').trim()).filter(Boolean));
+    const fcPct = totalPDV > 0 ? (totalPDV - fcPDV.size) / totalPDV * 100 : 0;
+    const devPct = totalPDV > 0 ? (totalPDV - devPDV.size) / totalPDV * 100 : 0;
+
+    const misParticipacion = (SUPABASE_TABLES.participacion||[]).filter(r => {
+      const key = String(r.codigoCliente||r.puntoVenta||'').trim();
+      return key && codigosPDV.has(key) && Number(r.pctParticipacion) > 0;
+    });
+    const pctProm = misParticipacion.length
+      ? misParticipacion.reduce((a,r)=>a+Number(r.pctParticipacion||0),0)/misParticipacion.length : 0;
+
+    const renderMvGauge = (id, pct, color) => {
+      const el = document.getElementById(id);
+      if(!el || typeof echarts === 'undefined') return;
+      let chart = echarts.getInstanceByDom(el);
+      if(!chart) chart = echarts.init(el);
+      const safe = Math.min(100, Math.max(0, Number(pct)||0));
+      chart.setOption({
+        series:[{
+          type:'gauge', startAngle:90, endAngle:-270, radius:'88%',
+          pointer:{show:false},
+          progress:{show:true,roundCap:true,overlap:false,itemStyle:{color}},
+          axisLine:{lineStyle:{width:13,color:[[1,'#EEF2F7']]}},
+          splitLine:{show:false},axisTick:{show:false},axisLabel:{show:false},
+          data:[{value:Math.round(safe*10)/10}],
+          detail:{valueAnimation:true,fontSize:22,fontWeight:800,offsetCenter:[0,0],
+            formatter:v=>`${Number(v).toFixed(1)}%`,color:'#1E293B'}
+        }]
+      });
+    };
+    renderMvGauge('mv-gauge-fc', fcPct, '#D97706');
+    renderMvGauge('mv-gauge-part', pctProm, '#0052CC');
+    renderMvGauge('mv-gauge-dev', devPct, '#059669');
+
+    const fcNote = document.getElementById('mv-extra-fc-note');
+    if(fcNote) fcNote.textContent = `${formatNumber(fcPDV.size)} PDV con fechas cortas`;
+    const partNote = document.getElementById('mv-extra-part-note');
+    if(partNote) partNote.textContent = `${formatNumber(misParticipacion.length)} visitas con dato`;
+    const devNote = document.getElementById('mv-extra-dev-note');
+    if(devNote) devNote.textContent = `${formatNumber(devPDV.size)} PDV con devolución`;
 
     const agotCount = document.getElementById('mv-extra-agotados-count');
     const agotList = document.getElementById('mv-extra-agotados-list');
     if(agotCount) agotCount.textContent = formatNumber(misAgotados.length);
     if(agotList){
-      // Lista completa (no solo top 3), con scroll interno en la tarjeta.
       agotList.innerHTML = misAgotados.map(r => `
         <p class="text-[11px] truncate" style="color:var(--text-muted)">• ${r.producto || r.marca || 'Producto'} — ${r.puntoVenta || '—'}</p>
       `).join('') || `<p class="text-[11px]" style="color:var(--text-muted)">Sin agotados registrados.</p>`;
@@ -3213,10 +3333,8 @@ class VistaMercaderista {
       `).join('') || `<p class="text-[11px]" style="color:var(--text-muted)">Sin fechas cortas registradas.</p>`;
     }
 
-    const misParticipacion = (SUPABASE_TABLES.participacion||[]).filter(r => normalizeDeptoName(r.mercaderista) === nombre && r.pctParticipacion > 0);
     const partPctEl = document.getElementById('mv-extra-part-pct');
     const partListEl = document.getElementById('mv-extra-part-list');
-    const pctProm = misParticipacion.length ? misParticipacion.reduce((a,r)=>a+r.pctParticipacion,0)/misParticipacion.length : 0;
     if(partPctEl) partPctEl.textContent = pctProm.toFixed(1)+'%';
     if(partListEl){
       const porMarca = agAvg(misParticipacion, 'marca', 'pctParticipacion');
@@ -3225,7 +3343,6 @@ class VistaMercaderista {
       `).join('') || `<p class="text-[11px]" style="color:var(--text-muted)">Sin visitas de participación registradas.</p>`;
     }
   }
-
   itemTemplate(r, esCompleto, indice, campanasPendientes){
     const c = cumplimientoColor(r.pct);
     const esPrioridad = !esCompleto && typeof indice === 'number' && indice < 3;
@@ -3941,11 +4058,18 @@ class AnaliticaComercial {
       // "0.2%" cuando en realidad son ~20%).
       this._autoScalePercent(SUPABASE_TABLES.venta, ['pctCumplimientoCuota','pctCumplimientoVenta']);
       this._autoScalePercent(SUPABASE_TABLES.cobertura, ['pctPuntosVisitados','pctVisitasRutero','pctEfectividad']);
-      // Participación: confirmado que Supabase siempre guarda esta columna
-      // como fracción (0.1 = 10%), así que se multiplica directo por 100
-      // en vez de auto-detectar (la auto-detección fallaba cuando algún
-      // registro suelto traía un valor ya en escala 0-100).
-      SUPABASE_TABLES.participacion.forEach(r => { r.pctParticipacion = Number(r.pctParticipacion) * 100; });
+      // Normaliza participación y objetivo a una única escala 0–100.
+      // Algunas cargas llegan como fracción (0.25 = 25%) y otras ya como
+      // porcentaje (25 = 25%). Escalamos solo el valor que venga como fracción.
+      SUPABASE_TABLES.participacion.forEach(r => {
+        const normalizarPct = v => {
+          const n = Number(v);
+          if(!isFinite(n)) return 0;
+          return Math.abs(n) <= 1.5 && n !== 0 ? n * 100 : n;
+        };
+        r.pctParticipacion = normalizarPct(r.pctParticipacion);
+        r.objetivoParticipacion = normalizarPct(r.objetivoParticipacion);
+      });
 
       this.loaded = true;
       modules.forEach(key => { const el = statusEl(key); if(el){ el.textContent = 'Sincronizado'; el.style.color = 'var(--green)'; } });
@@ -4069,7 +4193,7 @@ class AnaliticaComercial {
 
   resizeModule(key){
     const idsMap = {
-      venta:['chart-venta-tendencia','chart-venta-regional','chart-venta-marca','chart-venta-cruce','chart-venta-gauge-proyectado','chart-venta-gauge-real'],
+      venta:['chart-venta-tendencia','chart-venta-regional','chart-venta-marca','chart-venta-gauge-proyectado','chart-venta-gauge-real'],
       participacion:['chart-part-tendencia','chart-part-marca','chart-part-regional'],
       cobertura:['chart-cob-donut','chart-cob-ruta','chart-cob-canal','chart-cob-distribucion'],
       agotados:['chart-agot-tendencia','chart-agot-causal','chart-agot-estado'],
@@ -4203,22 +4327,6 @@ class AnaliticaComercial {
         <td class="py-2 text-right font-bold tabular">${currencyFormat(p.venta)}</td>
         <td class="py-2 text-right tabular" style="color:${p.cuota>0 && p.venta/p.cuota*100>=100?'var(--green)':'var(--text-muted)'}">${p.cuota>0 ? (p.venta/p.cuota*100).toFixed(1)+'%' : '—'}</td>
       </tr>`).join('') || emptyRow(4);
-
-    // Dispersión Venta vs Participación: todas las marcas con venta > 0,
-    // cruzadas con su % de participación promedio (si hay dato). El cruce
-    // se hace por nombre NORMALIZADO (sin mayúsculas/acentos/espacios) —
-    // antes comparaba el texto exacto y casi ninguna marca coincidía entre
-    // las dos tablas, por eso solo aparecía una burbuja.
-    const ventaPorMarca = agSum(rows, 'marca', 'ventaNeta').filter(([,v]) => v>0);
-    const partConDato = (SUPABASE_TABLES.participacion||[]).filter(r => r.pctParticipacion > 0);
-    const partPorMarcaRaw = agAvg(partConDato, 'marca', 'pctParticipacion');
-    const partPorMarca = new Map(partPorMarcaRaw.map(([marca, val]) => [normalizeDeptoName(marca), val]));
-    this._cacheVentaCruce = ventaPorMarca.map(([marca, venta]) => {
-      const key = normalizeDeptoName(marca);
-      return { marca, venta, participacion: partPorMarca.has(key) ? partPorMarca.get(key) : null };
-    });
-    const puntosScatter = this._cacheVentaCruce.map(r => ({ marca:r.marca, venta:r.venta, participacion: r.participacion ?? 0 }));
-    renderScatterChart('chart-venta-cruce', puntosScatter);
   }
 
   exportVentaTabla(){
@@ -4226,23 +4334,19 @@ class AnaliticaComercial {
     downloadCSV(`venta_productos_${todayStamp()}.csv`, ['Producto','Marca','Venta Neta','Cuota','% Cumpl. Cuota'],
       rows.map(p => [p.producto, p.marca, p.venta, p.cuota, p.cuota>0 ? (p.venta/p.cuota*100).toFixed(1)+'%' : '']));
   }
-  exportVentaCruce(){
-    const rows = this._cacheVentaCruce || [];
-    downloadCSV(`venta_vs_participacion_${todayStamp()}.csv`, ['Marca','Venta Neta','% Participación'],
-      rows.map(r => [r.marca, r.venta, r.participacion!=null ? r.participacion.toFixed(1)+'%' : 'Sin dato']));
-  }
 
   renderParticipacion(){
     const baseRows = this.getFilteredBase('participacion');
     const rows = this.getFiltered('participacion');
-    const conDato = rows.filter(r => r.pctParticipacion > 0);
-    const pctProm = conDato.length ? conDato.reduce((a,r)=>a+r.pctParticipacion,0)/conDato.length : 0;
-    const vsObjetivo = conDato.length ? conDato.reduce((a,r)=> a + (r.objetivoParticipacion>0 ? r.pctParticipacion/r.objetivoParticipacion*100 : 0), 0) / conDato.length : 0;
-    const carasProm = rows.length ? rows.reduce((a,r)=>a+r.caras,0)/rows.length : 0;
+    const conDato = rows.filter(r => Number(r.pctParticipacion) > 0);
+    const conObjetivo = conDato.filter(r => Number(r.objetivoParticipacion) > 0);
+    const pctProm = conDato.length ? conDato.reduce((a,r)=>a+Number(r.pctParticipacion||0),0)/conDato.length : 0;
+    const vsObjetivo = conObjetivo.length ? conObjetivo.reduce((a,r)=>a+(Number(r.pctParticipacion)/Number(r.objetivoParticipacion)*100),0)/conObjetivo.length : 0;
+    const carasProm = rows.length ? rows.reduce((a,r)=>a+Number(r.caras||0),0)/rows.length : 0;
     const coberturaDato = rows.length ? conDato.length/rows.length*100 : 0;
 
     setTxt('an-part-pct', pctProm.toFixed(1)+'%');
-    setTxt('an-part-pct-note', `sobre ${formatNumber(conDato.length)} visitas con dato`);
+    setTxt('an-part-pct-note', `sobre ${formatNumber(conDato.length)} visitas con dato · ${formatNumber(conObjetivo.length)} con objetivo`);
     setTxt('an-part-objetivo', vsObjetivo.toFixed(1)+'%');
     setTxt('an-part-caras', carasProm.toFixed(1));
     setTxt('an-part-cobertura-dato', coberturaDato.toFixed(1)+'%');
@@ -4603,6 +4707,14 @@ const VISTA_NAV_BTN = {
 };
 const ANALITICA_KEYS = ['venta','participacion','cobertura','agotados','fechasCortas','devoluciones'];
 
+function toggleMobileNav(open){
+  const sidebar=document.getElementById('dashboard-sidebar');
+  const overlay=document.getElementById('mobile-nav-overlay');
+  if(!sidebar||!overlay)return;
+  sidebar.classList.toggle('is-open',!!open);
+  overlay.classList.toggle('is-open',!!open);
+  document.body.style.overflow=open?'hidden':'';
+}
 function setVista(vista){
   VISTA_IDS.forEach(v => {
     const panel = document.getElementById('vista-' + v);
