@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,6 +57,24 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
 .alert-card{ cursor:pointer; }
 .alert-card:hover{ transform:translateY(-2px); box-shadow:0 10px 25px -5px rgba(0,0,0,0.06); }
 .alert-card.is-active{ box-shadow:0 0 0 2px var(--alqueria-red) inset; background:var(--alqueria-red-bg); }
+
+.subtab-btn{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:8px 14px; border-radius:11px;
+  font-size:12.5px; font-weight:700; color:var(--text-muted);
+  background:#F8FAFC; border:1px solid var(--border);
+  white-space:nowrap; transition: all .15s ease;
+}
+.subtab-btn svg{ width:14px; height:14px; stroke:currentColor; flex-shrink:0; }
+.subtab-btn:hover{ background:#F1F5F9; color:var(--text); }
+.subtab-btn.is-active{ background:var(--eficacia-blue); border-color:var(--eficacia-blue); color:#fff; }
+.mini-kpi{ background:#F8FAFC; border:1px solid var(--border); border-radius:14px; padding:14px 16px; }
+
+.leaderboard-item{ display:flex; align-items:center; gap:10px; padding:7px 0; }
+.leaderboard-rank{ width:24px; height:24px; border-radius:9999px; background:var(--eficacia-blue-bg); color:var(--eficacia-blue); font-size:10.5px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.leaderboard-track{ flex:1; height:9px; border-radius:9999px; background:#F1F5F9; overflow:hidden; }
+.leaderboard-fill{ height:100%; border-radius:9999px; transition:width .3s ease; }
+.leaderboard-value{ font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:9999px; background:#F8FAFC; border:1px solid var(--border); flex-shrink:0; min-width:42px; text-align:center; }
 
 .sidebar-label{
   font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em;
@@ -236,6 +255,33 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
           <span>Vista Mercaderista</span>
         </button>
       </div>
+      <p class="sidebar-label hidden lg:block" style="margin-top:10px">Analítica Comercial</p>
+      <div class="flex lg:flex-col gap-1.5 flex-wrap">
+        <button id="nav-btn-venta" onclick="setVista('venta')" class="vista-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 15l4-6 3 4 5-8"></path></svg>
+          <span>Venta</span>
+        </button>
+        <button id="nav-btn-participacion" onclick="setVista('participacion')" class="vista-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v9l6 3"></path></svg>
+          <span>Participación</span>
+        </button>
+        <button id="nav-btn-cobertura" onclick="setVista('cobertura')" class="vista-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"></path><path d="M15 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path><path d="M9 12h6"></path></svg>
+          <span>Cobertura</span>
+        </button>
+        <button id="nav-btn-agotados" onclick="setVista('agotados')" class="vista-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+          <span>Agotados</span>
+        </button>
+        <button id="nav-btn-fechascortas" onclick="setVista('fechasCortas')" class="vista-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
+          <span>Fechas Cortas</span>
+        </button>
+        <button id="nav-btn-devoluciones" onclick="setVista('devoluciones')" class="vista-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>
+          <span>Devoluciones</span>
+        </button>
+      </div>
       <div class="sidebar-footer hidden lg:block">
         <p class="text-[11px] font-bold" style="color:var(--text)">Alquería & Eficacia</p>
         <p class="text-[10.5px] mt-0.5 font-medium" style="color:var(--text-muted)">Panel operativo POP</p>
@@ -339,6 +385,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       </div>
       <h3 id="kpi-cumplimiento" class="text-3xl font-extrabold tracking-tight tabular font-display">0%</h3>
       <p id="kpi-cumplimiento-note" class="text-xs font-bold mt-1"></p>
+      <p id="kpi-cumplimiento-proyectado" class="text-[10.5px] font-semibold mt-1 pt-1 border-t" style="border-color:var(--border); color:var(--text-muted)"></p>
     </div>
   </section>
 
@@ -480,6 +527,33 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       </div>
       <div class="ej-relacion-chart-scroll"><div id="chart-ej-relacion" class="w-full"></div></div>
       <p id="insight-ej-relacion" class="text-xs mt-4 pt-3 border-t font-medium" style="border-color:var(--border); color:var(--text-muted)"></p>
+    </div>
+
+    <!-- Seguimiento y Cobertura: rankings con barra de progreso -->
+    <div class="mb-6">
+      <h3 class="text-xs font-extrabold tracking-wider uppercase mb-3" style="color:var(--text-muted)">Seguimiento y Cobertura</h3>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-5">
+          <h4 class="text-sm font-bold font-display">Cumplimiento por Regional</h4>
+          <p class="text-[11px] mb-2" style="color:var(--text-muted)">Regional con mejor y peor comportamiento visible.</p>
+          <div id="ej-leaderboard-regional"></div>
+        </div>
+        <div class="card p-5">
+          <h4 class="text-sm font-bold font-display">Cumplimiento por Supervisor</h4>
+          <p class="text-[11px] mb-2" style="color:var(--text-muted)">Avance de implementación por supervisor.</p>
+          <div id="ej-leaderboard-supervisor-cumplimiento"></div>
+        </div>
+        <div class="card p-5">
+          <h4 class="text-sm font-bold font-display">Rutas con más PDV</h4>
+          <p class="text-[11px] mb-2" style="color:var(--text-muted)">Prioriza las rutas con mayor cobertura operativa.</p>
+          <div id="ej-leaderboard-rutas"></div>
+        </div>
+        <div class="card p-5">
+          <h4 class="text-sm font-bold font-display">Carga por Supervisor</h4>
+          <p class="text-[11px] mb-2" style="color:var(--text-muted)">PDV únicos asociados a cada supervisor.</p>
+          <div id="ej-leaderboard-carga"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Tabla resumen por PDV -->
@@ -702,6 +776,27 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         </div>
       </div>
 
+      <!-- Segunda fila de KPIs: Rutas, Registros, Campañas -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Rutas</span><h3 id="mv-kpi-rutas" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3><p class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">rutas relacionadas</p></div>
+        <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Registros</span><h3 id="mv-kpi-registros" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3><p class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">filas de ejecución</p></div>
+        <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Campañas</span><h3 id="mv-kpi-campanas" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3><p class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">campañas distintas</p></div>
+      </div>
+
+      <!-- Distribución de cumplimiento -->
+      <div class="card p-6">
+        <h3 class="text-sm font-bold font-display">Distribución de Cumplimiento</h3>
+        <p class="text-[11px] mb-3" style="color:var(--text-muted)">Composición de registros (columna Cumple Implementación) de la selección actual.</p>
+        <div class="flex items-center gap-6">
+          <div id="mv-donut-cumple" class="w-32 h-32 shrink-0"></div>
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center justify-between text-xs"><span class="font-semibold" style="color:var(--green)">SI</span><span id="mv-cumple-si" class="font-bold tabular">0</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="font-semibold" style="color:var(--alqueria-red)">NO</span><span id="mv-cumple-no" class="font-bold tabular">0</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="font-semibold" style="color:var(--text-muted)">Sin dato</span><span id="mv-cumple-sindato" class="font-bold tabular">0</span></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Pendientes -->
       <div class="card p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
@@ -742,9 +837,480 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         <p id="mv-completados-empty" class="hidden text-sm font-semibold text-center py-6 mt-4" style="color:var(--text-muted)">Aún no tienes PDV completados.</p>
       </div>
 
+      <!-- Complemento: Agotados y Fechas Cortas en mis PDV (tablas Supabase) -->
+      <div class="card p-6">
+        <h3 class="text-base font-bold tracking-tight font-display mb-4">Otros Pendientes en mis PDV</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="mini-kpi">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Agotados Activos</span>
+              <span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:var(--alqueria-red-bg); color:var(--alqueria-red)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+              </span>
+            </div>
+            <h3 id="mv-extra-agotados-count" class="text-2xl font-extrabold tracking-tight tabular font-display" style="color:var(--alqueria-red)">0</h3>
+            <div id="mv-extra-agotados-list" class="mt-2 space-y-1 max-h-40 overflow-y-auto pr-1"></div>
+          </div>
+          <div class="mini-kpi">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Fechas Cortas por Vencer</span>
+              <span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:var(--amber-bg); color:var(--amber)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
+              </span>
+            </div>
+            <h3 id="mv-extra-fc-count" class="text-2xl font-extrabold tracking-tight tabular font-display" style="color:var(--amber)">0</h3>
+            <div id="mv-extra-fc-list" class="mt-2 space-y-1 max-h-40 overflow-y-auto pr-1"></div>
+          </div>
+          <div class="mini-kpi">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Mi % Participación</span>
+              <span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:var(--eficacia-blue-bg); color:var(--eficacia-blue)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v9l6 3"></path></svg>
+              </span>
+            </div>
+            <h3 id="mv-extra-part-pct" class="text-2xl font-extrabold tracking-tight tabular font-display" style="color:var(--eficacia-blue)">0%</h3>
+            <div id="mv-extra-part-list" class="mt-2 space-y-1 max-h-40 overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
   <!-- ===================== FIN VISTA MERCADERISTA ===================== -->
+
+  <!-- ===================== VISTA ANALÍTICA COMERCIAL (SUPABASE) ===================== -->
+  <!-- ===================== VISTA: VENTA ===================== -->
+  <div id="vista-venta" class="hidden space-y-6">
+    <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Regional</span><select id="f-venta-regional" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Cadena</span><select id="f-venta-cadena" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Segmento</span><select id="f-venta-segmento" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Marca</span><select id="f-venta-marca" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <button onclick="analiticaComercial.resetFilters('venta')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
+    </div>
+    <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
+      <div><h2 class="text-lg font-extrabold tracking-tight font-display">Venta</h2></div>
+      <span id="an-venta-status" class="text-xs font-bold" style="color:var(--text-muted)"></span>
+    </div>
+    <div>
+      <h3 class="text-xs font-extrabold tracking-wider uppercase mb-3" style="color:var(--text-muted)">Alertas de Venta</h3>
+      <div id="an-venta-alertas" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Venta Neta</span><h3 id="an-venta-neta" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">$0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Venta en Kilos</span><h3 id="an-venta-kilos" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">% Cumpl. Cuota ($)</span><h3 id="an-venta-cumplimiento" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--eficacia-blue)">0%</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">% Cumpl. Cuota (Kg)</span><h3 id="an-venta-cumplimiento-kg" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--accent-purple)">0%</h3></div>
+    </div>
+
+    <!-- Proyectado a la fecha: qué tanto se debería haber vendido según los
+         días transcurridos del mes, neto de devoluciones -->
+    <div class="card p-6">
+      <div class="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h3 class="text-sm font-bold font-display">Proyectado a la Fecha (Neto: Venta − Devoluciones)</h3>
+          <p id="an-venta-proyectado-detalle" class="text-xs mt-1" style="color:var(--text-muted)"></p>
+        </div>
+        <span id="an-venta-proyectado-badge" class="badge" style="color:var(--text-muted); background:#F1F5F9">—</span>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mt-4">
+        <div>
+          <p class="text-[10.5px] font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Proyectado a Hoy</p>
+          <h3 id="an-venta-proyectado-valor" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">$0</h3>
+        </div>
+        <div>
+          <p class="text-[10.5px] font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Neto Real (Venta − Devoluciones)</p>
+          <h3 id="an-venta-neto-real" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">$0</h3>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <div id="chart-venta-gauge-proyectado" style="height:190px"></div>
+        <div id="chart-venta-gauge-real" style="height:190px"></div>
+      </div>
+    </div>
+
+    <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Evolución de Venta Neta vs Cuota por Mes</h3><div id="chart-venta-tendencia" style="height:280px"></div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Venta Neta vs Cuota por Regional</h3><div id="chart-venta-regional" style="height:280px"></div></div>
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Venta Neta por Marca (Top 8)</h3><div id="chart-venta-marca" style="height:280px"></div></div>
+    </div>
+    <div class="card p-6" style="border-left:3px solid var(--eficacia-blue)">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold font-display">Cruce: Venta vs Participación por Marca</h3>
+        <button onclick="analiticaComercial.exportVentaCruce()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <p class="text-xs mb-3" style="color:var(--text-muted)">Cada punto es una marca: a la derecha, más venta neta; arriba, más % de participación en la categoría. El tamaño del punto también refleja la venta.</p>
+      <div id="chart-venta-cruce" style="height:320px"></div>
+    </div>
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold font-display">Detalle: Top 8 Productos por Venta Neta</h3>
+        <button onclick="analiticaComercial.exportVentaTabla()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-left" style="color:var(--text-muted)"><th class="pb-2 font-bold uppercase tracking-wider">Producto</th><th class="pb-2 font-bold uppercase tracking-wider">Marca</th><th class="pb-2 font-bold uppercase tracking-wider text-right">Venta Neta</th><th class="pb-2 font-bold uppercase tracking-wider text-right">% Cumpl. Cuota</th></tr></thead><tbody id="an-venta-tabla"></tbody></table></div>
+    </div>
+
+    <!-- Detalle completo, buscable y exportable -->
+    <div class="card p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold tracking-tight font-display">Detalle Completo de Venta</h3>
+          <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Todos los registros de la tabla "venta" según los filtros activos.</p>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <input id="an-venta-full-search" type="text" placeholder="Buscar producto, marca, regional..." oninput="analiticaComercial.onFullSearch('venta', this.value)" class="text-xs rounded-xl border px-3.5 py-2 w-full sm:w-72 font-semibold" style="border-color:var(--border)">
+          <button onclick="analiticaComercial.exportFullTable('venta')" class="btn-export">⬇ Exportar</button>
+        </div>
+      </div>
+      <div class="overflow-auto rounded-2xl border shadow-xs" style="border-color:var(--border); max-height:480px">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10" style="background:var(--eficacia-blue-bg)">
+            <tr class="text-left font-bold" style="color:var(--eficacia-blue)">
+              <th class="px-3 py-3">Producto</th><th class="px-3 py-3">Marca</th><th class="px-3 py-3">Regional</th><th class="px-3 py-3">Cadena</th>
+              <th class="px-3 py-3 text-right">Venta Neta</th><th class="px-3 py-3 text-right">Cuota</th><th class="px-3 py-3 text-right">% Cumpl.</th>
+            </tr>
+          </thead>
+          <tbody id="an-venta-full-tbody"></tbody>
+        </table>
+      </div>
+      <p id="an-venta-full-count" class="text-xs mt-3 font-semibold" style="color:var(--text-muted)"></p>
+    </div>
+  </div>
+
+  <!-- ===================== VISTA: PARTICIPACIÓN ===================== -->
+  <div id="vista-participacion" class="hidden space-y-6">
+    <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Regional</span><select id="f-participacion-regional" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Canal</span><select id="f-participacion-canal" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Categoría</span><select id="f-participacion-categoria" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Marca</span><select id="f-participacion-marca" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <button onclick="analiticaComercial.resetFilters('participacion')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
+    </div>
+    <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
+      <div><h2 class="text-lg font-extrabold tracking-tight font-display">Participación</h2></div>
+      <span id="an-participacion-status" class="text-xs font-bold" style="color:var(--text-muted)"></span>
+    </div>
+    <div>
+      <h3 class="text-xs font-extrabold tracking-wider uppercase mb-3" style="color:var(--text-muted)">Alertas de Participación</h3>
+      <div id="an-participacion-alertas" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">% Participación Promedio</span><h3 id="an-part-pct" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--eficacia-blue)">0%</h3><p id="an-part-pct-note" class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)"></p></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">% vs Objetivo Promedio</span><h3 id="an-part-objetivo" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0%</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Caras Promedio / Visita</span><h3 id="an-part-caras" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Visitas con Dato Registrado</span><h3 id="an-part-cobertura-dato" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--amber)">0%</h3></div>
+    </div>
+    <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Evolución de % Participación por Mes</h3><div id="chart-part-tendencia" style="height:280px"></div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">% Participación por Marca (todas)</h3><div id="chart-part-marca" style="height:280px"></div></div>
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">% Participación por Regional</h3><div id="chart-part-regional" style="height:280px"></div></div>
+    </div>
+    <div class="card p-6" style="border-left:3px solid var(--eficacia-blue)">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold font-display">Cruce: Cobertura vs Participación por Regional</h3>
+        <button onclick="analiticaComercial.exportParticipacionCruce()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <p class="text-xs mb-3" style="color:var(--text-muted)">¿Las regionales con mejor cobertura de visitas logran mejor participación? (tabla "cobertura").</p>
+      <div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-left" style="color:var(--text-muted)"><th class="pb-2 font-bold uppercase tracking-wider">Regional</th><th class="pb-2 font-bold uppercase tracking-wider text-right">% Cobertura</th><th class="pb-2 font-bold uppercase tracking-wider text-right">% Participación</th></tr></thead><tbody id="an-part-cruce"></tbody></table></div>
+    </div>
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold font-display">Detalle: PDV con Mejor Participación (Top 8)</h3>
+        <button onclick="analiticaComercial.exportParticipacionTabla()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-left" style="color:var(--text-muted)"><th class="pb-2 font-bold uppercase tracking-wider">PDV</th><th class="pb-2 font-bold uppercase tracking-wider">Marca</th><th class="pb-2 font-bold uppercase tracking-wider text-right">% Participación</th></tr></thead><tbody id="an-part-tabla"></tbody></table></div>
+    </div>
+
+    <!-- Detalle completo, buscable y exportable -->
+    <div class="card p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold tracking-tight font-display">Detalle Completo de Participación</h3>
+          <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Todos los registros de la tabla "participacion" según los filtros activos.</p>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <input id="an-participacion-full-search" type="text" placeholder="Buscar PDV, marca, categoría..." oninput="analiticaComercial.onFullSearch('participacion', this.value)" class="text-xs rounded-xl border px-3.5 py-2 w-full sm:w-72 font-semibold" style="border-color:var(--border)">
+          <button onclick="analiticaComercial.exportFullTable('participacion')" class="btn-export">⬇ Exportar</button>
+        </div>
+      </div>
+      <div class="overflow-auto rounded-2xl border shadow-xs" style="border-color:var(--border); max-height:480px">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10" style="background:var(--eficacia-blue-bg)">
+            <tr class="text-left font-bold" style="color:var(--eficacia-blue)">
+              <th class="px-3 py-3">PDV</th><th class="px-3 py-3">Marca</th><th class="px-3 py-3">Categoría</th><th class="px-3 py-3">Regional</th><th class="px-3 py-3">Canal</th>
+              <th class="px-3 py-3 text-right">% Participación</th><th class="px-3 py-3 text-right">Caras</th>
+            </tr>
+          </thead>
+          <tbody id="an-participacion-full-tbody"></tbody>
+        </table>
+      </div>
+      <p id="an-participacion-full-count" class="text-xs mt-3 font-semibold" style="color:var(--text-muted)"></p>
+    </div>
+  </div>
+
+  <!-- ===================== VISTA: COBERTURA ===================== -->
+  <div id="vista-cobertura" class="hidden space-y-6">
+    <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Regional</span><select id="f-cobertura-regional" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Canal</span><select id="f-cobertura-canal" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Tipología</span><select id="f-cobertura-tipologia" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Supervisor</span><select id="f-cobertura-supervisor" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <button onclick="analiticaComercial.resetFilters('cobertura')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
+    </div>
+    <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
+      <div><h2 class="text-lg font-extrabold tracking-tight font-display">Cobertura</h2></div>
+      <span id="an-cobertura-status" class="text-xs font-bold" style="color:var(--text-muted)"></span>
+    </div>
+    <div>
+      <h3 class="text-xs font-extrabold tracking-wider uppercase mb-3" style="color:var(--text-muted)">Alertas de Cobertura</h3>
+      <div id="an-cobertura-alertas" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">PDV Programados</span><h3 id="an-cob-programados" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">PDV Visitados</span><h3 id="an-cob-visitados" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--green)">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">% Cobertura Promedio</span><h3 id="an-cob-pct" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--eficacia-blue)">0%</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">% Efectividad Extra Ruta</span><h3 id="an-cob-efectividad" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--accent-purple)">0%</h3></div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-4 card p-6 flex flex-col items-center justify-center">
+        <span class="text-xs font-extrabold uppercase tracking-wider mb-2" style="color:var(--text-muted)">Cobertura Global</span>
+        <div id="chart-cob-donut" class="w-36 h-36"></div>
+      </div>
+      <div class="lg:col-span-8 card p-6"><h3 class="text-sm font-bold mb-3 font-display">% Cobertura por Ruta (Top 25, más altas primero)</h3><div id="chart-cob-ruta" style="height:280px"></div></div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">PDV Programados vs Visitados por Canal</h3><div id="chart-cob-canal" style="height:280px"></div></div>
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Distribución de Rutas por Rango de Cobertura</h3><div id="chart-cob-distribucion" style="height:280px"></div></div>
+    </div>
+    <div class="card p-6" style="border-left:3px solid var(--eficacia-blue)">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold font-display">Cruce: Cobertura vs Participación por Regional</h3>
+        <button onclick="analiticaComercial.exportCoberturaCruce()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <p class="text-xs mb-3" style="color:var(--text-muted)">Mismo cruce disponible en la vista de Participación, para verlo desde el lado de cobertura.</p>
+      <div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-left" style="color:var(--text-muted)"><th class="pb-2 font-bold uppercase tracking-wider">Regional</th><th class="pb-2 font-bold uppercase tracking-wider text-right">% Cobertura</th><th class="pb-2 font-bold uppercase tracking-wider text-right">% Participación</th></tr></thead><tbody id="an-cob-cruce"></tbody></table></div>
+    </div>
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold font-display">Detalle: Rutas con Mejor Cobertura (Top 8)</h3>
+        <button onclick="analiticaComercial.exportCoberturaTabla()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-left" style="color:var(--text-muted)"><th class="pb-2 font-bold uppercase tracking-wider">Ruta</th><th class="pb-2 font-bold uppercase tracking-wider">Supervisor</th><th class="pb-2 font-bold uppercase tracking-wider text-right">Programados</th><th class="pb-2 font-bold uppercase tracking-wider text-right">Visitados</th><th class="pb-2 font-bold uppercase tracking-wider text-right">% Cobertura</th></tr></thead><tbody id="an-cob-tabla"></tbody></table></div>
+    </div>
+
+    <!-- Detalle completo, buscable y exportable -->
+    <div class="card p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold tracking-tight font-display">Detalle Completo de Cobertura</h3>
+          <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Todos los registros de la tabla "cobertura" según los filtros activos.</p>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <input id="an-cobertura-full-search" type="text" placeholder="Buscar ruta, regional, supervisor..." oninput="analiticaComercial.onFullSearch('cobertura', this.value)" class="text-xs rounded-xl border px-3.5 py-2 w-full sm:w-72 font-semibold" style="border-color:var(--border)">
+          <button onclick="analiticaComercial.exportFullTable('cobertura')" class="btn-export">⬇ Exportar</button>
+        </div>
+      </div>
+      <div class="overflow-auto rounded-2xl border shadow-xs" style="border-color:var(--border); max-height:480px">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10" style="background:var(--eficacia-blue-bg)">
+            <tr class="text-left font-bold" style="color:var(--eficacia-blue)">
+              <th class="px-3 py-3">Ruta</th><th class="px-3 py-3">Regional</th><th class="px-3 py-3">Canal</th><th class="px-3 py-3">Supervisor</th>
+              <th class="px-3 py-3 text-right">Programados</th><th class="px-3 py-3 text-right">Visitados</th><th class="px-3 py-3 text-right">% Cobertura</th>
+            </tr>
+          </thead>
+          <tbody id="an-cobertura-full-tbody"></tbody>
+        </table>
+      </div>
+      <p id="an-cobertura-full-count" class="text-xs mt-3 font-semibold" style="color:var(--text-muted)"></p>
+    </div>
+  </div>
+
+  <!-- ===================== VISTA: AGOTADOS ===================== -->
+  <div id="vista-agotados" class="hidden space-y-6">
+    <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Regional</span><select id="f-agotados-regional" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Canal</span><select id="f-agotados-canal" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Categoría</span><select id="f-agotados-categoria" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Estado</span><select id="f-agotados-estadoAgotado" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <button onclick="analiticaComercial.resetFilters('agotados')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
+    </div>
+    <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
+      <div><h2 class="text-lg font-extrabold tracking-tight font-display">Agotados</h2></div>
+      <span id="an-agotados-status" class="text-xs font-bold" style="color:var(--text-muted)"></span>
+    </div>
+    <div>
+      <h3 class="text-xs font-extrabold tracking-wider uppercase mb-3" style="color:var(--text-muted)">Alertas de Agotados</h3>
+      <div id="an-agotados-alertas" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Total Agotados</span><h3 id="an-agot-total" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--alqueria-red)">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">PDV Afectados</span><h3 id="an-agot-pdv" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Causal Más Frecuente</span><h3 id="an-agot-top-causal" class="text-lg font-extrabold tracking-tight font-display mt-1">—</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">PDV con Riesgo Doble</span><h3 id="an-agot-doble-riesgo" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--amber)">0</h3><p class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">También en Fechas Cortas</p></div>
+    </div>
+    <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Evolución de Agotados por Mes</h3><div id="chart-agot-tendencia" style="height:280px"></div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Agotados por Causal (todas)</h3><div id="chart-agot-causal" style="height:280px"></div></div>
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Agotados por Estado</h3><div id="chart-agot-estado" style="height:280px"></div></div>
+    </div>
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold font-display">Detalle: Marcas con Más Agotados</h3>
+        <button onclick="analiticaComercial.exportAgotadosTabla()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-left" style="color:var(--text-muted)"><th class="pb-2 font-bold uppercase tracking-wider">Marca</th><th class="pb-2 font-bold uppercase tracking-wider text-right">Casos</th></tr></thead><tbody id="an-agot-tabla"></tbody></table></div>
+    </div>
+
+    <!-- Detalle completo, buscable y exportable -->
+    <div class="card p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold tracking-tight font-display">Detalle Completo de Agotados</h3>
+          <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Todos los registros de la tabla "agotados" según los filtros activos.</p>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <input id="an-agotados-full-search" type="text" placeholder="Buscar producto, marca, PDV, causal..." oninput="analiticaComercial.onFullSearch('agotados', this.value)" class="text-xs rounded-xl border px-3.5 py-2 w-full sm:w-72 font-semibold" style="border-color:var(--border)">
+          <button onclick="analiticaComercial.exportFullTable('agotados')" class="btn-export">⬇ Exportar</button>
+        </div>
+      </div>
+      <div class="overflow-auto rounded-2xl border shadow-xs" style="border-color:var(--border); max-height:480px">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10" style="background:var(--eficacia-blue-bg)">
+            <tr class="text-left font-bold" style="color:var(--eficacia-blue)">
+              <th class="px-3 py-3">Producto</th><th class="px-3 py-3">Marca</th><th class="px-3 py-3">PDV</th><th class="px-3 py-3">Causal</th>
+              <th class="px-3 py-3">Estado</th><th class="px-3 py-3">Regional</th><th class="px-3 py-3 whitespace-nowrap">Fecha Captura</th>
+            </tr>
+          </thead>
+          <tbody id="an-agotados-full-tbody"></tbody>
+        </table>
+      </div>
+      <p id="an-agotados-full-count" class="text-xs mt-3 font-semibold" style="color:var(--text-muted)"></p>
+    </div>
+  </div>
+
+  <!-- ===================== VISTA: FECHAS CORTAS ===================== -->
+  <div id="vista-fechasCortas" class="hidden space-y-6">
+    <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Regional</span><select id="f-fechasCortas-regional" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Canal</span><select id="f-fechasCortas-canal" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Categoría</span><select id="f-fechasCortas-categoria" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Política</span><select id="f-fechasCortas-politica" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <button onclick="analiticaComercial.resetFilters('fechasCortas')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
+    </div>
+    <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
+      <div><h2 class="text-lg font-extrabold tracking-tight font-display">Fechas Cortas</h2></div>
+      <span id="an-fechasCortas-status" class="text-xs font-bold" style="color:var(--text-muted)"></span>
+    </div>
+    <div>
+      <h3 class="text-xs font-extrabold tracking-wider uppercase mb-3" style="color:var(--text-muted)">Alertas de Fechas Cortas</h3>
+      <div id="an-fechasCortas-alertas" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Unidades en Riesgo</span><h3 id="an-fc-unidades" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--amber)">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Valor Monetario en Riesgo</span><h3 id="an-fc-valor" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--alqueria-red)">$0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">PDV Afectados</span><h3 id="an-fc-pdv" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Días Promedio Restantes</span><h3 id="an-fc-dias-prom" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3></div>
+    </div>
+    <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Evolución de Valor en Riesgo por Mes</h3><div id="chart-fc-tendencia" style="height:280px"></div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Valor en Riesgo por Categoría (todas)</h3><div id="chart-fc-categoria" style="height:280px"></div></div>
+      <div class="card p-6">
+        <h3 class="text-sm font-bold mb-3 font-display">Más Urgentes (menos días de vida útil)</h3>
+        <div id="fc-urgentes-list" class="space-y-2"></div>
+      </div>
+    </div>
+    <div class="card p-6" style="border-left:3px solid var(--amber)">
+      <h3 class="text-sm font-bold mb-3 font-display">Cruce: PDV con Riesgo Doble</h3>
+      <p class="text-xs mb-3" style="color:var(--text-muted)">Puntos de venta que aparecen tanto en Fechas Cortas como en Agotados — prioridad de visita.</p>
+      <div id="fc-doble-riesgo-list" class="space-y-2"></div>
+    </div>
+    <div class="card p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold tracking-tight font-display">Detalle Completo de Fechas Cortas</h3>
+          <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Todos los registros de la tabla "fechas_cortas" según los filtros activos.</p>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <input id="an-fechasCortas-full-search" type="text" placeholder="Buscar producto, PDV, categoría..." oninput="analiticaComercial.onFullSearch('fechasCortas', this.value)" class="text-xs rounded-xl border px-3.5 py-2 w-full sm:w-72 font-semibold" style="border-color:var(--border)">
+          <button onclick="analiticaComercial.exportFullTable('fechasCortas')" class="btn-export">⬇ Exportar</button>
+        </div>
+      </div>
+      <div class="overflow-auto rounded-2xl border shadow-xs" style="border-color:var(--border); max-height:480px">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10" style="background:var(--eficacia-blue-bg)">
+            <tr class="text-left font-bold" style="color:var(--eficacia-blue)">
+              <th class="px-3 py-3">Producto</th><th class="px-3 py-3">PDV</th><th class="px-3 py-3">Categoría</th>
+              <th class="px-3 py-3 text-right">Unidades</th><th class="px-3 py-3 text-right">Valor</th><th class="px-3 py-3 text-right">Días Vida Útil</th><th class="px-3 py-3">Política</th>
+            </tr>
+          </thead>
+          <tbody id="an-fechasCortas-full-tbody"></tbody>
+        </table>
+      </div>
+      <p id="an-fechasCortas-full-count" class="text-xs mt-3 font-semibold" style="color:var(--text-muted)"></p>
+    </div>
+  </div>
+
+  <!-- ===================== VISTA: DEVOLUCIONES ===================== -->
+  <div id="vista-devoluciones" class="hidden space-y-6">
+    <div class="card px-5 py-4 flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Regional</span><select id="f-devoluciones-regional" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Cadena</span><select id="f-devoluciones-cadena" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Marca</span><select id="f-devoluciones-marca" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <button onclick="analiticaComercial.resetFilters('devoluciones')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
+    </div>
+    <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
+      <div><h2 class="text-lg font-extrabold tracking-tight font-display">Devoluciones</h2></div>
+      <span id="an-devoluciones-status" class="text-xs font-bold" style="color:var(--text-muted)"></span>
+    </div>
+    <div>
+      <h3 class="text-xs font-extrabold tracking-wider uppercase mb-3" style="color:var(--text-muted)">Alertas de Devoluciones</h3>
+      <div id="an-devoluciones-alertas" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Valor Devuelto</span><h3 id="an-dev-valor" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--alqueria-red)">$0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Unidades Devueltas</span><h3 id="an-dev-unidades" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Motivo Más Frecuente</span><h3 id="an-dev-top-motivo" class="text-lg font-extrabold tracking-tight font-display mt-1">—</h3></div>
+      <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">% Devolución sobre Venta</span><h3 id="an-dev-pct-venta" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--amber)">0%</h3></div>
+    </div>
+    <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Evolución de Valor Devuelto por Mes</h3><div id="chart-dev-tendencia" style="height:280px"></div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Valor Devuelto por Motivo (todos)</h3><div id="chart-dev-motivo" style="height:280px"></div></div>
+      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Valor Devuelto por Marca (todas)</h3><div id="chart-dev-marca" style="height:280px"></div></div>
+    </div>
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold font-display">Detalle: Top 8 Productos con Más Devoluciones</h3>
+        <button onclick="analiticaComercial.exportDevolucionesTabla()" class="btn-export">⬇ Exportar</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-left" style="color:var(--text-muted)"><th class="pb-2 font-bold uppercase tracking-wider">Producto</th><th class="pb-2 font-bold uppercase tracking-wider">Marca</th><th class="pb-2 font-bold uppercase tracking-wider text-right">Valor</th><th class="pb-2 font-bold uppercase tracking-wider text-right">Unidades</th></tr></thead><tbody id="an-dev-tabla"></tbody></table></div>
+    </div>
+
+    <!-- Detalle completo, buscable y exportable -->
+    <div class="card p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold tracking-tight font-display">Detalle Completo de Devoluciones</h3>
+          <p class="text-xs mt-0.5 font-medium" style="color:var(--text-muted)">Todos los registros de la tabla "devoluciones" según los filtros activos.</p>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <input id="an-devoluciones-full-search" type="text" placeholder="Buscar producto, marca, PDV, motivo..." oninput="analiticaComercial.onFullSearch('devoluciones', this.value)" class="text-xs rounded-xl border px-3.5 py-2 w-full sm:w-72 font-semibold" style="border-color:var(--border)">
+          <button onclick="analiticaComercial.exportFullTable('devoluciones')" class="btn-export">⬇ Exportar</button>
+        </div>
+      </div>
+      <div class="overflow-auto rounded-2xl border shadow-xs" style="border-color:var(--border); max-height:480px">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10" style="background:var(--eficacia-blue-bg)">
+            <tr class="text-left font-bold" style="color:var(--eficacia-blue)">
+              <th class="px-3 py-3">Producto</th><th class="px-3 py-3">Marca</th><th class="px-3 py-3">PDV</th><th class="px-3 py-3">Motivo</th><th class="px-3 py-3">Regional</th>
+              <th class="px-3 py-3 text-right">Valor</th><th class="px-3 py-3 text-right">Unidades</th>
+            </tr>
+          </thead>
+          <tbody id="an-devoluciones-full-tbody"></tbody>
+        </table>
+      </div>
+      <p id="an-devoluciones-full-count" class="text-xs mt-3 font-semibold" style="color:var(--text-muted)"></p>
+    </div>
+  </div>
 
   </div>
 </div>
@@ -756,7 +1322,38 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
 
 <script>
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxaoUvsTHC_W_yKr2J3VKQCmJO7WOAAK8neewYE4LhGETrUOiy8p3QHsK3w4xYT0JLi/exec';
-const APPS_SCRIPT_PDV_URL='https://script.google.com/macros/s/AKfycbyaGzkHulrZBrYyTzxmeJ-LNeLDxI5JwmS82vbRL0xCJWgwddtBmdFrMjpph-MBO7pMhA/exec';
+
+// ---------------------------------------------------------
+// Supabase: fuente de datos para Vista Mercaderista y para
+// la Vista Analítica Comercial (venta, participación,
+// cobertura, agotados, fechas cortas y devoluciones).
+// ---------------------------------------------------------
+const SUPABASE_URL = 'https://bfbcplixcousebflrosx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_4P2yuQ2CgH-T-mV-D1rNsg_aCYtxEAJ';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Trae TODAS las filas de una tabla de Supabase, paginando de a 1000
+// (límite por defecto de PostgREST) hasta agotar los registros.
+async function fetchAllFromSupabase(table, select){
+  const pageSize = 1000;
+  let from = 0;
+  let all = [];
+  while(true){
+    const { data, error } = await supabaseClient.from(table).select(select || '*').range(from, from + pageSize - 1);
+    if(error) throw error;
+    if(!data || !data.length) break;
+    all = all.concat(data);
+    if(data.length < pageSize) break;
+    from += pageSize;
+  }
+  return all;
+}
+
+// Almacén compartido de las tablas nuevas de Supabase, para que tanto
+// la Vista Mercaderista (complemento de Agotados/Fechas Cortas) como
+// la Vista Analítica Comercial lean de un solo lugar sin duplicar
+// peticiones de red.
+const SUPABASE_TABLES = { venta:[], participacion:[], cobertura:[], agotados:[], fechasCortas:[], devoluciones:[] };
 
 let RAW_DATA = [];
 let state = { campana:'', region:'', articulo:'', ejecucion:'', codigoArticulo:'', search:'', criticalMode:'' };
@@ -983,6 +1580,53 @@ function parseSpanishDateRangeEnd(str){
     if(!isNaN(fecha.getTime())) ultima = fecha;
   }
   return ultima;
+}
+
+// Igual que parseSpanishDateRangeEnd pero se queda con la PRIMERA fecha
+// mencionada en el texto (el inicio del rango), para poder calcular
+// cuánto tiempo de la campaña ya transcurrió.
+function parseSpanishDateRangeStart(str){
+  const regex = /(\d{1,2})\s*(?:de)?\s*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)(?:\s*(?:de)?\s*(\d{4}))?/gi;
+  const hoy = new Date();
+  const match = regex.exec(str);
+  if(!match) return null;
+  const dia = Number(match[1]);
+  const mes = MESES_ES[match[2].toLowerCase()];
+  const anio = match[3] ? Number(match[3]) : hoy.getFullYear();
+  const fecha = new Date(anio, mes, dia);
+  return isNaN(fecha.getTime()) ? null : fecha;
+}
+
+// Cumplimiento PROYECTADO a la fecha: para cada campaña con fecha de
+// inicio y fin identificables en FECHA_EJECUCION, calcula qué % de avance
+// debería tener hoy si el despacho fuera lineal en el tiempo (días
+// transcurridos / días totales), y promedia todas las campañas ponderando
+// por unidades asignadas. Permite comparar "vamos bien o mal" vs. el
+// cumplimiento real ya mostrado en el KPI de Cumplimiento.
+function computeCumplimientoProyectado(data){
+  const porCampana = {};
+  data.forEach(r => {
+    const c = r.CAMPAÑA || 'Sin campaña';
+    if(!porCampana[c]) porCampana[c] = { asignado:0, raw:r.FECHA_EJECUCION };
+    porCampana[c].asignado += Number(r.CANTIDAD_ASIGNADA)||0;
+  });
+  let sumaPonderada = 0, pesoTotal = 0;
+  const hoy = new Date();
+  Object.values(porCampana).forEach(c => {
+    if(!c.raw || c.asignado<=0) return;
+    const rawStr = String(c.raw).trim();
+    if(/agotar|fin\s*(?:de)?\s*existencia/i.test(rawStr)) return;
+    const inicio = parseSpanishDateRangeStart(rawStr);
+    const fin = parseDateOnly(rawStr) || parseSpanishDateRangeEnd(rawStr);
+    if(!inicio || !fin || fin<=inicio) return;
+    const totalDias = daysBetween(inicio, fin);
+    if(totalDias<=0) return;
+    const transcurridos = Math.min(Math.max(daysBetween(inicio, hoy), 0), totalDias);
+    const pctEsperado = transcurridos/totalDias*100;
+    sumaPonderada += pctEsperado * c.asignado;
+    pesoTotal += c.asignado;
+  });
+  return pesoTotal>0 ? sumaPonderada/pesoTotal : null;
 }
 
 function parseDateOnly(value){
@@ -1395,6 +2039,22 @@ function renderKPIs(data){
   if(cumplimiento >= 70){ note.textContent = '↗ En buen curso'; note.style.color='var(--green)'; }
   else if(cumplimiento >= 40){ note.textContent = '→ Seguimiento normal'; note.style.color='var(--amber)'; }
   else{ note.textContent = '↘ Requiere atención'; note.style.color='var(--alqueria-red)'; }
+
+  // Cumplimiento PROYECTADO a hoy (cuánto debería llevar cada campaña según
+  // el tiempo transcurrido de su período) vs. el cumplimiento real de arriba.
+  const proyEl = document.getElementById('kpi-cumplimiento-proyectado');
+  if(proyEl){
+    const proyectado = computeCumplimientoProyectado(data);
+    if(proyectado === null){
+      proyEl.textContent = 'Sin fechas de campaña suficientes para proyectar';
+      proyEl.style.color = 'var(--text-muted)';
+    } else {
+      const brecha = cumplimiento - proyectado;
+      const signo = brecha >= 0 ? '+' : '';
+      proyEl.textContent = `Proyectado a hoy: ${proyectado.toFixed(1)}% (${signo}${brecha.toFixed(1)} pts)`;
+      proyEl.style.color = brecha >= 0 ? 'var(--green)' : 'var(--alqueria-red)';
+    }
+  }
 }
 
 function renderRegionalDonuts(filteredData){
@@ -1780,7 +2440,7 @@ class EjecucionPDV {
   }
 
   init(){
-    this.loadFromAppsScript();
+    this.loadFromSupabase();
 
     ['supervisor','lider','ruta','plan','mercaderista'].forEach(key => {
       const el = document.getElementById('ej-filter-' + key);
@@ -1815,103 +2475,61 @@ class EjecucionPDV {
     this.render();
   }
 
-  loadFromAppsScript(isRetry){
+  async loadFromSupabase(){
     const statusEl = document.getElementById('ejecucion-status');
-    const startedAt = Date.now();
-    let elapsedIntervalId = null;
-    const updateLoadingLabel = () => {
-      if(!statusEl) return;
-      const secs = Math.round((Date.now() - startedAt) / 1000);
-      statusEl.textContent = `Sincronizando datos${isRetry ? ' (2do intento)' : ''}... ${secs}s`;
+    if(statusEl){
+      statusEl.textContent = 'Sincronizando datos desde Supabase...';
       statusEl.style.color = 'var(--amber)';
-    };
-    updateLoadingLabel();
-    elapsedIntervalId = setInterval(updateLoadingLabel, 1000);
+    }
+    try{
+      const rows = await fetchAllFromSupabase('mercaderista');
+      if(!Array.isArray(rows) || !rows.length) throw new Error('No hay registros en la tabla "mercaderista" de Supabase.');
 
-    const callbackName = 'jsonpPDVCallback_' + Date.now();
-    const scriptTag = document.createElement('script');
-    let finished = false;
+      this.data = rows.map(row => this._normalizeSupabaseRow(row));
+      this.allGrouped = this.getGroupedByPDV(this.data);
+      this.buildFilterOptions();
+      this.resetFilters();
 
-    const cleanup = () => {
-      if(elapsedIntervalId){ clearInterval(elapsedIntervalId); elapsedIntervalId=null; }
-      // Igual que en fetchData(): no borramos el callback de inmediato porque
-      // quitar el <script> no cancela la petición ya enviada. Si la respuesta
-      // llega tarde, JSONP igual intenta invocar el callback; si ya no existe,
-      // lanza "ReferenceError: ... is not defined" en consola. Lo dejamos como
-      // no-op y lo eliminamos de verdad pasado un margen prudente.
-      window[callbackName] = function(){};
-      setTimeout(() => { try { delete window[callbackName]; } catch(e){} }, 60000);
-      if(scriptTag.parentNode) scriptTag.parentNode.removeChild(scriptTag);
-    };
-
-    const fail = (message) => {
-      if(finished) return;
-      finished = true;
-      cleanup();
       if(statusEl){
-        statusEl.textContent = 'Error al sincronizar: ' + message;
+        statusEl.textContent = `${this.data.length.toLocaleString('es-CO')} registros sincronizados`;
+        statusEl.style.color = 'var(--green)';
+      }
+    }catch(err){
+      if(statusEl){
+        statusEl.textContent = 'Error al sincronizar: ' + (err.message || err);
         statusEl.style.color = 'var(--alqueria-red)';
       }
-    };
-
-    window[callbackName] = (response) => {
-      if(finished) return;
-      finished = true;
-      cleanup();
-      try{
-        if(response && response.error) throw new Error(response.error);
-        const records = response && response.records;
-        if(!Array.isArray(records)) throw new Error('La respuesta de Google Sheets no contiene registros válidos.');
-        if(!records.length) throw new Error('No hay registros de ejecución en Google Sheets.');
-
-        this.data = records.map(row => this._normalizeRemoteRow(row));
-        this.allGrouped = this.getGroupedByPDV(this.data);
-        this.buildFilterOptions();
-        this.resetFilters();
-
-        if(statusEl){
-          statusEl.textContent = `${this.data.length.toLocaleString('es-CO')} registros sincronizados`;
-          statusEl.style.color = 'var(--green)';
-        }
-      }catch(err){
-        if(statusEl){
-          statusEl.textContent = 'Error al procesar datos: ' + (err.message || err);
-          statusEl.style.color = 'var(--alqueria-red)';
-        }
-      }
-    };
-
-    scriptTag.onerror = () => fail('No se pudo conectar con Google Sheets.');
-    const separator = APPS_SCRIPT_PDV_URL.indexOf('?') === -1 ? '?' : '&';
-    scriptTag.src = APPS_SCRIPT_PDV_URL + separator + 'callback=' + encodeURIComponent(callbackName);
-    document.head.appendChild(scriptTag);
-
-    // 20s era muy poco para el "cold start" de Apps Script, por eso fallaba casi
-    // siempre. Subimos a 40s y reintentamos una vez automáticamente: la segunda
-    // ejecución del script suele responder mucho más rápido.
-    setTimeout(() => {
-      if(finished) return;
-      if(!isRetry){
-        console.warn('Sincronización PDV sin respuesta en 40s, reintentando automáticamente...');
-        cleanup();
-        finished = true; // cierra este intento para no disparar fail() más tarde
-        this.loadFromAppsScript(true);
-      } else {
-        fail('Google Apps Script no respondió tras dos intentos (40s cada uno). Revisa que el despliegue del script tenga acceso "Cualquier usuario" y que no esté haciendo lecturas celda por celda de la hoja (usa getValues() en bloque).');
-      }
-    }, 40000);
+    }
   }
 
-  _normalizeRemoteRow(row){
-    const record = {};
-    Object.keys(this.FIELD_MAP).forEach(expectedHeader => {
-      const field = this.FIELD_MAP[expectedHeader];
-      record[field] = String(row?.[field] ?? '').trim();
-    });
-    record.cantidadObjetivo = Number(String(record.cantidadObjetivo).replace(/,/g,'.')) || 0;
-    record.objetivo = Number(String(record.objetivo).replace(/,/g,'.')) || 0;
-    record.cantidadImplementada = Number(String(record.cantidadImplementada).replace(/,/g,'.')) || 0;
-    record.pctImplementacion = Number(String(record.pctImplementacion).replace('%','').replace(',','.')) || 0;
+  // Traduce una fila de la tabla "mercaderista" de Supabase (columnas en
+  // snake_case) al mismo objeto de campos fijos que usaba antes la
+  // integración con Google Apps Script, para no tener que tocar el resto
+  // del módulo (agrupación, filtros, tabla, exportación, Vista Mercaderista).
+  _normalizeSupabaseRow(row){
+    const record = {
+      regional: String(row.regional ?? '').trim(),
+      ruta: String(row.ruta ?? '').trim(),
+      canal: String(row.canal ?? '').trim(),
+      razonSocial: String(row.razon_social ?? '').trim(),
+      codigoCliente: String(row.codigo_cliente ?? '').trim(),
+      pdv: String(row.pdv ?? '').trim(),
+      formato: String(row.formato ?? '').trim(),
+      fecha: String(row.fecha ?? '').trim(),
+      nombrePlan: String(row.nombre_plan_comercial ?? '').trim(),
+      categoria: String(row.categoria_objetivo ?? '').trim(),
+      tipoExhibicionObjetivo: String(row.tipo_exhibicion_objetivo ?? '').trim(),
+      tipoExhibicionImplementada: String(row.tipo_exhibicion_implementada ?? '').trim(),
+      cumpleImplementacion: String(row.cumple_implementacion ?? '').trim(),
+      causal: String(row.causal ?? '').trim(),
+      supervisor: String(row.supervisor ?? '').trim(),
+      liderEjecucion: String(row.lider_de_ejecucion ?? '').trim(),
+      mercaderista: String(row.mercaderista ?? '').trim()
+    };
+    record.cantidadObjetivo = Number(row.cantidad_implementacion_objetivo) || 0;
+    record.objetivo = record.cantidadObjetivo;
+    record.cantidadImplementada = Number(row.cantidad_implementada) || 0;
+    record.pctImplementacion = Number(row.porcentaje_implementacion) || 0;
     record.faltante = Math.max(record.cantidadObjetivo - record.cantidadImplementada, 0);
     return record;
   }
@@ -2079,7 +2697,48 @@ class EjecucionPDV {
     if(this.state.page > maxPage) this.state.page = maxPage;
     this.renderKPIs(filtered, grouped);
     this.renderRelacionChart(filtered);
+    this.renderLeaderboards(grouped);
     this.renderTable(grouped);
+  }
+
+  renderLeaderboards(grouped){
+    const porRegional = {};
+    const porSupervisor = {};
+    const porRuta = {};
+    grouped.forEach(r => {
+      const kReg = r.regional || 'Sin regional';
+      if(!porRegional[kReg]) porRegional[kReg] = { obj:0, imp:0 };
+      porRegional[kReg].obj += r.objetivo; porRegional[kReg].imp += r.implementado;
+
+      const kSup = r.supervisor || 'Sin supervisor';
+      if(!porSupervisor[kSup]) porSupervisor[kSup] = { obj:0, imp:0, count:0 };
+      porSupervisor[kSup].obj += r.objetivo; porSupervisor[kSup].imp += r.implementado; porSupervisor[kSup].count += 1;
+
+      const kRuta = r.ruta || 'Sin ruta';
+      porRuta[kRuta] = (porRuta[kRuta]||0) + 1;
+    });
+
+    const colorPct = (v) => cumplimientoColor(v).text;
+
+    const regionalItems = Object.entries(porRegional)
+      .map(([k,v]) => ({ label:k, value: v.obj>0 ? v.imp/v.obj*100 : 0 }))
+      .sort((a,b) => b.value-a.value);
+    renderLeaderboard('ej-leaderboard-regional', regionalItems, { percent:true, colorFn:colorPct });
+
+    const supervisorCumplItems = Object.entries(porSupervisor)
+      .map(([k,v]) => ({ label:k, value: v.obj>0 ? v.imp/v.obj*100 : 0 }))
+      .sort((a,b) => b.value-a.value).slice(0,10);
+    renderLeaderboard('ej-leaderboard-supervisor-cumplimiento', supervisorCumplItems, { percent:true, colorFn:colorPct });
+
+    const cargaItems = Object.entries(porSupervisor)
+      .map(([k,v]) => ({ label:k, value:v.count }))
+      .sort((a,b) => b.value-a.value).slice(0,10);
+    renderLeaderboard('ej-leaderboard-carga', cargaItems, { color:'#0052CC' });
+
+    const rutaItems = Object.entries(porRuta)
+      .map(([k,v]) => ({ label:k, value:v }))
+      .sort((a,b) => b.value-a.value).slice(0,10);
+    renderLeaderboard('ej-leaderboard-rutas', rutaItems, { color:'#6366F1' });
   }
 
   renderKPIs(filtered, grouped){
@@ -2367,6 +3026,29 @@ class VistaMercaderista {
     if(donutLabel) donutLabel.textContent = `${formatNumber(implementado)} de ${formatNumber(objetivo)} un implementadas`;
     this.renderDonut(pct);
 
+    // Segunda fila de KPIs: rutas, registros y campañas distintas.
+    setText('mv-kpi-rutas', formatNumber(new Set(misRegistros.map(r => normalizeDeptoName(r.ruta)).filter(Boolean)).size));
+    setText('mv-kpi-registros', formatNumber(misRegistros.length));
+    setText('mv-kpi-campanas', formatNumber(new Set(misRegistros.map(r => normalizeDeptoName(r.nombrePlan)).filter(Boolean)).size));
+
+    // Distribución de cumplimiento: usa la columna real "Cumple Implementación"
+    // (SI/NO/vacío) tal como viene de Supabase, en vez de re-derivarla.
+    let cumpleSi = 0, cumpleNo = 0, cumpleSinDato = 0;
+    misRegistros.forEach(r => {
+      const v = normalizeDeptoName(r.cumpleImplementacion);
+      if(v === 'SI' || v === 'SÍ') cumpleSi++;
+      else if(v === 'NO') cumpleNo++;
+      else cumpleSinDato++;
+    });
+    setText('mv-cumple-si', formatNumber(cumpleSi));
+    setText('mv-cumple-no', formatNumber(cumpleNo));
+    setText('mv-cumple-sindato', formatNumber(cumpleSinDato));
+    const totalCumple = cumpleSi + cumpleNo;
+    const pctCumpleSi = totalCumple>0 ? cumpleSi/totalCumple*100 : 0;
+    renderPieSimple('mv-donut-cumple', [
+      ['SI', cumpleSi], ['NO', cumpleNo], ['Sin dato', cumpleSinDato]
+    ], { palette:['#059669','#DA291C','#94A3B8'], legend:false });
+
     const syncLabel = document.getElementById('mv-last-sync');
     const globalSync = document.getElementById('updated-label');
     if(syncLabel) syncLabel.textContent = globalSync && globalSync.textContent ? globalSync.textContent : '';
@@ -2392,6 +3074,52 @@ class VistaMercaderista {
     const compEmpty = document.getElementById('mv-completados-empty');
     if(compList) compList.innerHTML = completos.map(r => this.itemTemplate(r, true)).join('');
     if(compEmpty) compEmpty.classList.toggle('hidden', misPDV.filter(r => r.faltante === 0).length > 0);
+
+    this.renderExtra();
+  }
+
+  // Complementa la vista con Agotados y Fechas Cortas (tablas de Supabase)
+  // filtrados por el mercaderista seleccionado. Si Analítica Comercial
+  // todavía no ha sincronizado, simplemente no hay nada que mostrar aún
+  // (se vuelve a llamar automáticamente cuando esa sincronización termina).
+  renderExtra(){
+    if(!this.nombreActual) return;
+    const nombre = normalizeDeptoName(this.nombreActual);
+
+    const misAgotados = (SUPABASE_TABLES.agotados||[]).filter(r => normalizeDeptoName(r.mercaderista) === nombre);
+    const misFechasCortas = (SUPABASE_TABLES.fechasCortas||[]).filter(r => normalizeDeptoName(r.mercaderista) === nombre);
+
+    const agotCount = document.getElementById('mv-extra-agotados-count');
+    const agotList = document.getElementById('mv-extra-agotados-list');
+    if(agotCount) agotCount.textContent = formatNumber(misAgotados.length);
+    if(agotList){
+      // Lista completa (no solo top 3), con scroll interno en la tarjeta.
+      agotList.innerHTML = misAgotados.map(r => `
+        <p class="text-[11px] truncate" style="color:var(--text-muted)">• ${r.producto || r.marca || 'Producto'} — ${r.puntoVenta || '—'}</p>
+      `).join('') || `<p class="text-[11px]" style="color:var(--text-muted)">Sin agotados registrados.</p>`;
+    }
+
+    const fcCount = document.getElementById('mv-extra-fc-count');
+    const fcList = document.getElementById('mv-extra-fc-list');
+    if(fcCount) fcCount.textContent = formatNumber(misFechasCortas.length);
+    if(fcList){
+      const ordenadas = [...misFechasCortas].sort((a,b) => a.diasVidaUtil - b.diasVidaUtil);
+      fcList.innerHTML = ordenadas.map(r => `
+        <p class="text-[11px] truncate" style="color:var(--text-muted)">• ${r.producto || r.marca || 'Producto'} — ${formatNumber(r.diasVidaUtil)} días</p>
+      `).join('') || `<p class="text-[11px]" style="color:var(--text-muted)">Sin fechas cortas registradas.</p>`;
+    }
+
+    const misParticipacion = (SUPABASE_TABLES.participacion||[]).filter(r => normalizeDeptoName(r.mercaderista) === nombre && r.pctParticipacion > 0);
+    const partPctEl = document.getElementById('mv-extra-part-pct');
+    const partListEl = document.getElementById('mv-extra-part-list');
+    const pctProm = misParticipacion.length ? misParticipacion.reduce((a,r)=>a+r.pctParticipacion,0)/misParticipacion.length : 0;
+    if(partPctEl) partPctEl.textContent = pctProm.toFixed(1)+'%';
+    if(partListEl){
+      const porMarca = agAvg(misParticipacion, 'marca', 'pctParticipacion');
+      partListEl.innerHTML = porMarca.map(([marca, pct]) => `
+        <p class="text-[11px] truncate" style="color:var(--text-muted)">• ${marca} — ${pct.toFixed(1)}%</p>
+      `).join('') || `<p class="text-[11px]" style="color:var(--text-muted)">Sin visitas de participación registradas.</p>`;
+    }
   }
 
   itemTemplate(r, esCompleto, indice, campanasPendientes){
@@ -2487,21 +3215,1198 @@ class VistaMercaderista {
 
 const mercaderistaVista = new VistaMercaderista();
 
-// Alterna entre la Vista General (todo el dashboard) y la Vista
-// Mercaderista (simplificada), controlada desde el sidebar.
+/* ============================================================
+   MÓDULO: Analítica Comercial (Supabase)
+   Trae venta, participación, cobertura, agotados, fechas cortas
+   y devoluciones desde Supabase y arma KPIs + gráficas simples
+   por cada tabla, reutilizando la estética ya establecida.
+============================================================ */
+
+function currencyFormat(num){
+  return '$' + new Intl.NumberFormat('es-CO', { maximumFractionDigits:0 }).format(Number(num)||0);
+}
+// Formato compacto (1,2M / 350K) para ejes y etiquetas de barras: los
+// números completos ($1.202.332.986) se encimaban entre sí en el eje y
+// en las etiquetas de cada barra. notation:'compact' de Intl resuelve
+// esto de forma nativa y ya en español.
+function formatCompact(num, isCurrency){
+  const val = Number(num)||0;
+  const txt = new Intl.NumberFormat('es-CO', { notation:'compact', maximumFractionDigits:1 }).format(val);
+  return isCurrency ? '$'+txt : txt;
+}
+function agSum(rows, keyField, valField){
+  const map = new Map();
+  rows.forEach(r => {
+    const k = String(r[keyField]||'').trim() || 'Sin dato';
+    map.set(k, (map.get(k)||0) + (Number(r[valField])||0));
+  });
+  return [...map.entries()].sort((a,b) => b[1]-a[1]);
+}
+function agAvg(rows, keyField, valField){
+  const sums = new Map(), counts = new Map();
+  rows.forEach(r => {
+    const k = String(r[keyField]||'').trim() || 'Sin dato';
+    sums.set(k, (sums.get(k)||0) + (Number(r[valField])||0));
+    counts.set(k, (counts.get(k)||0) + 1);
+  });
+  return [...sums.keys()].map(k => [k, counts.get(k) ? sums.get(k)/counts.get(k) : 0]).sort((a,b) => b[1]-a[1]);
+}
+function agCount(rows, keyField){
+  const map = new Map();
+  rows.forEach(r => {
+    const k = String(r[keyField]||'').trim() || 'Sin dato';
+    map.set(k, (map.get(k)||0) + 1);
+  });
+  return [...map.entries()].sort((a,b) => b[1]-a[1]);
+}
+function agCountDistinct(rows, keyField){
+  return new Set(rows.map(r => String(r[keyField]||'').trim()).filter(Boolean)).size;
+}
+
+// Barra horizontal simple (Top N), con soporte para porcentajes y
+// colores por umbral. Mismo estilo visual que renderChartCumplimiento.
+function renderHBar(domId, pairs, opts){
+  opts = opts || {};
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const top = (pairs||[]).slice(0, opts.limit || 8);
+  // Con muchas categorías, una altura fija encima etiquetas y barras se
+  // amontonan (ilegible). autoHeight crece el contenedor según cuántas
+  // filas hay, para que cada barra tenga espacio real.
+  if(opts.autoHeight){
+    el.style.height = Math.max(220, top.length * 24) + 'px';
+  }
+  const chart = echarts.getInstanceByDom(el) || echarts.init(el);
+  if(opts.autoHeight) chart.resize();
+  const color = opts.color || '#0052CC';
+  const isPct = !!opts.percent;
+  const isCurrency = !!opts.currency;
+  const labelFmt = (v) => isPct ? Number(v).toFixed(1)+'%' : formatCompact(v, isCurrency);
+  chart.setOption({
+    tooltip:{ trigger:'axis', valueFormatter: v => isPct ? Number(v).toFixed(1)+'%' : (isCurrency ? currencyFormat(v) : formatNumber(v)) },
+    grid:{ top:10, bottom:20, left:10, right: isPct?45:55, containLabel:true },
+    xAxis:{ type:'value', max: isPct?100:undefined, axisLabel:{ fontSize:10, color:'#94A3B8',
+      formatter: isPct?'{value}%':(v)=>formatCompact(v, isCurrency) }, splitLine:{lineStyle:{color:'#F1F5F9'}} },
+    yAxis:{ type:'category', data: top.map(p=>p[0]).reverse(), axisLabel:{ fontSize:11, color:'#64748B',
+      formatter:(v)=> v.length>20 ? v.slice(0,20)+'…' : v } },
+    series:[{
+      type:'bar',
+      data: top.map(p => ({
+        value: isPct ? Number(p[1]).toFixed(1) : p[1],
+        itemStyle:{ color: opts.thresholdColor ? opts.thresholdColor(p[1]) : color, borderRadius:[0,6,6,0] }
+      })).reverse(),
+      label:{ show:true, position:'right', formatter: (p)=> isPct ? p.value+'%' : labelFmt(p.value), fontSize:10, fontWeight:700, color:'#334155' },
+      barMaxWidth:18
+    }]
+  }, true);
+  if(!top.length){
+    chart.setOption({ graphic:{ type:'text', left:'center', top:'middle',
+      style:{ text:'Sin datos', fontSize:12, fill:'#94A3B8', fontFamily:'Plus Jakarta Sans' } } });
+  }
+}
+
+// Barras agrupadas (2+ series) por categoría, mismo estilo que renderChartCampana.
+// Muestra TODAS las categorías recibidas (no recorta a un "Top N"); quien
+// llama decide cuántas categorías pasar.
+function renderGroupedBar(domId, categories, seriesDefs, opts){
+  opts = opts || {};
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const chart = echarts.getInstanceByDom(el) || echarts.init(el);
+  const isCurrency = !!opts.currency;
+  chart.setOption({
+    tooltip:{ trigger:'axis', formatter: (params) => {
+      let html = `<strong>${params[0].axisValue}</strong><br>`;
+      params.forEach(p => { html += `${p.marker} ${p.seriesName}: ${isCurrency?currencyFormat(p.value):formatNumber(p.value)}<br>`; });
+      return html;
+    }},
+    legend:{ data: seriesDefs.map(s=>s.name), top:0, right:0, textStyle:{fontSize:11, color:'#64748B'} },
+    grid:{ top:40, bottom:60, left:50, right:10, containLabel:true },
+    xAxis:{ type:'category', data:categories, axisLabel:{ fontSize:10, rotate:25, interval:0, color:'#64748B',
+      formatter:(v)=> v.length>14 ? v.slice(0,14)+'…' : v } },
+    yAxis:{ type:'value', axisLabel:{ fontSize:10, color:'#94A3B8', formatter:(v)=>formatCompact(v, isCurrency) }, splitLine:{lineStyle:{color:'#F1F5F9'}} },
+    series: seriesDefs.map((s,i) => (opts.stacked
+      ? { name:s.name, type:'bar', stack:'total', data:s.data, itemStyle:{ color:s.color, borderRadius: i===seriesDefs.length-1?[6,6,0,0]:0 } }
+      : { name:s.name, type:'bar', data:s.data, itemStyle:{ color:s.color, borderRadius:[6,6,0,0] } }))
+  }, true);
+}
+
+// Línea de tendencia (1+ series) por período — para ver evolución en el
+// tiempo en vez de solo un ranking estático de "top N".
+function renderLineChart(domId, categories, seriesDefs, opts){
+  opts = opts || {};
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const chart = echarts.getInstanceByDom(el) || echarts.init(el);
+  const isCurrency = !!opts.currency;
+  const isPct = !!opts.percent;
+  chart.setOption({
+    tooltip:{ trigger:'axis', formatter: (params) => {
+      let html = `<strong>${params[0].axisValue}</strong><br>`;
+      params.forEach(p => { html += `${p.marker} ${p.seriesName}: ${isPct?Number(p.value).toFixed(1)+'%':(isCurrency?currencyFormat(p.value):formatNumber(p.value))}<br>`; });
+      return html;
+    }},
+    legend:{ data: seriesDefs.map(s=>s.name), top:0, right:0, textStyle:{fontSize:11, color:'#64748B'} },
+    grid:{ top:40, bottom:40, left:50, right:20, containLabel:true },
+    xAxis:{ type:'category', data:categories, boundaryGap:false, axisLabel:{ fontSize:10, color:'#64748B' } },
+    yAxis:{ type:'value', max: isPct?100:undefined, axisLabel:{ fontSize:10, color:'#94A3B8',
+      formatter: isPct?'{value}%':(v)=>formatCompact(v, isCurrency) }, splitLine:{lineStyle:{color:'#F1F5F9'}} },
+    series: seriesDefs.map(s => ({
+      name:s.name, type:'line', data:s.data, smooth:true, symbolSize:6,
+      itemStyle:{ color:s.color }, lineStyle:{ width:2.5, color:s.color },
+      areaStyle: s.area ? { color:s.color, opacity:0.08 } : undefined
+    }))
+  }, true);
+  if(!categories.length){
+    chart.setOption({ graphic:{ type:'text', left:'center', top:'middle',
+      style:{ text:'Sin datos suficientes para una tendencia', fontSize:12, fill:'#94A3B8', fontFamily:'Plus Jakarta Sans' } } });
+  }
+}
+
+// Agrupa una fecha (string) al mes "AAAA-MM" para armar series de tiempo
+// sin necesitar una librería de fechas.
+function monthKey(fechaStr){
+  const d = new Date(fechaStr);
+  if(isNaN(d.getTime())) return null;
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+function agSumByMonth(rows, dateField, valField){
+  const map = new Map();
+  rows.forEach(r => {
+    const k = monthKey(r[dateField]);
+    if(!k) return;
+    map.set(k, (map.get(k)||0) + (Number(r[valField])||0));
+  });
+  return [...map.entries()].sort((a,b) => a[0]<b[0]?-1:1);
+}
+
+// Torta simple para distribuciones por categoría (ej. estado de agotados).
+function renderPieSimple(domId, pairs, opts){
+  opts = opts || {};
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const chart = echarts.getInstanceByDom(el) || echarts.init(el);
+  const palette = opts.palette || ['#0052CC','#DA291C','#059669','#D97706','#6366F1','#E11D48','#64748B','#94A3B8'];
+  chart.setOption({
+    tooltip:{ trigger:'item', formatter: '{b}: {c} ({d}%)' },
+    legend:{ show: opts.legend !== false, bottom:0, textStyle:{ fontSize:10, color:'#64748B' } },
+    series:[{
+      type:'pie', radius:['42%','72%'], center:['50%', opts.legend===false?'50%':'44%'],
+      label:{ fontSize:10, color:'#334155', formatter:'{d}%' },
+      data: (pairs||[]).map((p,i) => ({ name:p[0], value:p[1], itemStyle:{ color: palette[i % palette.length] } }))
+    }]
+  }, true);
+}
+
+// Velocímetro (gauge) para comparar Proyectado vs Real de un mismo período,
+// con zonas de color rojo/ámbar/verde. `value` en la misma escala que `max`.
+function renderGaugeChart(domId, value, opts){
+  opts = opts || {};
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const chart = echarts.getInstanceByDom(el) || echarts.init(el);
+  const max = opts.max || 100;
+  const zones = opts.zones || [[0.4,'#DA291C'],[0.7,'#D97706'],[1,'#059669']];
+  chart.setOption({
+    series:[{
+      type:'gauge',
+      min:0, max:max, startAngle:200, endAngle:-20, radius:'92%',
+      axisLine:{ lineStyle:{ width:12, color:zones } },
+      pointer:{ itemStyle:{ color: opts.pointerColor || '#1E293B' }, width:4, length:'55%' },
+      anchor:{ show:true, showAbove:true, size:9, itemStyle:{ color: opts.pointerColor || '#1E293B' } },
+      axisTick:{ distance:-12, length:4, lineStyle:{ color:'#fff', width:1 } },
+      splitLine:{ distance:-12, length:10, lineStyle:{ color:'#fff', width:2 } },
+      axisLabel:{ distance:-28, color:'#94A3B8', fontSize:8.5, formatter: opts.axisFormatter || undefined },
+      detail:{
+        valueAnimation:true,
+        formatter: opts.formatter || ((v)=>v.toFixed(1)+'%'),
+        fontSize:20, fontWeight:800, color:'#1E293B', offsetCenter:[0,'55%']
+      },
+      title:{ show:!!opts.label, offsetCenter:[0,'85%'], fontSize:10.5, fontWeight:700, color:'#64748B' },
+      data:[{ value:Number(value)||0, name: opts.label || '' }]
+    }]
+  }, true);
+}
+
+// Dispersión (scatter): un punto por marca, cruzando venta neta (x) con
+// % de participación (y). Mucho más informativo que una tabla estática
+// para ver de un vistazo si las marcas que más venden también dominan
+// la categoría, o si hay marcas con buena venta pero poca presencia.
+function renderScatterChart(domId, points){
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const chart = echarts.getInstanceByDom(el) || echarts.init(el);
+  const maxVenta = Math.max(1, ...points.map(p=>p.venta));
+  chart.setOption({
+    tooltip:{ trigger:'item', formatter: (p) => {
+      const d = p.data;
+      return `<strong>${d.name}</strong><br>Venta Neta: ${currencyFormat(d.value[0])}<br>% Participación: ${d.value[1].toFixed(1)}%`;
+    }},
+    grid:{ top:20, bottom:44, left:50, right:20, containLabel:true },
+    xAxis:{ type:'value', name:'Venta Neta', nameLocation:'middle', nameGap:28,
+      nameTextStyle:{ fontSize:10, color:'#64748B' }, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:(v)=>formatCompact(v,true) },
+      splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
+    yAxis:{ type:'value', name:'% Participación', max:100,
+      nameTextStyle:{ fontSize:10, color:'#64748B' }, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:'{value}%' },
+      splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
+    series:[{
+      type:'scatter',
+      symbolSize: (val) => Math.max(12, Math.min(46, 12 + (val[0]/maxVenta)*34)),
+      data: points.map(p => ({
+        name:p.marca, value:[p.venta, p.participacion],
+        itemStyle:{ color: p.participacion>=20?'#059669':(p.participacion>0?'#D97706':'#94A3B8'), opacity:0.85 }
+      })),
+      label:{ show:true, formatter:(p)=>p.data.name, position:'top', fontSize:9, color:'#334155' }
+    }]
+  }, true);
+  if(!points.length){
+    chart.setOption({ graphic:{ type:'text', left:'center', top:'middle',
+      style:{ text:'Sin datos', fontSize:12, fill:'#94A3B8', fontFamily:'Plus Jakarta Sans' } } });
+  }
+}
+
+// Ranking con barra de progreso (estilo "leaderboard"), para cosas como
+// Cumplimiento por Regional, Rutas con más PDV, Carga por Supervisor.
+// items = [{label, value}], ya viene ordenado de mayor a menor por quien llama.
+function renderLeaderboard(containerId, items, opts){
+  opts = opts || {};
+  const box = document.getElementById(containerId);
+  if(!box) return;
+  if(!items.length){
+    box.innerHTML = `<p class="text-xs font-semibold text-center py-6" style="color:var(--text-muted)">Sin datos.</p>`;
+    return;
+  }
+  const maxVal = opts.percent ? 100 : Math.max(...items.map(i=>i.value), 1);
+  box.innerHTML = items.map((item, i) => {
+    const pct = Math.min(100, maxVal>0 ? (item.value/maxVal)*100 : 0);
+    const color = opts.colorFn ? opts.colorFn(item.value) : (opts.color || 'var(--eficacia-blue)');
+    const display = opts.percent ? item.value.toFixed(1)+'%' : formatNumber(item.value);
+    return `<div class="leaderboard-item">
+      <div class="leaderboard-rank">#${i+1}</div>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-bold truncate mb-1">${item.label}</p>
+        <div class="leaderboard-track"><div class="leaderboard-fill" style="width:${pct}%; background:${color}"></div></div>
+      </div>
+      <span class="leaderboard-value">${display}</span>
+    </div>`;
+  }).join('');
+}
+
+// Fila de tarjetas de alerta, mismo componente visual que "Alertas
+// Prioritarias de Control" en la Vista General, reutilizado en cada
+// pestaña de Analítica Comercial. `alerts` = [{id?, icon, value, label, desc,
+// tone, predicate?}]. Las que traen `predicate` son clicables: al hacer
+// clic filtran TODA la información del módulo (KPIs, gráficas y la tabla
+// de detalle completo) a solo los registros que cumplen esa condición —
+// igual que el filtro crítico de Vista General. `opts.moduleKey` y
+// `opts.activeId` controlan a qué módulo pertenecen y cuál está activa.
+function renderAlertRow(containerId, alerts, opts){
+  opts = opts || {};
+  const box = document.getElementById(containerId);
+  if(!box) return;
+  box.innerHTML = alerts.map(a => {
+    const tone = a.tone || { bg:'var(--alqueria-red-bg)', fg:'var(--alqueria-red)' };
+    const clickable = !!(a.predicate && opts.moduleKey);
+    const active = clickable && opts.activeId === a.id;
+    const cls = 'card p-5 flex items-start gap-4' + (clickable ? ' alert-card' : '') + (active ? ' is-active' : '');
+    const onclick = clickable ? ` onclick="analiticaComercial.toggleAlertFilter('${opts.moduleKey}','${a.id}')"` : '';
+    const hint = clickable ? `<p class="text-[10px] font-bold mt-1" style="color:${active ? 'var(--alqueria-red)' : 'var(--eficacia-blue)'}">${active ? 'Filtro activo · clic para quitar' : 'Clic para filtrar'}</p>` : '';
+    return `<div class="${cls}"${onclick}>
+      <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 text-sm font-bold shadow-xs" style="background:${tone.bg}; color:${tone.fg}">${a.icon}</div>
+      <div class="min-w-0">
+        <p class="text-2xl font-extrabold tabular font-display tracking-tight">${a.value}</p>
+        <p class="text-xs font-bold mt-0.5">${a.label}</p>
+        <p class="text-[11px] font-medium mt-0.5" style="color:var(--text-muted)">${a.desc}</p>
+        ${hint}
+      </div>
+    </div>`;
+  }).join('');
+}
+const TONE_RED = { bg:'var(--alqueria-red-bg)', fg:'var(--alqueria-red)' };
+const TONE_AMBER = { bg:'var(--amber-bg)', fg:'var(--amber)' };
+const TONE_GREEN = { bg:'var(--green-bg)', fg:'var(--green)' };
+const TONE_BLUE = { bg:'var(--eficacia-blue-bg)', fg:'var(--eficacia-blue)' };
+
+function setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
+function emptyRow(cols){ return `<tr><td colspan="${cols}" class="py-4 text-center" style="color:var(--text-muted)">Sin datos.</td></tr>`; }
+function emptyMsg(text){ return `<p class="text-xs font-semibold text-center py-6" style="color:var(--text-muted)">${text}</p>`; }
+function itemRow(title, subtitle, badge, urgent){
+  return `<div class="flex items-center justify-between p-3 rounded-lg" style="background:#F8FAFC">
+    <div class="min-w-0"><p class="text-xs font-bold truncate">${title}</p><p class="text-[11px] truncate" style="color:var(--text-muted)">${subtitle}</p></div>
+    <span class="badge" style="color:${urgent?'var(--alqueria-red)':'var(--amber)'}; background:${urgent?'var(--alqueria-red-bg)':'var(--amber-bg)'}">${badge}</span>
+  </div>`;
+}
+
+class AnaliticaComercial {
+  constructor(){
+    this.loaded = false;
+
+    // Filtro por alerta clicada: id del alert activo por módulo (null =
+    // ninguno) y la función-predicado correspondiente para aplicarlo.
+    this.alertFilter = { venta:null, participacion:null, cobertura:null, agotados:null, fechasCortas:null, devoluciones:null };
+    this.alertPredicate = { venta:null, participacion:null, cobertura:null, agotados:null, fechasCortas:null, devoluciones:null };
+    this._alertDefs = { venta:[], participacion:[], cobertura:[], agotados:[], fechasCortas:[], devoluciones:[] };
+
+    // Filtros activos por módulo (todos parten vacíos = "Todos/Todas").
+    this.state = {
+      venta: { regional:'', cadena:'', segmento:'', marca:'' },
+      participacion: { regional:'', canal:'', categoria:'', marca:'' },
+      cobertura: { regional:'', canal:'', tipologia:'', supervisor:'' },
+      agotados: { regional:'', canal:'', categoria:'', estadoAgotado:'' },
+      fechasCortas: { regional:'', canal:'', categoria:'', politica:'' },
+      devoluciones: { regional:'', cadena:'', marca:'' }
+    };
+    this.filterFields = {
+      venta: ['regional','cadena','segmento','marca'],
+      participacion: ['regional','canal','categoria','marca'],
+      cobertura: ['regional','canal','tipologia','supervisor'],
+      agotados: ['regional','canal','categoria','estadoAgotado'],
+      fechasCortas: ['regional','canal','categoria','politica'],
+      devoluciones: ['regional','cadena','marca']
+    };
+
+    // Búsqueda activa por módulo en las tablas de "Detalle Completo".
+    this.fullSearch = { venta:'', participacion:'', cobertura:'', agotados:'', fechasCortas:'', devoluciones:'' };
+    this._cacheFullTable = {};
+
+    // Config de columnas + campos de búsqueda para el detalle completo de
+    // cada tabla (estilo "Detalle Operativo de Material POP" de Vista
+    // General: buscador + tabla completa + exportar).
+    this.fullTableConfig = {
+      venta: {
+        search: ['producto','marca','regional','cadena','segmento'],
+        columns: [
+          { label:'Producto', get:r=>r.producto||'—' },
+          { label:'Marca', get:r=>r.marca||'—' },
+          { label:'Regional', get:r=>r.regional||'—' },
+          { label:'Cadena', get:r=>r.cadena||'—' },
+          { label:'Venta Neta', get:r=>currencyFormat(r.ventaNeta), raw:r=>r.ventaNeta, align:'right' },
+          { label:'Cuota', get:r=>currencyFormat(r.cuotaPesos), raw:r=>r.cuotaPesos, align:'right' },
+          { label:'% Cumpl.', get:r=> r.cuotaPesos>0 ? (r.ventaNeta/r.cuotaPesos*100).toFixed(1)+'%' : '—', align:'right' }
+        ]
+      },
+      participacion: {
+        search: ['puntoVenta','marca','categoria','regional','canal'],
+        columns: [
+          { label:'PDV', get:r=>r.puntoVenta||'—' },
+          { label:'Marca', get:r=>r.marca||'—' },
+          { label:'Categoría', get:r=>r.categoria||'—' },
+          { label:'Regional', get:r=>r.regional||'—' },
+          { label:'Canal', get:r=>r.canal||'—' },
+          { label:'% Participación', get:r=>r.pctParticipacion.toFixed(1)+'%', raw:r=>r.pctParticipacion, align:'right' },
+          { label:'Caras', get:r=>formatNumber(r.caras), raw:r=>r.caras, align:'right' }
+        ]
+      },
+      cobertura: {
+        search: ['ruta','regional','canal','supervisor','tipologia','cliente'],
+        columns: [
+          { label:'Ruta', get:r=>r.ruta||'—' },
+          { label:'Regional', get:r=>r.regional||'—' },
+          { label:'Canal', get:r=>r.canal||'—' },
+          { label:'Supervisor', get:r=>r.supervisor||'—' },
+          { label:'Programados', get:r=>formatNumber(r.pdvProgramados), raw:r=>r.pdvProgramados, align:'right' },
+          { label:'Visitados', get:r=>formatNumber(r.pdvVisitados), raw:r=>r.pdvVisitados, align:'right' },
+          { label:'% Cobertura', get:r=> r.pdvProgramados>0 ? (r.pdvVisitados/r.pdvProgramados*100).toFixed(1)+'%' : '—', align:'right' }
+        ]
+      },
+      agotados: {
+        search: ['producto','marca','puntoVenta','causalAgotado','estadoAgotado','regional'],
+        columns: [
+          { label:'Producto', get:r=>r.producto||'—' },
+          { label:'Marca', get:r=>r.marca||'—' },
+          { label:'PDV', get:r=>r.puntoVenta||'—' },
+          { label:'Causal', get:r=>r.causalAgotado||'—' },
+          { label:'Estado', get:r=>r.estadoAgotado||'—' },
+          { label:'Regional', get:r=>r.regional||'—' },
+          { label:'Fecha Captura', get:r=>String(r.fechaCaptura||'—').slice(0,10) }
+        ]
+      },
+      fechasCortas: {
+        search: ['producto','puntoVenta','categoria','marca','regional'],
+        columns: [
+          { label:'Producto', get:r=>r.producto||'—' },
+          { label:'PDV', get:r=>r.puntoVenta||'—' },
+          { label:'Categoría', get:r=>r.categoria||'—' },
+          { label:'Unidades', get:r=>formatNumber(r.cantidadUnidades), raw:r=>r.cantidadUnidades, align:'right' },
+          { label:'Valor', get:r=>currencyFormat(r.valorMonetario), raw:r=>r.valorMonetario, align:'right' },
+          { label:'Días Vida Útil', get:r=>formatNumber(r.diasVidaUtil), raw:r=>r.diasVidaUtil, align:'right' },
+          { label:'Política', get:r=>r.politica||'—' }
+        ]
+      },
+      devoluciones: {
+        search: ['producto','marca','puntoVenta','motivo','regional'],
+        columns: [
+          { label:'Producto', get:r=>r.producto||'—' },
+          { label:'Marca', get:r=>r.marca||'—' },
+          { label:'PDV', get:r=>r.puntoVenta||'—' },
+          { label:'Motivo', get:r=>r.motivo||'—' },
+          { label:'Regional', get:r=>r.regional||'—' },
+          { label:'Valor', get:r=>currencyFormat(r.valor), raw:r=>r.valor, align:'right' },
+          { label:'Unidades', get:r=>formatNumber(r.unidades), raw:r=>r.unidades, align:'right' }
+        ]
+      }
+    };
+  }
+
+  // Filtra por texto libre (además de los filtros de los selects) y arma
+  // la tabla de "Detalle Completo" del módulo, con tope de 200 filas en
+  // pantalla (el export sí lleva TODAS las filas que hagan match).
+  renderFullTable(key){
+    const cfg = this.fullTableConfig[key];
+    if(!cfg) return;
+    const term = normalizeDeptoName(this.fullSearch[key] || '');
+    let rows = this.getFiltered(key);
+    if(term){
+      rows = rows.filter(r => cfg.search.some(f => normalizeDeptoName(r[f]).includes(term)));
+    }
+    this._cacheFullTable[key] = rows;
+
+    const capped = rows.slice(0, 200);
+    const tbody = document.getElementById('an-' + key + '-full-tbody');
+    if(tbody){
+      tbody.innerHTML = capped.map(r => '<tr class="border-t" style="border-color:var(--border)">' +
+        cfg.columns.map(c => `<td class="px-3 py-2 truncate max-w-[220px] ${c.align==='right'?'text-right tabular':''}">${c.get(r)}</td>`).join('') +
+        '</tr>').join('') || `<tr><td colspan="${cfg.columns.length}" class="py-6 text-center" style="color:var(--text-muted)">Sin datos.</td></tr>`;
+    }
+    const countEl = document.getElementById('an-' + key + '-full-count');
+    if(countEl) countEl.textContent = `Mostrando ${formatNumber(capped.length)} de ${formatNumber(rows.length)} registros`;
+  }
+
+  onFullSearch(key, value){
+    this.fullSearch[key] = value;
+    this.renderFullTable(key);
+  }
+
+  exportFullTable(key){
+    const cfg = this.fullTableConfig[key];
+    if(!cfg) return;
+    const rows = this._cacheFullTable[key] || [];
+    downloadCSV(`${key}_detalle_completo_${todayStamp()}.csv`, cfg.columns.map(c=>c.label),
+      rows.map(r => cfg.columns.map(c => c.raw ? c.raw(r) : c.get(r))));
+  }
+
+  async init(){
+    const modules = ['venta','participacion','cobertura','agotados','fechasCortas','devoluciones'];
+    const statusEl = (key) => document.getElementById('an-' + key + '-status');
+    modules.forEach(key => { const el = statusEl(key); if(el){ el.textContent = 'Sincronizando...'; el.style.color = 'var(--amber)'; } });
+
+    try{
+      const [venta, participacion, cobertura, agotados, fechasCortas, devoluciones] = await Promise.all([
+        fetchAllFromSupabase('venta'),
+        fetchAllFromSupabase('participacion'),
+        fetchAllFromSupabase('cobertura'),
+        fetchAllFromSupabase('agotados'),
+        fetchAllFromSupabase('fechas_cortas'),
+        fetchAllFromSupabase('devoluciones')
+      ]);
+
+      SUPABASE_TABLES.venta = venta.map(r => ({
+        regional:String(r.regional??'').trim(), ruta:String(r.ruta??'').trim(), cadena:String(r.cadena??'').trim(),
+        puntoVenta:String(r.punto_de_venta??'').trim(), segmento:String(r.segmento??'').trim(), marca:String(r.marca??'').trim(),
+        producto:String(r.producto??'').trim(), fecha:String(r.fecha??'').trim(),
+        ventaNeta:Number(r.venta_neta)||0, ventaKilos:Number(r.venta_kilos)||0,
+        cuotaPesos:Number(r.cuota_pesos)||0, cuotaKilos:Number(r.cuota_kilos)||0,
+        pctCumplimientoCuota:Number(r.porcentaje_cumplimiento_cuota)||0, pctCumplimientoVenta:Number(r.porcentaje_cumplimiento_venta)||0
+      }));
+      SUPABASE_TABLES.participacion = participacion.map(r => ({
+        regional:String(r.regional??'').trim(), canal:String(r.canal??'').trim(), cadena:String(r.cadena??'').trim(),
+        formato:String(r.formato??'').trim(), codigoCliente:String(r.codigo_cliente??'').trim(), ciudad:String(r.ciudad??'').trim(),
+        puntoVenta:String(r.punto_de_venta??'').trim(), mercaderista:String(r.mercaderista??'').trim(),
+        objetivoParticipacion:Number(r.objetivo_participacion)||0, pctParticipacion:Number(r.porcentaje_participacion_categoria)||0,
+        caras:Number(r.caras)||0, categoria:String(r.categoria??'').trim(), marca:String(r.marca??'').trim(),
+        fechaVisita:String(r.fecha_visita??'').trim(), tipoEmpresa:String(r.tipo_empresa??'').trim(),
+        liderEjecucion:String(r.lider_ejecucion??'').trim(), supervisor:String(r.supervisor??'').trim()
+      }));
+      SUPABASE_TABLES.cobertura = cobertura.map(r => ({
+        regional:String(r.regional??'').trim(), canal:String(r.canal??'').trim(), tipologia:String(r.tipologia??'').trim(),
+        cliente:String(r.cliente??'').trim(), lider:String(r.lider??'').trim(), supervisor:String(r.supervisor??'').trim(),
+        ruta:String(r.ruta??'').trim(), pdvProgramados:Number(r.pdv_programados)||0, pdvVisitados:Number(r.pdv_visitados)||0,
+        pctPuntosVisitados:Number(r.porcentaje_puntos_visitados_aunque_sea_una_sola_vez)||0,
+        pctVisitasRutero:Number(r.porcentaje_visitas_rutero_al_corte)||0,
+        pctEfectividad:Number(r.porcentaje_efectividad_extra_ruta)||0
+      }));
+      SUPABASE_TABLES.agotados = agotados.map(r => ({
+        regional:String(r.regional??'').trim(), ruta:String(r.ruta??'').trim(), canal:String(r.canal??'').trim(),
+        formato:String(r.formato??'').trim(), codigoCliente:String(r.codigo_cliente??'').trim(), puntoVenta:String(r.punto_de_venta??'').trim(),
+        categoria:String(r.categoria??'').trim(), marca:String(r.marca??'').trim(), producto:String(r.producto??'').trim(),
+        causalAgotado:String(r.causal_agotado??'').trim(), fechaCaptura:String(r.fecha_captura??'').trim(),
+        estadoAgotado:String(r.estado_agotado??'').trim(), supervisor:String(r.supervisor??'').trim(),
+        liderEjecucion:String(r.lider_de_ejecucion??'').trim(), mercaderista:String(r.mercaderista??'').trim()
+      }));
+      SUPABASE_TABLES.fechasCortas = fechasCortas.map(r => ({
+        regional:String(r.regional??'').trim(), ruta:String(r.ruta??'').trim(), canal:String(r.canal??'').trim(),
+        cadena:String(r.cadena??'').trim(), formato:String(r.formato??'').trim(), codigoCliente:String(r.codigo_cliente??'').trim(),
+        puntoVenta:String(r.punto_de_venta??'').trim(), categoria:String(r.categoria??'').trim(), marca:String(r.marca??'').trim(),
+        producto:String(r.producto??'').trim(), fechaVisita:String(r.fecha_de_visita??'').trim(), fechaVencimiento:String(r.fecha_de_vencimiento??'').trim(),
+        cantidadUnidades:Number(r.cantidad_unidades)||0, valorMonetario:Number(r.valor_monetario)||0,
+        diasVidaUtil:Number(r.cantidad_dias_vida_util)||0, politica:String(r.politica??'').trim(),
+        supervisor:String(r.supervisor??'').trim(), liderEjecucion:String(r.lider_de_ejecucion??'').trim(), mercaderista:String(r.mercaderista??'').trim()
+      }));
+      SUPABASE_TABLES.devoluciones = devoluciones.map(r => ({
+        regional:String(r.regional??'').trim(), cadena:String(r.cadena??'').trim(), formato:String(r.formato??'').trim(),
+        codigoCliente:String(r.codigo_cliente??'').trim(), puntoVenta:String(r.punto_de_venta??'').trim(), fecha:String(r.fecha??'').trim(),
+        marca:String(r.marca??'').trim(), segmento:String(r.segmento??'').trim(), producto:String(r.producto??'').trim(),
+        valor:Number(r.valor)||0, unidades:Number(r.unidades)||0, motivo:String(r.motivos_de_devolucion??'').trim()
+      }));
+
+      // Auto-escala de campos de porcentaje: algunas fuentes guardan el dato
+      // como fracción (0.25) en vez de como porcentaje (25). Si el máximo
+      // observado en la columna es <= 1.5, asumimos que es una fracción y la
+      // multiplicamos por 100 para que los promedios y gráficas tengan
+      // sentido (esto es lo que corrige participaciones que se veían como
+      // "0.2%" cuando en realidad son ~20%).
+      this._autoScalePercent(SUPABASE_TABLES.venta, ['pctCumplimientoCuota','pctCumplimientoVenta']);
+      this._autoScalePercent(SUPABASE_TABLES.cobertura, ['pctPuntosVisitados','pctVisitasRutero','pctEfectividad']);
+      // Participación: confirmado que Supabase siempre guarda esta columna
+      // como fracción (0.1 = 10%), así que se multiplica directo por 100
+      // en vez de auto-detectar (la auto-detección fallaba cuando algún
+      // registro suelto traía un valor ya en escala 0-100).
+      SUPABASE_TABLES.participacion.forEach(r => { r.pctParticipacion = Number(r.pctParticipacion) * 100; });
+
+      this.loaded = true;
+      modules.forEach(key => { const el = statusEl(key); if(el){ el.textContent = 'Sincronizado'; el.style.color = 'var(--green)'; } });
+
+      modules.forEach(key => { this.wireFilters(key); this.renderModule(key); });
+
+      // Complementa la Vista Mercaderista (Agotados / Fechas Cortas /
+      // Participación) si ya hay un mercaderista seleccionado en esa vista.
+      if(typeof mercaderistaVista !== 'undefined' && mercaderistaVista.nombreActual){
+        mercaderistaVista.renderExtra();
+      }
+    }catch(err){
+      modules.forEach(key => { const el = statusEl(key); if(el){ el.textContent = 'Error: ' + (err.message||err); el.style.color = 'var(--alqueria-red)'; } });
+      console.error('Error sincronizando Analítica Comercial:', err);
+    }
+  }
+
+  _autoScalePercent(rows, fields){
+    fields.forEach(field => {
+      let max = 0;
+      rows.forEach(r => { const v = Number(r[field]); if(isFinite(v) && v > max) max = v; });
+      if(max > 0 && max <= 1.5){
+        rows.forEach(r => { r[field] = Number(r[field]) * 100; });
+      }
+    });
+  }
+
+  uniqueValues(rows, field){
+    const seen = new Map();
+    rows.forEach(r => {
+      const v = String(r[field]||'').trim();
+      if(!v) return;
+      const k = normalizeDeptoName(v);
+      if(!seen.has(k)) seen.set(k, v);
+    });
+    return [...seen.values()].sort((a,b) => a.localeCompare(b, 'es', {sensitivity:'base'}));
+  }
+
+  wireFilters(key){
+    const fields = this.filterFields[key] || [];
+    const rows = SUPABASE_TABLES[key] || [];
+    fields.forEach(field => {
+      const el = document.getElementById('f-' + key + '-' + field);
+      if(!el) return;
+      const values = this.uniqueValues(rows, field);
+      const current = el.value;
+      const placeholder = el.options.length ? el.options[0].outerHTML : '<option value="">Todos</option>';
+      el.innerHTML = placeholder + values.map(v => {
+        const safe = String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return `<option value="${safe}">${safe}</option>`;
+      }).join('');
+      if(current) el.value = current;
+      if(!el._wired){
+        el._wired = true;
+        el.onchange = () => { this.state[key][field] = el.value; this.renderModule(key); };
+      }
+    });
+  }
+
+  resetFilters(key){
+    const fields = this.filterFields[key] || [];
+    fields.forEach(field => {
+      this.state[key][field] = '';
+      const el = document.getElementById('f-' + key + '-' + field);
+      if(el) el.value = '';
+    });
+    this.fullSearch[key] = '';
+    const searchEl = document.getElementById('an-' + key + '-full-search');
+    if(searchEl) searchEl.value = '';
+    this.renderModule(key);
+  }
+
+  // Solo los filtros de los selects (Regional/Canal/etc.), SIN la alerta
+  // clicada. Se usa para calcular los valores y condiciones de las propias
+  // tarjetas de alerta, para que no cambien de significado según cuál
+  // alerta esté activa en un momento dado.
+  getFilteredBase(key){
+    const rows = SUPABASE_TABLES[key] || [];
+    const filters = this.state[key] || {};
+    const active = Object.entries(filters).filter(([,v]) => v);
+    if(!active.length) return rows;
+    return rows.filter(r => active.every(([field, value]) => normalizeDeptoName(r[field]) === normalizeDeptoName(value)));
+  }
+
+  // Filtros de selects + la alerta clicada (si hay una activa). Esto es lo
+  // que alimenta los KPIs, gráficas, cruces y la tabla de detalle completo.
+  getFiltered(key){
+    const result = this.getFilteredBase(key);
+    const pred = this.alertPredicate[key];
+    return pred ? result.filter(pred) : result;
+  }
+
+  // Clic en una tarjeta de alerta: filtra TODO el módulo (KPIs, gráficas,
+  // cruces y la tabla de detalle completo) a solo los registros que
+  // cumplen esa alerta. Clic de nuevo sobre la misma para quitar el filtro.
+  toggleAlertFilter(key, id){
+    if(this.alertFilter[key] === id){
+      this.alertFilter[key] = null;
+      this.alertPredicate[key] = null;
+    } else {
+      const def = (this._alertDefs[key] || []).find(a => a.id === id);
+      if(!def || !def.predicate) return;
+      this.alertFilter[key] = id;
+      this.alertPredicate[key] = def.predicate;
+    }
+    this.renderModule(key);
+    const anchor = document.getElementById('an-' + key + '-full-tbody');
+    if(anchor && anchor.closest('.card')) anchor.closest('.card').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  renderModule(key){
+    if(!this.loaded) return;
+    if(key === 'venta') this.renderVenta();
+    else if(key === 'participacion') this.renderParticipacion();
+    else if(key === 'cobertura') this.renderCobertura();
+    else if(key === 'agotados') this.renderAgotados();
+    else if(key === 'fechasCortas') this.renderFechasCortas();
+    else if(key === 'devoluciones') this.renderDevoluciones();
+    this.renderFullTable(key);
+  }
+
+  resizeModule(key){
+    const idsMap = {
+      venta:['chart-venta-tendencia','chart-venta-regional','chart-venta-marca','chart-venta-cruce','chart-venta-gauge-proyectado','chart-venta-gauge-real'],
+      participacion:['chart-part-tendencia','chart-part-marca','chart-part-regional'],
+      cobertura:['chart-cob-donut','chart-cob-ruta','chart-cob-canal','chart-cob-distribucion'],
+      agotados:['chart-agot-tendencia','chart-agot-causal','chart-agot-estado'],
+      fechasCortas:['chart-fc-tendencia','chart-fc-categoria'],
+      devoluciones:['chart-dev-tendencia','chart-dev-motivo','chart-dev-marca']
+    };
+    (idsMap[key]||[]).forEach(id => {
+      const el = document.getElementById(id);
+      const inst = el && echarts.getInstanceByDom(el);
+      if(inst) inst.resize();
+    });
+  }
+
+  renderVenta(){
+    const baseRows = this.getFilteredBase('venta');
+    const rows = this.getFiltered('venta');
+    const ventaNeta = rows.reduce((a,r)=>a+r.ventaNeta,0);
+    const ventaKilos = rows.reduce((a,r)=>a+r.ventaKilos,0);
+    const cuotaPesos = rows.reduce((a,r)=>a+r.cuotaPesos,0);
+    const cuotaKilos = rows.reduce((a,r)=>a+r.cuotaKilos,0);
+    setTxt('an-venta-neta', currencyFormat(ventaNeta));
+    setTxt('an-venta-kilos', formatNumber(ventaKilos));
+    setTxt('an-venta-cumplimiento', (cuotaPesos>0 ? ventaNeta/cuotaPesos*100 : 0).toFixed(1)+'%');
+    setTxt('an-venta-cumplimiento-kg', (cuotaKilos>0 ? ventaKilos/cuotaKilos*100 : 0).toFixed(1)+'%');
+
+    // Proyectado a la fecha: cuánto se debería llevar vendido (neto de
+    // devoluciones) según los días transcurridos del mes actual, prorrateando
+    // la cuota del mes de forma lineal.
+    const hoy = new Date();
+    const diasEnMes = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
+    const diaHoy = hoy.getDate();
+    const rowsDelMes = rows.filter(r => {
+      const f = parseDateOnly(r.fecha);
+      return f && f.getFullYear()===hoy.getFullYear() && f.getMonth()===hoy.getMonth();
+    });
+    const cuotaMes = rowsDelMes.reduce((a,r)=>a+r.cuotaPesos, 0);
+    const ventaMes = rowsDelMes.reduce((a,r)=>a+r.ventaNeta, 0);
+    const proyectado = cuotaMes * (diaHoy/diasEnMes);
+
+    const devFilters = this.state.venta;
+    let devRows = (SUPABASE_TABLES.devoluciones||[]).filter(r => {
+      const f = parseDateOnly(r.fecha);
+      return f && f.getFullYear()===hoy.getFullYear() && f.getMonth()===hoy.getMonth();
+    });
+    if(devFilters.regional) devRows = devRows.filter(r => normalizeDeptoName(r.regional)===normalizeDeptoName(devFilters.regional));
+    if(devFilters.cadena) devRows = devRows.filter(r => normalizeDeptoName(r.cadena)===normalizeDeptoName(devFilters.cadena));
+    if(devFilters.marca) devRows = devRows.filter(r => normalizeDeptoName(r.marca)===normalizeDeptoName(devFilters.marca));
+    const devolucionesMes = devRows.reduce((a,r)=>a+r.valor, 0);
+    const netoReal = ventaMes - devolucionesMes;
+
+    setTxt('an-venta-proyectado-valor', currencyFormat(proyectado));
+    setTxt('an-venta-neto-real', currencyFormat(netoReal));
+    const gaugeMax = Math.max(cuotaMes, netoReal, proyectado, 1) * 1.05;
+    renderGaugeChart('chart-venta-gauge-proyectado', proyectado, {
+      max: gaugeMax, label:'Proyectado', pointerColor:'#0052CC',
+      formatter: (v)=>formatCompact(v, true), axisFormatter: (v)=>formatCompact(v, true)
+    });
+    renderGaugeChart('chart-venta-gauge-real', netoReal, {
+      max: gaugeMax, label:'Real (Neto)', pointerColor:'#DA291C',
+      formatter: (v)=>formatCompact(v, true), axisFormatter: (v)=>formatCompact(v, true)
+    });
+    const detalleEl = document.getElementById('an-venta-proyectado-detalle');
+    if(detalleEl) detalleEl.textContent = `Día ${diaHoy} de ${diasEnMes} del mes en curso · Cuota del mes: ${currencyFormat(cuotaMes)} · Devoluciones del mes: ${currencyFormat(devolucionesMes)}`;
+    const badgeEl = document.getElementById('an-venta-proyectado-badge');
+    if(badgeEl){
+      if(cuotaMes<=0){
+        badgeEl.textContent = 'Sin cuota este mes';
+        badgeEl.style.color = 'var(--text-muted)'; badgeEl.style.background = '#F1F5F9';
+      } else {
+        const brecha = netoReal - proyectado;
+        const pctBrecha = proyectado>0 ? brecha/proyectado*100 : 0;
+        const signo = brecha>=0 ? '+' : '';
+        badgeEl.textContent = `${signo}${currencyFormat(brecha)} (${signo}${pctBrecha.toFixed(1)}%)`;
+        badgeEl.style.color = brecha>=0 ? 'var(--green)' : 'var(--alqueria-red)';
+        badgeEl.style.background = brecha>=0 ? 'var(--green-bg)' : 'var(--alqueria-red-bg)';
+      }
+    }
+
+    const regionalesBajosSet = new Set(agSum(baseRows, 'regional', 'ventaNeta').map(([reg]) => {
+      const cuota = (agSum(baseRows,'regional','cuotaPesos').find(p=>p[0]===reg)||[0,0])[1];
+      const venta = (agSum(baseRows,'regional','ventaNeta').find(p=>p[0]===reg)||[0,0])[1];
+      return { reg, pct: cuota>0 ? venta/cuota*100 : 0 };
+    }).filter(r => r.pct < 70).map(r => normalizeDeptoName(r.reg)));
+    const marcasSobreSet = new Set(agSum(baseRows,'marca','ventaNeta').filter(([marca]) => {
+      const cuota = (agSum(baseRows,'marca','cuotaPesos').find(p=>p[0]===marca)||[0,0])[1];
+      const venta = (agSum(baseRows,'marca','ventaNeta').find(p=>p[0]===marca)||[0,0])[1];
+      return cuota>0 && venta/cuota*100 >= 120;
+    }).map(([marca]) => normalizeDeptoName(marca)));
+    const sinCuota = baseRows.filter(r => r.cuotaPesos === 0).length;
+
+    this._alertDefs.venta = [
+      { id:'regionalesBajos', icon:'⚠', value:formatNumber(regionalesBajosSet.size), label: regionalesBajosSet.size===1?'regional bajo cuota':'regionales bajo cuota', desc:'Cumplimiento < 70% en venta neta', tone: regionalesBajosSet.size>0?TONE_RED:TONE_GREEN, predicate: r=>regionalesBajosSet.has(normalizeDeptoName(r.regional)) },
+      { id:'sinCuota', icon:'●', value:formatNumber(sinCuota), label: sinCuota===1?'registro sin cuota':'registros sin cuota', desc:'Sin cuota asignada en el período', tone: sinCuota>0?TONE_AMBER:TONE_GREEN, predicate: r=>r.cuotaPesos===0 },
+      { id:'sobreCumplimiento', icon:'↗', value:formatNumber(marcasSobreSet.size), label: marcasSobreSet.size===1?'marca sobre-cumple':'marcas sobre-cumplen', desc:'Venta ≥ 120% de la cuota asignada', tone:TONE_GREEN, predicate: r=>marcasSobreSet.has(normalizeDeptoName(r.marca)) }
+    ];
+    renderAlertRow('an-venta-alertas', this._alertDefs.venta, { moduleKey:'venta', activeId:this.alertFilter.venta });
+
+    // Tendencia mensual: venta neta vs cuota, para ver evolución real y no
+    // solo una foto estática de "quién vende más".
+    const ventaPorMes = agSumByMonth(rows, 'fecha', 'ventaNeta');
+    const cuotaPorMesMap = new Map(agSumByMonth(rows, 'fecha', 'cuotaPesos'));
+    const mesesVenta = ventaPorMes.map(p=>p[0]);
+    renderLineChart('chart-venta-tendencia', mesesVenta, [
+      { name:'Venta Neta', data: ventaPorMes.map(p=>p[1]), color:'#0052CC', area:true },
+      { name:'Cuota', data: mesesVenta.map(m => cuotaPorMesMap.get(m)||0), color:'#DA291C' }
+    ], { currency:true });
+
+    const porRegionalVenta = agSum(rows, 'regional', 'ventaNeta');
+    const porRegionalCuotaMap = new Map(agSum(rows, 'regional', 'cuotaPesos'));
+    const cats = porRegionalVenta.map(p=>p[0]);
+    renderGroupedBar('chart-venta-regional', cats, [
+      { name:'Venta Neta', data: cats.map(c => (porRegionalVenta.find(p=>p[0]===c)||[0,0])[1]), color:'#0052CC' },
+      { name:'Cuota', data: cats.map(c => porRegionalCuotaMap.get(c)||0), color:'#DA291C' }
+    ], { currency:true });
+    renderHBar('chart-venta-marca', agSum(rows, 'marca', 'ventaNeta'), { limit:8, color:'#0052CC', currency:true });
+
+    const porProducto = new Map();
+    rows.forEach(r => {
+      const k = r.producto || 'Sin producto';
+      if(!porProducto.has(k)) porProducto.set(k, { marca:r.marca, venta:0, cuota:0 });
+      const o = porProducto.get(k);
+      o.venta += r.ventaNeta; o.cuota += r.cuotaPesos;
+    });
+    const topProductos = [...porProducto.entries()].map(([k,v])=>({producto:k, ...v})).sort((a,b)=>b.venta-a.venta).slice(0,8);
+    this._cacheVentaTabla = topProductos;
+    const tbody = document.getElementById('an-venta-tabla');
+    if(tbody) tbody.innerHTML = topProductos.map(p => `
+      <tr class="border-t" style="border-color:var(--border)">
+        <td class="py-2 font-semibold truncate max-w-[220px]">${p.producto}</td>
+        <td class="py-2" style="color:var(--text-muted)">${p.marca||'—'}</td>
+        <td class="py-2 text-right font-bold tabular">${currencyFormat(p.venta)}</td>
+        <td class="py-2 text-right tabular" style="color:${p.cuota>0 && p.venta/p.cuota*100>=100?'var(--green)':'var(--text-muted)'}">${p.cuota>0 ? (p.venta/p.cuota*100).toFixed(1)+'%' : '—'}</td>
+      </tr>`).join('') || emptyRow(4);
+
+    // Dispersión Venta vs Participación: todas las marcas con venta > 0,
+    // cruzadas con su % de participación promedio (si hay dato).
+    const ventaPorMarca = agSum(rows, 'marca', 'ventaNeta').filter(([,v]) => v>0);
+    const partConDato = (SUPABASE_TABLES.participacion||[]).filter(r => r.pctParticipacion > 0);
+    const partPorMarca = new Map(agAvg(partConDato, 'marca', 'pctParticipacion'));
+    this._cacheVentaCruce = ventaPorMarca.map(([marca, venta]) => ({ marca, venta, participacion: partPorMarca.has(marca) ? partPorMarca.get(marca) : null }));
+    renderScatterChart('chart-venta-cruce', this._cacheVentaCruce.filter(r => r.participacion!=null).map(r => ({ marca:r.marca, venta:r.venta, participacion:r.participacion })));
+  }
+
+  exportVentaTabla(){
+    const rows = this._cacheVentaTabla || [];
+    downloadCSV(`venta_productos_${todayStamp()}.csv`, ['Producto','Marca','Venta Neta','Cuota','% Cumpl. Cuota'],
+      rows.map(p => [p.producto, p.marca, p.venta, p.cuota, p.cuota>0 ? (p.venta/p.cuota*100).toFixed(1)+'%' : '']));
+  }
+  exportVentaCruce(){
+    const rows = this._cacheVentaCruce || [];
+    downloadCSV(`venta_vs_participacion_${todayStamp()}.csv`, ['Marca','Venta Neta','% Participación'],
+      rows.map(r => [r.marca, r.venta, r.participacion!=null ? r.participacion.toFixed(1)+'%' : 'Sin dato']));
+  }
+
+  renderParticipacion(){
+    const baseRows = this.getFilteredBase('participacion');
+    const rows = this.getFiltered('participacion');
+    const conDato = rows.filter(r => r.pctParticipacion > 0);
+    const pctProm = conDato.length ? conDato.reduce((a,r)=>a+r.pctParticipacion,0)/conDato.length : 0;
+    const vsObjetivo = conDato.length ? conDato.reduce((a,r)=> a + (r.objetivoParticipacion>0 ? r.pctParticipacion/r.objetivoParticipacion*100 : 0), 0) / conDato.length : 0;
+    const carasProm = rows.length ? rows.reduce((a,r)=>a+r.caras,0)/rows.length : 0;
+    const coberturaDato = rows.length ? conDato.length/rows.length*100 : 0;
+
+    setTxt('an-part-pct', pctProm.toFixed(1)+'%');
+    setTxt('an-part-pct-note', `sobre ${formatNumber(conDato.length)} visitas con dato`);
+    setTxt('an-part-objetivo', vsObjetivo.toFixed(1)+'%');
+    setTxt('an-part-caras', carasProm.toFixed(1));
+    setTxt('an-part-cobertura-dato', coberturaDato.toFixed(1)+'%');
+
+    const baseConDato = baseRows.filter(r => r.pctParticipacion > 0);
+    const marcasBajoObjetivoSet = new Set(agAvg(baseConDato,'marca','pctParticipacion').filter(([marca, pct]) => {
+      const obj = agAvg(baseConDato.filter(r=>r.marca===marca),'marca','objetivoParticipacion');
+      const objVal = obj.length ? obj[0][1] : 0;
+      return objVal>0 && pct < objVal;
+    }).map(([marca]) => normalizeDeptoName(marca)));
+    const marcasDestacadasSet = new Set(agAvg(baseConDato,'marca','pctParticipacion').filter(([,pct]) => pct >= 20).map(([marca]) => normalizeDeptoName(marca)));
+    const sinDato = baseRows.length - baseConDato.length;
+
+    this._alertDefs.participacion = [
+      { id:'marcasBajoObjetivo', icon:'⚠', value:formatNumber(marcasBajoObjetivoSet.size), label: marcasBajoObjetivoSet.size===1?'marca bajo objetivo':'marcas bajo objetivo', desc:'% participación menor al objetivo fijado', tone: marcasBajoObjetivoSet.size>0?TONE_AMBER:TONE_GREEN, predicate: r=>marcasBajoObjetivoSet.has(normalizeDeptoName(r.marca)) },
+      { id:'sinDato', icon:'●', value:formatNumber(sinDato), label: sinDato===1?'visita sin dato':'visitas sin dato', desc:'Sin % de participación registrado', tone: sinDato>0?TONE_RED:TONE_GREEN, predicate: r=>r.pctParticipacion<=0 },
+      { id:'marcasDestacadas', icon:'↗', value:formatNumber(marcasDestacadasSet.size), label: marcasDestacadasSet.size===1?'marca destacada':'marcas destacadas', desc:'Participación promedio ≥ 20%', tone:TONE_BLUE, predicate: r=>marcasDestacadasSet.has(normalizeDeptoName(r.marca)) }
+    ];
+    renderAlertRow('an-participacion-alertas', this._alertDefs.participacion, { moduleKey:'participacion', activeId:this.alertFilter.participacion });
+
+    // Tendencia: promedio mensual de % participación (solo visitas con dato).
+    const mesesMap = new Map();
+    conDato.forEach(r => {
+      const k = monthKey(r.fechaVisita);
+      if(!k) return;
+      if(!mesesMap.has(k)) mesesMap.set(k, { sum:0, count:0 });
+      const o = mesesMap.get(k); o.sum += r.pctParticipacion; o.count += 1;
+    });
+    const mesesPart = [...mesesMap.entries()].sort((a,b)=>a[0]<b[0]?-1:1);
+    renderLineChart('chart-part-tendencia', mesesPart.map(p=>p[0]), [
+      { name:'% Participación Promedio', data: mesesPart.map(p=>p[1].sum/p[1].count), color:'#0052CC', area:true }
+    ], { percent:true });
+
+    renderHBar('chart-part-marca', agAvg(conDato, 'marca', 'pctParticipacion'), { limit:30, percent:true, color:'#0052CC' });
+    renderHBar('chart-part-regional', agAvg(conDato, 'regional', 'pctParticipacion'), { limit:30, percent:true, color:'#6366F1' });
+
+    // En vez de "menor participación" (dominado por PDV en 0%, poco útil),
+    // mostramos los de MEJOR participación — información más accionable.
+    const mejores = [...conDato].sort((a,b)=>b.pctParticipacion-a.pctParticipacion).slice(0,8);
+    this._cacheParticipacionTabla = mejores;
+    const tbody = document.getElementById('an-part-tabla');
+    if(tbody) tbody.innerHTML = mejores.map(r => `
+      <tr class="border-t" style="border-color:var(--border)">
+        <td class="py-2 font-semibold truncate max-w-[220px]">${r.puntoVenta||'—'}</td>
+        <td class="py-2" style="color:var(--text-muted)">${r.marca||'—'}</td>
+        <td class="py-2 text-right font-bold tabular" style="color:var(--green)">${r.pctParticipacion.toFixed(1)}%</td>
+      </tr>`).join('') || emptyRow(3);
+
+    this._renderCruceCoberturaParticipacion('an-part-cruce', '_cacheCruceRegional');
+  }
+
+  exportParticipacionTabla(){
+    const rows = this._cacheParticipacionTabla || [];
+    downloadCSV(`participacion_pdv_destacados_${todayStamp()}.csv`, ['PDV','Marca','% Participación'],
+      rows.map(r => [r.puntoVenta, r.marca, r.pctParticipacion.toFixed(1)+'%']));
+  }
+  exportParticipacionCruce(){ this._exportCruceRegional(); }
+  exportCoberturaCruce(){ this._exportCruceRegional(); }
+  _exportCruceRegional(){
+    const rows = this._cacheCruceRegional || [];
+    downloadCSV(`cobertura_vs_participacion_${todayStamp()}.csv`, ['Regional','% Cobertura','% Participación'],
+      rows.map(r => [r.regional, r.cobPct!=null?r.cobPct.toFixed(1)+'%':'Sin dato', r.partPct!=null?r.partPct.toFixed(1)+'%':'Sin dato']));
+  }
+
+  renderCobertura(){
+    const baseRows = this.getFilteredBase('cobertura');
+    const rows = this.getFiltered('cobertura');
+    const programados = rows.reduce((a,r)=>a+r.pdvProgramados,0);
+    const visitados = rows.reduce((a,r)=>a+r.pdvVisitados,0);
+    const pct = programados>0 ? visitados/programados*100 : 0;
+    const efectividadProm = rows.length ? rows.reduce((a,r)=>a+r.pctEfectividad,0)/rows.length : 0;
+
+    setTxt('an-cob-programados', formatNumber(programados));
+    setTxt('an-cob-visitados', formatNumber(visitados));
+    setTxt('an-cob-pct', pct.toFixed(1)+'%');
+    setTxt('an-cob-efectividad', efectividadProm.toFixed(1)+'%');
+
+    const baseRutaMap = new Map();
+    baseRows.forEach(r => {
+      const k = r.ruta || 'Sin ruta';
+      if(!baseRutaMap.has(k)) baseRutaMap.set(k, {prog:0, vis:0});
+      const o = baseRutaMap.get(k); o.prog += r.pdvProgramados; o.vis += r.pdvVisitados;
+    });
+    const rutasSinVisitasSet = new Set([...baseRutaMap.entries()].filter(([,v]) => v.prog>0 && v.vis===0).map(([k]) => normalizeDeptoName(k)));
+    const rutasCompletasSet = new Set([...baseRutaMap.entries()].filter(([,v]) => v.prog>0 && v.vis>=v.prog).map(([k]) => normalizeDeptoName(k)));
+
+    this._alertDefs.cobertura = [
+      { id:'rutasSinVisitas', icon:'⚠', value:formatNumber(rutasSinVisitasSet.size), label: rutasSinVisitasSet.size===1?'ruta sin visitas':'rutas sin visitas', desc:'PDV programados sin ninguna visita', tone: rutasSinVisitasSet.size>0?TONE_RED:TONE_GREEN, predicate: r=>rutasSinVisitasSet.has(normalizeDeptoName(r.ruta||'Sin ruta')) },
+      { id:'coberturaGlobal', icon:'●', value: pct.toFixed(1)+'%', label:'cobertura global', desc:'PDV visitados sobre programados', tone: pct>=80?TONE_GREEN:(pct>=50?TONE_AMBER:TONE_RED) },
+      { id:'rutasCompletas', icon:'↗', value:formatNumber(rutasCompletasSet.size), label: rutasCompletasSet.size===1?'ruta con cobertura completa':'rutas con cobertura completa', desc:'100% de los PDV programados visitados', tone:TONE_GREEN, predicate: r=>rutasCompletasSet.has(normalizeDeptoName(r.ruta||'Sin ruta')) }
+    ];
+    renderAlertRow('an-cobertura-alertas', this._alertDefs.cobertura, { moduleKey:'cobertura', activeId:this.alertFilter.cobertura });
+
+    renderSingleDonut('chart-cob-donut', pct, pct>=80?'#059669':(pct>=50?'#D97706':'#DA291C'));
+
+    const map = new Map();
+    rows.forEach(r => {
+      const k = r.ruta || 'Sin ruta';
+      if(!map.has(k)) map.set(k, { prog:0, vis:0, supervisor:r.supervisor });
+      const o = map.get(k);
+      o.prog += r.pdvProgramados; o.vis += r.pdvVisitados;
+    });
+    const pairs = [...map.entries()].map(([k,v]) => [k, v.prog>0 ? v.vis/v.prog*100 : 0]).sort((a,b) => b[1]-a[1]);
+    // autoHeight evita que, con muchas rutas, las barras y sus etiquetas de
+    // % se amontonen unas sobre otras (ilegible cuando hay 100+ rutas).
+    renderHBar('chart-cob-ruta', pairs, { limit:25, percent:true, autoHeight:true, thresholdColor: v => v>=80?'#059669':(v>=50?'#D97706':'#DA291C') });
+
+    // Distribución por rangos: cuando la mayoría de rutas están cerca del
+    // 100%, un ranking plano dice poco — un histograma muestra de un
+    // vistazo cuántas rutas caen en cada franja de cobertura.
+    const buckets = [
+      ['0–20%', pairs.filter(p=>p[1]<20).length],
+      ['20–40%', pairs.filter(p=>p[1]>=20&&p[1]<40).length],
+      ['40–60%', pairs.filter(p=>p[1]>=40&&p[1]<60).length],
+      ['60–80%', pairs.filter(p=>p[1]>=60&&p[1]<80).length],
+      ['80–99%', pairs.filter(p=>p[1]>=80&&p[1]<100).length],
+      ['100%', pairs.filter(p=>p[1]>=100).length]
+    ];
+    renderGroupedBar('chart-cob-distribucion', buckets.map(b=>b[0]), [
+      { name:'Rutas', data: buckets.map(b=>b[1]), color:'#0052CC' }
+    ]);
+
+    // Vista completa por canal: programados vs visitados, no solo un ranking.
+    const canalMap = new Map();
+    rows.forEach(r => {
+      const k = r.canal || 'Sin canal';
+      if(!canalMap.has(k)) canalMap.set(k, { prog:0, vis:0 });
+      const o = canalMap.get(k); o.prog += r.pdvProgramados; o.vis += r.pdvVisitados;
+    });
+    const canales = [...canalMap.keys()];
+    renderGroupedBar('chart-cob-canal', canales, [
+      { name:'Programados', data: canales.map(c => canalMap.get(c).prog), color:'#94A3B8' },
+      { name:'Visitados', data: canales.map(c => canalMap.get(c).vis), color:'#059669' }
+    ]);
+
+    // "Mejor cobertura" en vez de "menor" — el ranking ascendente quedaba
+    // dominado por rutas en 0%, poco accionable como lista.
+    const mejores = [...map.entries()].map(([ruta,v]) => ({ruta, ...v, pct: v.prog>0?v.vis/v.prog*100:0})).sort((a,b)=>b.pct-a.pct).slice(0,8);
+    this._cacheCoberturaTabla = mejores;
+    const tbody = document.getElementById('an-cob-tabla');
+    if(tbody) tbody.innerHTML = mejores.map(r => `
+      <tr class="border-t" style="border-color:var(--border)">
+        <td class="py-2 font-semibold">${r.ruta}</td>
+        <td class="py-2" style="color:var(--text-muted)">${r.supervisor||'—'}</td>
+        <td class="py-2 text-right tabular">${formatNumber(r.prog)}</td>
+        <td class="py-2 text-right tabular">${formatNumber(r.vis)}</td>
+        <td class="py-2 text-right font-bold tabular" style="color:${r.pct>=80?'var(--green)':r.pct>=50?'var(--amber)':'var(--alqueria-red)'}">${r.pct.toFixed(1)}%</td>
+      </tr>`).join('') || emptyRow(5);
+
+    this._renderCruceCoberturaParticipacion('an-cob-cruce', '_cacheCruceRegional');
+  }
+
+  exportCoberturaTabla(){
+    const rows = this._cacheCoberturaTabla || [];
+    downloadCSV(`cobertura_rutas_${todayStamp()}.csv`, ['Ruta','Supervisor','Programados','Visitados','% Cobertura'],
+      rows.map(r => [r.ruta, r.supervisor, r.prog, r.vis, r.pct.toFixed(1)+'%']));
+  }
+
+  _renderCruceCoberturaParticipacion(tbodyId, cacheKey){
+    const cobRows = SUPABASE_TABLES.cobertura || [];
+    const partRows = (SUPABASE_TABLES.participacion || []).filter(r => r.pctParticipacion > 0);
+    const cobByRegional = new Map();
+    cobRows.forEach(r => {
+      const k = r.regional || 'Sin regional';
+      if(!cobByRegional.has(k)) cobByRegional.set(k, {prog:0, vis:0});
+      const o = cobByRegional.get(k); o.prog += r.pdvProgramados; o.vis += r.pdvVisitados;
+    });
+    const partByRegional = new Map(agAvg(partRows, 'regional', 'pctParticipacion'));
+    const regionales = [...new Set([...cobByRegional.keys(), ...partByRegional.keys()])];
+    const filas = regionales.map(reg => {
+      const cob = cobByRegional.get(reg);
+      const cobPct = cob && cob.prog>0 ? cob.vis/cob.prog*100 : null;
+      return { regional:reg, cobPct, partPct: partByRegional.has(reg) ? partByRegional.get(reg) : null };
+    });
+    if(cacheKey) this[cacheKey] = filas;
+    const tbody = document.getElementById(tbodyId);
+    if(!tbody) return;
+    tbody.innerHTML = filas.map(r => `<tr class="border-t" style="border-color:var(--border)">
+        <td class="py-2 font-semibold">${r.regional}</td>
+        <td class="py-2 text-right tabular">${r.cobPct!=null ? r.cobPct.toFixed(1)+'%' : 'Sin dato'}</td>
+        <td class="py-2 text-right tabular font-bold" style="color:var(--eficacia-blue)">${r.partPct!=null ? r.partPct.toFixed(1)+'%' : 'Sin dato'}</td>
+      </tr>`).join('') || emptyRow(3);
+  }
+
+  renderAgotados(){
+    const rows = this.getFiltered('agotados');
+    setTxt('an-agot-total', formatNumber(rows.length));
+    setTxt('an-agot-pdv', formatNumber(agCountDistinct(rows, 'puntoVenta')));
+    const porCausal = agCount(rows, 'causalAgotado');
+    setTxt('an-agot-top-causal', porCausal.length ? porCausal[0][0] : '—');
+
+    const { count } = this._crossRiskCount();
+    setTxt('an-agot-doble-riesgo', formatNumber(count));
+
+    const sinEstado = rows.filter(r => !r.estadoAgotado).length;
+    const pdvRepetidos = [...agCount(rows, 'puntoVenta')].filter(([,n]) => n>1).length;
+    const causalTop = porCausal.length ? (porCausal[0][1]/rows.length*100) : 0;
+    renderAlertRow('an-agotados-alertas', [
+      { icon:'●', value:formatNumber(sinEstado), label: sinEstado===1?'caso sin estado':'casos sin estado', desc:'Sin estado de seguimiento registrado', tone: sinEstado>0?TONE_AMBER:TONE_GREEN },
+      { icon:'⚠', value:formatNumber(pdvRepetidos), label: pdvRepetidos===1?'PDV con agotados repetidos':'PDV con agotados repetidos', desc:'Más de un caso registrado en el mismo PDV', tone: pdvRepetidos>0?TONE_RED:TONE_GREEN },
+      { icon:'●', value: causalTop.toFixed(0)+'%', label:'concentración en la causal principal', desc: porCausal.length ? `"${porCausal[0][0]}" del total de casos` : 'Sin causal registrada', tone:TONE_BLUE }
+    ]);
+
+    const porMes = agSumByMonth(rows.map(r=>({...r, uno:1})), 'fechaCaptura', 'uno');
+    renderLineChart('chart-agot-tendencia', porMes.map(p=>p[0]), [
+      { name:'Casos de Agotado', data: porMes.map(p=>p[1]), color:'#DA291C', area:true }
+    ]);
+
+    renderHBar('chart-agot-causal', porCausal, { limit:30, color:'#DA291C' });
+    renderPieSimple('chart-agot-estado', agCount(rows, 'estadoAgotado'));
+
+    const porMarca = agCount(rows, 'marca');
+    this._cacheAgotadosTabla = porMarca;
+    const tbody = document.getElementById('an-agot-tabla');
+    if(tbody) tbody.innerHTML = porMarca.slice(0,8).map(([marca,n]) => `
+      <tr class="border-t" style="border-color:var(--border)">
+        <td class="py-2 font-semibold">${marca}</td>
+        <td class="py-2 text-right font-bold tabular" style="color:var(--alqueria-red)">${formatNumber(n)}</td>
+      </tr>`).join('') || emptyRow(2);
+  }
+
+  exportAgotadosTabla(){
+    const rows = this._cacheAgotadosTabla || [];
+    downloadCSV(`agotados_por_marca_${todayStamp()}.csv`, ['Marca','Casos'], rows.map(([marca,n]) => [marca, n]));
+  }
+
+  // Cruza Agotados y Fechas Cortas por Punto de Venta: PDV que aparecen en
+  // ambas tablas tienen prioridad de visita (dos riesgos a la vez).
+  _crossRiskCount(){
+    const agotPDVs = new Set((SUPABASE_TABLES.agotados||[]).map(r => normalizeDeptoName(r.puntoVenta)).filter(Boolean));
+    const fcRows = (SUPABASE_TABLES.fechasCortas||[]).filter(r => agotPDVs.has(normalizeDeptoName(r.puntoVenta)));
+    const distinctPDVs = new Set(fcRows.map(r => normalizeDeptoName(r.puntoVenta)));
+    return { count: distinctPDVs.size, rows: fcRows };
+  }
+
+  renderFechasCortas(){
+    const rows = this.getFiltered('fechasCortas');
+    const unidades = rows.reduce((a,r)=>a+r.cantidadUnidades,0);
+    const valor = rows.reduce((a,r)=>a+r.valorMonetario,0);
+    const diasProm = rows.length ? rows.reduce((a,r)=>a+r.diasVidaUtil,0)/rows.length : 0;
+    setTxt('an-fc-unidades', formatNumber(unidades));
+    setTxt('an-fc-valor', currencyFormat(valor));
+    setTxt('an-fc-pdv', formatNumber(agCountDistinct(rows, 'puntoVenta')));
+    setTxt('an-fc-dias-prom', diasProm.toFixed(0));
+
+    const criticos = rows.filter(r => r.diasVidaUtil <= 7).length;
+    const { count: dobleRiesgo } = this._crossRiskCount();
+    const sinPolitica = rows.filter(r => !r.politica).length;
+    renderAlertRow('an-fechasCortas-alertas', [
+      { icon:'⚠', value:formatNumber(criticos), label: criticos===1?'producto crítico':'productos críticos', desc:'7 días o menos de vida útil', tone: criticos>0?TONE_RED:TONE_GREEN },
+      { icon:'●', value:formatNumber(dobleRiesgo), label: dobleRiesgo===1?'PDV con riesgo doble':'PDV con riesgo doble', desc:'También presentan agotados', tone: dobleRiesgo>0?TONE_AMBER:TONE_GREEN },
+      { icon:'●', value:formatNumber(sinPolitica), label: sinPolitica===1?'registro sin política':'registros sin política', desc:'Sin política de manejo asignada', tone: sinPolitica>0?TONE_AMBER:TONE_GREEN }
+    ]);
+
+    const porMes = agSumByMonth(rows, 'fechaVisita', 'valorMonetario');
+    renderLineChart('chart-fc-tendencia', porMes.map(p=>p[0]), [
+      { name:'Valor en Riesgo', data: porMes.map(p=>p[1]), color:'#D97706', area:true }
+    ], { currency:true });
+
+    renderHBar('chart-fc-categoria', agSum(rows, 'categoria', 'valorMonetario'), { limit:30, color:'#D97706', currency:true });
+
+    const ordenadas = [...rows].sort((a,b) => a.diasVidaUtil-b.diasVidaUtil);
+    const urgentes = ordenadas.slice(0,6);
+    const listEl = document.getElementById('fc-urgentes-list');
+    if(listEl) listEl.innerHTML = urgentes.map(r =>
+      itemRow(r.producto || r.puntoVenta || '—', `${r.puntoVenta||'—'} · ${formatNumber(r.cantidadUnidades)} un`, `${formatNumber(r.diasVidaUtil)} días`, r.diasVidaUtil<=7)
+    ).join('') || emptyMsg('Sin datos.');
+
+    const { rows: dobleRiesgoRows } = this._crossRiskCount();
+    const dobleList = document.getElementById('fc-doble-riesgo-list');
+    if(dobleList) dobleList.innerHTML = dobleRiesgoRows.slice(0,6).map(r =>
+      itemRow(r.producto || r.puntoVenta || '—', r.puntoVenta || '—', `${formatNumber(r.diasVidaUtil)} días`, true)
+    ).join('') || emptyMsg('No se detectaron PDV con ambos riesgos simultáneos.');
+
+  }
+
+  renderDevoluciones(){
+    const rows = this.getFiltered('devoluciones');
+    const valor = rows.reduce((a,r)=>a+r.valor,0);
+    const unidades = rows.reduce((a,r)=>a+r.unidades,0);
+    setTxt('an-dev-valor', currencyFormat(valor));
+    setTxt('an-dev-unidades', formatNumber(unidades));
+    const porMotivo = agSum(rows, 'motivo', 'valor');
+    setTxt('an-dev-top-motivo', porMotivo.length ? porMotivo[0][0] : '—');
+
+    const ventaTotal = (SUPABASE_TABLES.venta||[]).reduce((a,r)=>a+r.ventaNeta,0);
+    setTxt('an-dev-pct-venta', (ventaTotal>0 ? valor/ventaTotal*100 : 0).toFixed(2)+'%');
+
+    const porVencimiento = rows.filter(r => normalizeDeptoName(r.motivo).includes('VENCID'));
+    const pctVencimiento = rows.length ? porVencimiento.length/rows.length*100 : 0;
+    const marcaTop = agSum(rows,'marca','valor');
+    const pctMarcaTop = valor>0 && marcaTop.length ? marcaTop[0][1]/valor*100 : 0;
+    renderAlertRow('an-devoluciones-alertas', [
+      { icon:'⚠', value: pctVencimiento.toFixed(0)+'%', label:'devoluciones por vencimiento', desc:'Sobre el total de casos registrados', tone: pctVencimiento>=40?TONE_RED:TONE_AMBER },
+      { icon:'●', value: formatNumber(porVencimiento.length), label: porVencimiento.length===1?'caso por vencido':'casos por vencido', desc:'Motivo de devolución más común', tone:TONE_AMBER },
+      { icon:'●', value: pctMarcaTop.toFixed(0)+'%', label:'concentrado en 1 marca', desc: marcaTop.length ? `"${marcaTop[0][0]}" del valor devuelto` : 'Sin datos', tone:TONE_BLUE }
+    ]);
+
+    const porMes = agSumByMonth(rows, 'fecha', 'valor');
+    renderLineChart('chart-dev-tendencia', porMes.map(p=>p[0]), [
+      { name:'Valor Devuelto', data: porMes.map(p=>p[1]), color:'#DA291C', area:true }
+    ], { currency:true });
+
+    renderHBar('chart-dev-motivo', porMotivo, { limit:30, color:'#DA291C', currency:true });
+    renderHBar('chart-dev-marca', agSum(rows, 'marca', 'valor'), { limit:30, color:'#6366F1', currency:true });
+
+    const porProducto = new Map();
+    rows.forEach(r => {
+      const k = r.producto || 'Sin producto';
+      if(!porProducto.has(k)) porProducto.set(k, { marca:r.marca, valor:0, unidades:0 });
+      const o = porProducto.get(k); o.valor += r.valor; o.unidades += r.unidades;
+    });
+    const top = [...porProducto.entries()].map(([k,v])=>({producto:k,...v})).sort((a,b)=>b.valor-a.valor).slice(0,8);
+    this._cacheDevolucionesTabla = top;
+    const tbody = document.getElementById('an-dev-tabla');
+    if(tbody) tbody.innerHTML = top.map(p => `
+      <tr class="border-t" style="border-color:var(--border)">
+        <td class="py-2 font-semibold truncate max-w-[220px]">${p.producto}</td>
+        <td class="py-2" style="color:var(--text-muted)">${p.marca||'—'}</td>
+        <td class="py-2 text-right font-bold tabular" style="color:var(--alqueria-red)">${currencyFormat(p.valor)}</td>
+        <td class="py-2 text-right tabular">${formatNumber(p.unidades)}</td>
+      </tr>`).join('') || emptyRow(4);
+  }
+
+  exportDevolucionesTabla(){
+    const rows = this._cacheDevolucionesTabla || [];
+    downloadCSV(`devoluciones_productos_${todayStamp()}.csv`, ['Producto','Marca','Valor','Unidades'],
+      rows.map(p => [p.producto, p.marca, p.valor, p.unidades]));
+  }
+}
+const analiticaComercial = new AnaliticaComercial();
+
+// Alterna entre las 8 vistas del sidebar: Vista General, Vista
+// Mercaderista y los 6 módulos de Analítica Comercial (cada uno ahora
+// es su propio ítem del sidebar, ya no sub-pestañas).
+const VISTA_IDS = ['general','mercaderista','venta','participacion','cobertura','agotados','fechasCortas','devoluciones'];
+const VISTA_NAV_BTN = {
+  general:'nav-btn-general', mercaderista:'nav-btn-mercaderista',
+  venta:'nav-btn-venta', participacion:'nav-btn-participacion', cobertura:'nav-btn-cobertura',
+  agotados:'nav-btn-agotados', fechasCortas:'nav-btn-fechascortas', devoluciones:'nav-btn-devoluciones'
+};
+const ANALITICA_KEYS = ['venta','participacion','cobertura','agotados','fechasCortas','devoluciones'];
+
 function setVista(vista){
-  const general = document.getElementById('vista-general');
-  const merc = document.getElementById('vista-mercaderista');
-  const btnGeneral = document.getElementById('nav-btn-general');
-  const btnMerc = document.getElementById('nav-btn-mercaderista');
-  const esMercaderista = vista === 'mercaderista';
-  if(general) general.classList.toggle('hidden', esMercaderista);
-  if(merc) merc.classList.toggle('hidden', !esMercaderista);
-  if(btnGeneral) btnGeneral.classList.toggle('is-active', !esMercaderista);
-  if(btnMerc) btnMerc.classList.toggle('is-active', esMercaderista);
-  if(esMercaderista){
+  VISTA_IDS.forEach(v => {
+    const panel = document.getElementById('vista-' + v);
+    if(panel) panel.classList.toggle('hidden', v !== vista);
+    const btn = document.getElementById(VISTA_NAV_BTN[v]);
+    if(btn) btn.classList.toggle('is-active', v === vista);
+  });
+
+  if(vista === 'mercaderista'){
     mercaderistaVista.refresh();
     if(mercaderistaVista.chart) mercaderistaVista.chart.resize();
+  } else if(ANALITICA_KEYS.includes(vista) && analiticaComercial.loaded){
+    analiticaComercial.resizeModule(vista);
   }
 }
 
@@ -2515,6 +4420,7 @@ window.addEventListener('resize', () => {
     if(inst) inst.resize();
   });
   if(mercaderistaVista.chart) mercaderistaVista.chart.resize();
+  if(analiticaComercial.loaded) ANALITICA_KEYS.forEach(key => analiticaComercial.resizeModule(key));
   }, 120);
 });
 
@@ -2523,6 +4429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if(selResumen){ selResumen.onchange = () => renderResumen(getFilteredData()); }
   ejecucionModule.init();
   fetchData();
+  analiticaComercial.init();
 });
 </script>
 </body>
