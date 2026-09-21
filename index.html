@@ -48,6 +48,34 @@ h1,h2,h3,.font-display{font-family:'Plus Jakarta Sans',sans-serif}
 .tabular{font-variant-numeric: tabular-nums}
 select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); outline-offset:1px}
 
+/* ===================== RESPONSIVE MÓVIL ===================== */
+@media (max-width: 640px){
+  .card.p-6{ padding:16px; }
+  .card.p-5{ padding:14px; }
+  section.card.p-6{ padding:16px; }
+  h1{ font-size:15px; }
+  .text-3xl{ font-size:1.5rem; }
+  .text-2xl{ font-size:1.25rem; }
+  /* Filtros: selects e inputs ocupan todo el ancho disponible en vez de
+     quedar apretados uno junto a otro, y el botón "Limpiar filtros" pasa
+     a su propia línea en vez de flotar a la derecha del contenedor. */
+  .card.px-5.py-4.flex.flex-wrap{ gap:10px; }
+  .card.px-5.py-4.flex.flex-wrap > div{ flex:1 1 45%; min-width:140px; }
+  .card.px-5.py-4.flex.flex-wrap > div select{ width:100%; }
+  .card.px-5.py-4.flex.flex-wrap > button{ flex:1 1 100%; margin-left:0 !important; text-align:center; }
+  /* Tablas con scroll horizontal: que se sienta natural al arrastrar con
+     el dedo, y que el usuario note que hay más columnas hacia la derecha. */
+  .overflow-x-auto, .overflow-auto{ -webkit-overflow-scrolling:touch; }
+  table.w-full.text-xs{ min-width:560px; }
+  /* Botones de exportar/limpiar no se aplastan cuando comparten fila con
+     texto largo (nombre de la pestaña, buscador, etc.) */
+  .btn-export{ white-space:nowrap; }
+}
+@media (max-width: 400px){
+  .mini-kpi{ padding:12px; }
+  .badge{ font-size:10px; padding:3px 8px; }
+}
+
 ::-webkit-scrollbar{height:6px; width:6px}
 ::-webkit-scrollbar-thumb{background:#CBD5E1; border-radius:6px}
 
@@ -214,7 +242,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
 
 <!-- ===================== HEADER ===================== -->
 <header class="bg-white border-b sticky top-0 z-30 shadow-xs" style="border-color:var(--border)">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-3 pr-4" style="border-right:1px solid var(--border)">
         <img src="alqueria.png" alt="Grupo Alquería" class="brand-logo">
@@ -238,7 +266,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
   </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-6 py-6">
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
   <!-- ===================== SIDEBAR DE NAVEGACIÓN ===================== -->
@@ -389,6 +417,16 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
     </div>
   </section>
 
+  <!-- ===================== PROYECTADO VS REAL: CUMPLIMIENTO DE CAMPAÑAS ===================== -->
+  <section class="card p-6">
+    <h3 class="text-sm font-bold font-display">Cumplimiento de Campañas: Proyectado vs Real</h3>
+    <p id="kpi-gauge-detalle" class="text-xs mt-1" style="color:var(--text-muted)">Qué % de las campañas debería llevar implementado a hoy, según los días transcurridos de cada una, comparado con el cumplimiento real.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+      <div id="chart-gauge-proyectado-general" style="height:210px"></div>
+      <div id="chart-gauge-real-general" style="height:210px"></div>
+    </div>
+  </section>
+
   <!-- ===================== MAPA REAL COLOMBIA & ANALÍTICA REGIONAL ===================== -->
   <section class="card p-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -421,7 +459,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       </div>
 
       <!-- Donas de Proporción (Porcentaje del Total estilo referencia US) -->
-      <div class="lg:col-span-7 grid grid-cols-2 gap-6 content-center">
+      <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6 content-center">
         <div class="flex flex-col items-center p-5 bg-white rounded-2xl border shadow-xs" style="border-color:var(--border)">
           <span class="text-xs font-bold uppercase tracking-wider mb-2 text-center" style="color:var(--text-muted)">Saldo Actual</span>
           <div id="donut-saldo" class="w-28 h-28"></div>
@@ -756,7 +794,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
           <div id="mv-donut" class="w-40 h-40"></div>
           <p id="mv-donut-label" class="text-xs font-bold mt-2 text-center" style="color:var(--text-muted)"></p>
         </div>
-        <div class="lg:col-span-8 grid grid-cols-2 gap-4">
+        <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="card p-5 flex flex-col justify-center">
             <span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">PDV Asignados</span>
             <h3 id="mv-kpi-total" class="text-3xl font-extrabold tracking-tight tabular font-display mt-1">0</h3>
@@ -783,16 +821,31 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         <div class="mini-kpi"><span class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Campañas</span><h3 id="mv-kpi-campanas" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">0</h3><p class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">campañas distintas</p></div>
       </div>
 
+      <!-- Resumen: nombres de los PDV asignados -->
+      <div class="card p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <div>
+            <h3 class="text-sm font-bold font-display">Mis Puntos de Venta Asignados</h3>
+            <p class="text-[11px]" style="color:var(--text-muted)">Los <span id="mv-pdv-listado-count">0</span> PDV de la selección actual.</p>
+          </div>
+          <div class="relative w-full sm:w-64">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+            <input id="mv-pdv-listado-buscar" type="text" placeholder="Buscar PDV..." oninput="mercaderistaVista.onBuscarListado(this.value)" class="text-xs rounded-xl border pl-8 pr-3 py-2 bg-white font-semibold w-full" style="border-color:var(--border)">
+          </div>
+        </div>
+        <div id="mv-pdv-listado" class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1"></div>
+      </div>
+
       <!-- Distribución de cumplimiento -->
       <div class="card p-6">
         <h3 class="text-sm font-bold font-display">Distribución de Cumplimiento</h3>
         <p class="text-[11px] mb-3" style="color:var(--text-muted)">Composición de registros (columna Cumple Implementación) de la selección actual.</p>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center justify-center gap-8 flex-wrap">
           <div id="mv-donut-cumple" class="w-32 h-32 shrink-0"></div>
-          <div class="flex-1 space-y-2">
-            <div class="flex items-center justify-between text-xs"><span class="font-semibold" style="color:var(--green)">SI</span><span id="mv-cumple-si" class="font-bold tabular">0</span></div>
-            <div class="flex items-center justify-between text-xs"><span class="font-semibold" style="color:var(--alqueria-red)">NO</span><span id="mv-cumple-no" class="font-bold tabular">0</span></div>
-            <div class="flex items-center justify-between text-xs"><span class="font-semibold" style="color:var(--text-muted)">Sin dato</span><span id="mv-cumple-sindato" class="font-bold tabular">0</span></div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 text-xs"><span class="font-semibold w-16" style="color:var(--green)">SI</span><span id="mv-cumple-si" class="font-bold tabular">0</span></div>
+            <div class="flex items-center gap-3 text-xs"><span class="font-semibold w-16" style="color:var(--alqueria-red)">NO</span><span id="mv-cumple-no" class="font-bold tabular">0</span></div>
+            <div class="flex items-center gap-3 text-xs"><span class="font-semibold w-16" style="color:var(--text-muted)">Sin dato</span><span id="mv-cumple-sindato" class="font-bold tabular">0</span></div>
           </div>
         </div>
       </div>
@@ -913,7 +966,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         </div>
         <span id="an-venta-proyectado-badge" class="badge" style="color:var(--text-muted); background:#F1F5F9">—</span>
       </div>
-      <div class="grid grid-cols-2 gap-4 mt-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
           <p class="text-[10.5px] font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Proyectado a Hoy</p>
           <h3 id="an-venta-proyectado-valor" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">$0</h3>
@@ -923,7 +976,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
           <h3 id="an-venta-neto-real" class="text-2xl font-extrabold tracking-tight tabular font-display mt-1">$0</h3>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-2 mt-2">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
         <div id="chart-venta-gauge-proyectado" style="height:190px"></div>
         <div id="chart-venta-gauge-real" style="height:190px"></div>
       </div>
@@ -940,7 +993,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         <button onclick="analiticaComercial.exportVentaCruce()" class="btn-export">⬇ Exportar</button>
       </div>
       <p class="text-xs mb-3" style="color:var(--text-muted)">Cada punto es una marca: a la derecha, más venta neta; arriba, más % de participación en la categoría. El tamaño del punto también refleja la venta.</p>
-      <div id="chart-venta-cruce" style="height:320px"></div>
+      <div id="chart-venta-cruce" style="height:380px"></div>
     </div>
     <div class="card p-6">
       <div class="flex items-center justify-between mb-3">
@@ -984,6 +1037,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Canal</span><select id="f-participacion-canal" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Categoría</span><select id="f-participacion-categoria" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Marca</span><select id="f-participacion-marca" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Mercaderista</span><select id="f-participacion-mercaderista" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
       <button onclick="analiticaComercial.resetFilters('participacion')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
     </div>
     <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
@@ -1132,6 +1186,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Canal</span><select id="f-agotados-canal" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Categoría</span><select id="f-agotados-categoria" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Estado</span><select id="f-agotados-estadoAgotado" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Mercaderista</span><select id="f-agotados-mercaderista" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
       <button onclick="analiticaComercial.resetFilters('agotados')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
     </div>
     <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
@@ -1195,6 +1250,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Canal</span><select id="f-fechasCortas-canal" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Categoría</span><select id="f-fechasCortas-categoria" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
       <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Política</span><select id="f-fechasCortas-politica" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todas</option></select></div>
+      <div class="flex items-center gap-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Mercaderista</span><select id="f-fechasCortas-mercaderista" class="text-xs rounded-xl border px-3.5 py-2 bg-white font-semibold" style="border-color:var(--border)"><option value="">Todos</option></select></div>
       <button onclick="analiticaComercial.resetFilters('fechasCortas')" class="text-xs font-bold ml-auto" style="color:var(--eficacia-blue)">Limpiar filtros</button>
     </div>
     <div class="card p-5 flex items-center justify-between flex-wrap gap-2">
@@ -1302,7 +1358,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
           <thead class="sticky top-0 z-10" style="background:var(--eficacia-blue-bg)">
             <tr class="text-left font-bold" style="color:var(--eficacia-blue)">
               <th class="px-3 py-3">Producto</th><th class="px-3 py-3">Marca</th><th class="px-3 py-3">PDV</th><th class="px-3 py-3">Motivo</th><th class="px-3 py-3">Regional</th>
-              <th class="px-3 py-3 text-right">Valor</th><th class="px-3 py-3 text-right">Unidades</th>
+              <th class="px-3 py-3 text-right">Valor</th><th class="px-3 py-3 text-right">Unidades</th><th class="px-3 py-3 text-right">Valor Comprometido</th>
             </tr>
           </thead>
           <tbody id="an-devoluciones-full-tbody"></tbody>
@@ -2054,6 +2110,18 @@ function renderKPIs(data){
       proyEl.textContent = `Proyectado a hoy: ${proyectado.toFixed(1)}% (${signo}${brecha.toFixed(1)} pts)`;
       proyEl.style.color = brecha >= 0 ? 'var(--green)' : 'var(--alqueria-red)';
     }
+
+    // Velocímetros Proyectado vs Real, mismo estilo que el gauge de Venta.
+    const detalleEl = document.getElementById('kpi-gauge-detalle');
+    if(proyectado === null){
+      if(detalleEl) detalleEl.textContent = 'No hay suficientes campañas con fecha de inicio y fin identificable para proyectar.';
+      renderGaugeChart('chart-gauge-proyectado-general', 0, { label:'Proyectado', pointerColor:'#0052CC' });
+      renderGaugeChart('chart-gauge-real-general', cumplimiento, { label:'Real', pointerColor:'#DA291C' });
+    } else {
+      if(detalleEl) detalleEl.textContent = `Qué % de las campañas debería llevar implementado a hoy, según los días transcurridos de cada una, comparado con el cumplimiento real.`;
+      renderGaugeChart('chart-gauge-proyectado-general', proyectado, { label:'Proyectado', pointerColor:'#0052CC' });
+      renderGaugeChart('chart-gauge-real-general', cumplimiento, { label:'Real', pointerColor:'#DA291C' });
+    }
   }
 }
 
@@ -2236,11 +2304,13 @@ function renderChartArticulos(data){
     tooltip:{ trigger:'axis' },
     legend:{ data:['Saldo','Faltante'], top:0, right:0, textStyle:{fontSize:11, color:'#64748B'} },
     grid:{ top:40, bottom:20, left:10, right:20, containLabel:true },
-    xAxis:{ type:'value', splitLine:{lineStyle:{color:'#F1F5F9'}} },
+    xAxis:{ type:'value', axisLabel:{ fontSize:10, color:'#94A3B8', formatter:(v)=>formatCompact(v) }, splitLine:{lineStyle:{color:'#F1F5F9'}} },
     yAxis:{ type:'category', data: rows.map(r=>r.name.length>22 ? r.name.slice(0,22)+'…' : r.name), axisLabel:{ fontSize:10, color:'#64748B' } },
     series:[
-      { name:'Saldo', type:'bar', data: rows.map(r=>r.saldo), itemStyle:{ color:'#0052CC', borderRadius:[0,4,4,0] }, barMaxWidth:10 },
-      { name:'Faltante', type:'bar', data: rows.map(r=>r.faltante), itemStyle:{ color:'#DA291C', borderRadius:[0,4,4,0] }, barMaxWidth:10 }
+      { name:'Saldo', type:'bar', data: rows.map(r=>r.saldo), itemStyle:{ color:'#0052CC', borderRadius:[0,4,4,0] }, barMaxWidth:10,
+        label:{ show:true, position:'right', fontSize:9, fontWeight:700, color:'#334155', formatter:(p)=>formatCompact(p.value) } },
+      { name:'Faltante', type:'bar', data: rows.map(r=>r.faltante), itemStyle:{ color:'#DA291C', borderRadius:[0,4,4,0] }, barMaxWidth:10,
+        label:{ show:true, position:'right', fontSize:9, fontWeight:700, color:'#334155', formatter:(p)=>formatCompact(p.value) } }
     ]
   }, true);
 
@@ -2941,7 +3011,30 @@ class VistaMercaderista {
     this.nombreActual = '';
     this.mostrarCompletados = false;
     this.busqueda = '';
+    this.busquedaListado = '';
     this.chart = null;
+  }
+
+  onBuscarListado(valor){
+    this.busquedaListado = normalizeDeptoName(valor||'');
+    this.renderListadoPDV();
+  }
+
+  // Chips con el nombre de cada PDV asignado (los "11 PDV" de arriba, por
+  // ejemplo), filtrables por texto — así no hay que adivinar cuáles son.
+  renderListadoPDV(){
+    const misPDV = this._misPDVActuales || [];
+    const countEl = document.getElementById('mv-pdv-listado-count');
+    if(countEl) countEl.textContent = formatNumber(misPDV.length);
+    const filtrados = this.busquedaListado
+      ? misPDV.filter(r => normalizeDeptoName(r.pdv).includes(this.busquedaListado))
+      : misPDV;
+    const box = document.getElementById('mv-pdv-listado');
+    if(!box) return;
+    box.innerHTML = filtrados.map(r => {
+      const c = cumplimientoColor(r.pct);
+      return `<span class="badge" style="color:${c.text}; background:${c.bg}" title="${r.razonSocial||''} · ${r.pct.toFixed(1)}%">${r.pdv||'—'}</span>`;
+    }).join('') || `<p class="text-xs font-semibold" style="color:var(--text-muted)">${this.busquedaListado ? 'Sin coincidencias.' : 'Sin PDV asignados.'}</p>`;
   }
 
   // Se llama cada vez que el usuario entra a esta pestaña, para que la
@@ -2968,7 +3061,13 @@ class VistaMercaderista {
       sel.value = seleccionPrevia;
     }
     if(!sel.onchange){
-      sel.onchange = () => { this.nombreActual = sel.value; this.render(); };
+      sel.onchange = () => {
+        this.nombreActual = sel.value;
+        this.busquedaListado = '';
+        const buscarEl = document.getElementById('mv-pdv-listado-buscar');
+        if(buscarEl) buscarEl.value = '';
+        this.render();
+      };
     }
   }
 
@@ -3002,6 +3101,8 @@ class VistaMercaderista {
     const misRegistros = ejecucionModule.data.filter(r => normalizeDeptoName(r.mercaderista) === normalizeDeptoName(this.nombreActual));
     const misPDV = ejecucionModule.getGroupedByPDV(misRegistros);
     const misCampanas = ejecucionModule.getGroupedByPDVyCampana(misRegistros);
+    this._misPDVActuales = misPDV;
+    this.renderListadoPDV();
     let completos = misPDV.filter(r => r.faltante === 0);
     let pendientes = misPDV.filter(r => r.faltante > 0).sort((a,b) => b.faltante - a.faltante);
 
@@ -3234,6 +3335,20 @@ function formatCompact(num, isCurrency){
   const txt = new Intl.NumberFormat('es-CO', { notation:'compact', maximumFractionDigits:1 }).format(val);
   return isCurrency ? '$'+txt : txt;
 }
+// Corrige un problema de origen de datos en "unidades" de devoluciones:
+// algunas filas llegan con coma decimal donde en realidad es una cantidad
+// entera (ej. "0,4" debería ser 4; "1,456" debería ser 1.456 = mil
+// cuatrocientos cincuenta y seis). Un número entero se deja intacto; uno
+// con decimales se reinterpreta corriendo la coma (se quita el punto
+// decimal y se lee todo seguido como el entero real).
+function fixUnidades(num){
+  const val = Number(num) || 0;
+  if(Number.isInteger(val)) return val;
+  const [intPart, decPart] = Math.abs(val).toString().split('.');
+  if(!decPart) return val;
+  const corregido = Number(intPart + decPart);
+  return val < 0 ? -corregido : corregido;
+}
 function agSum(rows, keyField, valField){
   const map = new Map();
   rows.forEach(r => {
@@ -3363,6 +3478,40 @@ function renderLineChart(domId, categories, seriesDefs, opts){
   }
 }
 
+// Combo barras + línea con doble eje: útil cuando el promedio (línea) se
+// mueve poco mes a mes y por sí solo no dice mucho — el volumen detrás
+// (barras) da el contexto que le falta (¿hay pocos o muchos datos ese mes?).
+function renderComboChart(domId, categories, barSeries, lineSeries){
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const chart = echarts.getInstanceByDom(el) || echarts.init(el);
+  chart.setOption({
+    tooltip:{ trigger:'axis', formatter:(params) => {
+      let html = `<strong>${params[0].axisValue}</strong><br>`;
+      params.forEach(p => {
+        const isPct = p.seriesName === lineSeries.name;
+        html += `${p.marker} ${p.seriesName}: ${isPct ? Number(p.value).toFixed(1)+'%' : formatNumber(p.value)}<br>`;
+      });
+      return html;
+    }},
+    legend:{ data:[barSeries.name, lineSeries.name], top:0, right:0, textStyle:{fontSize:11, color:'#64748B'} },
+    grid:{ top:40, bottom:40, left:50, right:50, containLabel:true },
+    xAxis:{ type:'category', data:categories, axisLabel:{ fontSize:10, color:'#64748B' } },
+    yAxis:[
+      { type:'value', name:barSeries.name, nameTextStyle:{fontSize:9, color:'#94A3B8'}, axisLabel:{ fontSize:9, color:'#94A3B8' }, splitLine:{lineStyle:{color:'#F1F5F9'}} },
+      { type:'value', name:lineSeries.name, max:100, nameTextStyle:{fontSize:9, color:'#94A3B8'}, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:'{value}%' }, splitLine:{show:false} }
+    ],
+    series:[
+      { name:barSeries.name, type:'bar', data:barSeries.data, yAxisIndex:0, itemStyle:{ color:barSeries.color||'#CBD5E1', borderRadius:[4,4,0,0] }, barMaxWidth:28 },
+      { name:lineSeries.name, type:'line', data:lineSeries.data, yAxisIndex:1, smooth:true, symbolSize:6, itemStyle:{ color:lineSeries.color||'#0052CC' }, lineStyle:{ width:2.5, color:lineSeries.color||'#0052CC' } }
+    ]
+  }, true);
+  if(!categories.length){
+    chart.setOption({ graphic:{ type:'text', left:'center', top:'middle',
+      style:{ text:'Sin datos suficientes para una tendencia', fontSize:12, fill:'#94A3B8', fontFamily:'Plus Jakarta Sans' } } });
+  }
+}
+
 // Agrupa una fecha (string) al mes "AAAA-MM" para armar series de tiempo
 // sin necesitar una librería de fechas.
 function monthKey(fechaStr){
@@ -3437,6 +3586,13 @@ function renderScatterChart(domId, points){
   if(!el) return;
   const chart = echarts.getInstanceByDom(el) || echarts.init(el);
   const maxVenta = Math.max(1, ...points.map(p=>p.venta));
+  // Eje Y dinámico: si ninguna marca pasa de, digamos, 35%, un eje fijo a
+  // 100% deja todo apachurrado abajo (como se veía antes). Y si hay muchos
+  // puntos, las etiquetas de texto se encima; a partir de ~15 se ocultan
+  // y se deja solo el tooltip al pasar el mouse.
+  const maxParticipacion = points.length ? Math.max(...points.map(p=>p.participacion)) : 0;
+  const yMax = Math.min(100, Math.max(10, Math.ceil((maxParticipacion*1.25)/5)*5));
+  const showLabels = points.length <= 15;
   chart.setOption({
     tooltip:{ trigger:'item', formatter: (p) => {
       const d = p.data;
@@ -3446,7 +3602,7 @@ function renderScatterChart(domId, points){
     xAxis:{ type:'value', name:'Venta Neta', nameLocation:'middle', nameGap:28,
       nameTextStyle:{ fontSize:10, color:'#64748B' }, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:(v)=>formatCompact(v,true) },
       splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
-    yAxis:{ type:'value', name:'% Participación', max:100,
+    yAxis:{ type:'value', name:'% Participación', max:yMax,
       nameTextStyle:{ fontSize:10, color:'#64748B' }, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:'{value}%' },
       splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
     series:[{
@@ -3456,7 +3612,7 @@ function renderScatterChart(domId, points){
         name:p.marca, value:[p.venta, p.participacion],
         itemStyle:{ color: p.participacion>=20?'#059669':(p.participacion>0?'#D97706':'#94A3B8'), opacity:0.85 }
       })),
-      label:{ show:true, formatter:(p)=>p.data.name, position:'top', fontSize:9, color:'#334155' }
+      label:{ show:showLabels, formatter:(p)=>p.data.name, position:'top', fontSize:9, color:'#334155' }
     }]
   }, true);
   if(!points.length){
@@ -3550,18 +3706,18 @@ class AnaliticaComercial {
     // Filtros activos por módulo (todos parten vacíos = "Todos/Todas").
     this.state = {
       venta: { regional:'', cadena:'', segmento:'', marca:'' },
-      participacion: { regional:'', canal:'', categoria:'', marca:'' },
+      participacion: { regional:'', canal:'', categoria:'', marca:'', mercaderista:'' },
       cobertura: { regional:'', canal:'', tipologia:'', supervisor:'' },
-      agotados: { regional:'', canal:'', categoria:'', estadoAgotado:'' },
-      fechasCortas: { regional:'', canal:'', categoria:'', politica:'' },
+      agotados: { regional:'', canal:'', categoria:'', estadoAgotado:'', mercaderista:'' },
+      fechasCortas: { regional:'', canal:'', categoria:'', politica:'', mercaderista:'' },
       devoluciones: { regional:'', cadena:'', marca:'' }
     };
     this.filterFields = {
       venta: ['regional','cadena','segmento','marca'],
-      participacion: ['regional','canal','categoria','marca'],
+      participacion: ['regional','canal','categoria','marca','mercaderista'],
       cobertura: ['regional','canal','tipologia','supervisor'],
-      agotados: ['regional','canal','categoria','estadoAgotado'],
-      fechasCortas: ['regional','canal','categoria','politica'],
+      agotados: ['regional','canal','categoria','estadoAgotado','mercaderista'],
+      fechasCortas: ['regional','canal','categoria','politica','mercaderista'],
       devoluciones: ['regional','cadena','marca']
     };
 
@@ -3642,7 +3798,8 @@ class AnaliticaComercial {
           { label:'Motivo', get:r=>r.motivo||'—' },
           { label:'Regional', get:r=>r.regional||'—' },
           { label:'Valor', get:r=>currencyFormat(r.valor), raw:r=>r.valor, align:'right' },
-          { label:'Unidades', get:r=>formatNumber(r.unidades), raw:r=>r.unidades, align:'right' }
+          { label:'Unidades', get:r=>formatNumber(r.unidades), raw:r=>r.unidades, align:'right' },
+          { label:'Valor Comprometido', get:r=>currencyFormat(r.valor * r.unidades), raw:r=>r.valor * r.unidades, align:'right' }
         ]
       }
     };
@@ -3746,7 +3903,7 @@ class AnaliticaComercial {
         regional:String(r.regional??'').trim(), cadena:String(r.cadena??'').trim(), formato:String(r.formato??'').trim(),
         codigoCliente:String(r.codigo_cliente??'').trim(), puntoVenta:String(r.punto_de_venta??'').trim(), fecha:String(r.fecha??'').trim(),
         marca:String(r.marca??'').trim(), segmento:String(r.segmento??'').trim(), producto:String(r.producto??'').trim(),
-        valor:Number(r.valor)||0, unidades:Number(r.unidades)||0, motivo:String(r.motivos_de_devolucion??'').trim()
+        valor:Number(r.valor)||0, unidades:fixUnidades(r.unidades), motivo:String(r.motivos_de_devolucion??'').trim()
       }));
 
       // Auto-escala de campos de porcentaje: algunas fuentes guardan el dato
@@ -4021,12 +4178,20 @@ class AnaliticaComercial {
       </tr>`).join('') || emptyRow(4);
 
     // Dispersión Venta vs Participación: todas las marcas con venta > 0,
-    // cruzadas con su % de participación promedio (si hay dato).
+    // cruzadas con su % de participación promedio (si hay dato). El cruce
+    // se hace por nombre NORMALIZADO (sin mayúsculas/acentos/espacios) —
+    // antes comparaba el texto exacto y casi ninguna marca coincidía entre
+    // las dos tablas, por eso solo aparecía una burbuja.
     const ventaPorMarca = agSum(rows, 'marca', 'ventaNeta').filter(([,v]) => v>0);
     const partConDato = (SUPABASE_TABLES.participacion||[]).filter(r => r.pctParticipacion > 0);
-    const partPorMarca = new Map(agAvg(partConDato, 'marca', 'pctParticipacion'));
-    this._cacheVentaCruce = ventaPorMarca.map(([marca, venta]) => ({ marca, venta, participacion: partPorMarca.has(marca) ? partPorMarca.get(marca) : null }));
-    renderScatterChart('chart-venta-cruce', this._cacheVentaCruce.filter(r => r.participacion!=null).map(r => ({ marca:r.marca, venta:r.venta, participacion:r.participacion })));
+    const partPorMarcaRaw = agAvg(partConDato, 'marca', 'pctParticipacion');
+    const partPorMarca = new Map(partPorMarcaRaw.map(([marca, val]) => [normalizeDeptoName(marca), val]));
+    this._cacheVentaCruce = ventaPorMarca.map(([marca, venta]) => {
+      const key = normalizeDeptoName(marca);
+      return { marca, venta, participacion: partPorMarca.has(key) ? partPorMarca.get(key) : null };
+    });
+    const puntosScatter = this._cacheVentaCruce.map(r => ({ marca:r.marca, venta:r.venta, participacion: r.participacion ?? 0 }));
+    renderScatterChart('chart-venta-cruce', puntosScatter);
   }
 
   exportVentaTabla(){
@@ -4080,9 +4245,12 @@ class AnaliticaComercial {
       const o = mesesMap.get(k); o.sum += r.pctParticipacion; o.count += 1;
     });
     const mesesPart = [...mesesMap.entries()].sort((a,b)=>a[0]<b[0]?-1:1);
-    renderLineChart('chart-part-tendencia', mesesPart.map(p=>p[0]), [
-      { name:'% Participación Promedio', data: mesesPart.map(p=>p[1].sum/p[1].count), color:'#0052CC', area:true }
-    ], { percent:true });
+    // Combo barras+línea: la línea (% promedio) sola casi no se mueve —
+    // las barras de volumen de visitas dan el contexto que le faltaba.
+    renderComboChart('chart-part-tendencia', mesesPart.map(p=>p[0]),
+      { name:'Visitas con Dato', data: mesesPart.map(p=>p[1].count), color:'#CBD5E1' },
+      { name:'% Participación Promedio', data: mesesPart.map(p=>p[1].sum/p[1].count), color:'#0052CC' }
+    );
 
     renderHBar('chart-part-marca', agAvg(conDato, 'marca', 'pctParticipacion'), { limit:30, percent:true, color:'#0052CC' });
     renderHBar('chart-part-regional', agAvg(conDato, 'regional', 'pctParticipacion'), { limit:30, percent:true, color:'#6366F1' });
@@ -4236,6 +4404,7 @@ class AnaliticaComercial {
   }
 
   renderAgotados(){
+    const baseRows = this.getFilteredBase('agotados');
     const rows = this.getFiltered('agotados');
     setTxt('an-agot-total', formatNumber(rows.length));
     setTxt('an-agot-pdv', formatNumber(agCountDistinct(rows, 'puntoVenta')));
@@ -4245,14 +4414,18 @@ class AnaliticaComercial {
     const { count } = this._crossRiskCount();
     setTxt('an-agot-doble-riesgo', formatNumber(count));
 
-    const sinEstado = rows.filter(r => !r.estadoAgotado).length;
-    const pdvRepetidos = [...agCount(rows, 'puntoVenta')].filter(([,n]) => n>1).length;
-    const causalTop = porCausal.length ? (porCausal[0][1]/rows.length*100) : 0;
-    renderAlertRow('an-agotados-alertas', [
-      { icon:'●', value:formatNumber(sinEstado), label: sinEstado===1?'caso sin estado':'casos sin estado', desc:'Sin estado de seguimiento registrado', tone: sinEstado>0?TONE_AMBER:TONE_GREEN },
-      { icon:'⚠', value:formatNumber(pdvRepetidos), label: pdvRepetidos===1?'PDV con agotados repetidos':'PDV con agotados repetidos', desc:'Más de un caso registrado en el mismo PDV', tone: pdvRepetidos>0?TONE_RED:TONE_GREEN },
-      { icon:'●', value: causalTop.toFixed(0)+'%', label:'concentración en la causal principal', desc: porCausal.length ? `"${porCausal[0][0]}" del total de casos` : 'Sin causal registrada', tone:TONE_BLUE }
-    ]);
+    const sinEstado = baseRows.filter(r => !r.estadoAgotado).length;
+    const pdvRepetidosSet = new Set([...agCount(baseRows, 'puntoVenta')].filter(([,n]) => n>1).map(([pdv]) => normalizeDeptoName(pdv)));
+    const porCausalBase = agCount(baseRows, 'causalAgotado');
+    const causalTopNombre = porCausalBase.length ? porCausalBase[0][0] : null;
+    const causalTop = porCausalBase.length ? (porCausalBase[0][1]/baseRows.length*100) : 0;
+
+    this._alertDefs.agotados = [
+      { id:'sinEstado', icon:'●', value:formatNumber(sinEstado), label: sinEstado===1?'caso sin estado':'casos sin estado', desc:'Sin estado de seguimiento registrado', tone: sinEstado>0?TONE_AMBER:TONE_GREEN, predicate: r=>!r.estadoAgotado },
+      { id:'pdvRepetidos', icon:'⚠', value:formatNumber(pdvRepetidosSet.size), label: pdvRepetidosSet.size===1?'PDV con agotados repetidos':'PDV con agotados repetidos', desc:'Más de un caso registrado en el mismo PDV', tone: pdvRepetidosSet.size>0?TONE_RED:TONE_GREEN, predicate: r=>pdvRepetidosSet.has(normalizeDeptoName(r.puntoVenta)) },
+      { id:'causalTop', icon:'●', value: causalTop.toFixed(0)+'%', label:'concentración en la causal principal', desc: causalTopNombre ? `"${causalTopNombre}" del total de casos` : 'Sin causal registrada', tone:TONE_BLUE, predicate: causalTopNombre ? (r=>normalizeDeptoName(r.causalAgotado)===normalizeDeptoName(causalTopNombre)) : null }
+    ];
+    renderAlertRow('an-agotados-alertas', this._alertDefs.agotados, { moduleKey:'agotados', activeId:this.alertFilter.agotados });
 
     const porMes = agSumByMonth(rows.map(r=>({...r, uno:1})), 'fechaCaptura', 'uno');
     renderLineChart('chart-agot-tendencia', porMes.map(p=>p[0]), [
@@ -4287,6 +4460,7 @@ class AnaliticaComercial {
   }
 
   renderFechasCortas(){
+    const baseRows = this.getFilteredBase('fechasCortas');
     const rows = this.getFiltered('fechasCortas');
     const unidades = rows.reduce((a,r)=>a+r.cantidadUnidades,0);
     const valor = rows.reduce((a,r)=>a+r.valorMonetario,0);
@@ -4296,14 +4470,17 @@ class AnaliticaComercial {
     setTxt('an-fc-pdv', formatNumber(agCountDistinct(rows, 'puntoVenta')));
     setTxt('an-fc-dias-prom', diasProm.toFixed(0));
 
-    const criticos = rows.filter(r => r.diasVidaUtil <= 7).length;
-    const { count: dobleRiesgo } = this._crossRiskCount();
-    const sinPolitica = rows.filter(r => !r.politica).length;
-    renderAlertRow('an-fechasCortas-alertas', [
-      { icon:'⚠', value:formatNumber(criticos), label: criticos===1?'producto crítico':'productos críticos', desc:'7 días o menos de vida útil', tone: criticos>0?TONE_RED:TONE_GREEN },
-      { icon:'●', value:formatNumber(dobleRiesgo), label: dobleRiesgo===1?'PDV con riesgo doble':'PDV con riesgo doble', desc:'También presentan agotados', tone: dobleRiesgo>0?TONE_AMBER:TONE_GREEN },
-      { icon:'●', value:formatNumber(sinPolitica), label: sinPolitica===1?'registro sin política':'registros sin política', desc:'Sin política de manejo asignada', tone: sinPolitica>0?TONE_AMBER:TONE_GREEN }
-    ]);
+    const criticos = baseRows.filter(r => r.diasVidaUtil <= 7).length;
+    const agotPDVsSet = new Set((SUPABASE_TABLES.agotados||[]).map(r => normalizeDeptoName(r.puntoVenta)).filter(Boolean));
+    const dobleRiesgoSet = new Set(baseRows.filter(r => agotPDVsSet.has(normalizeDeptoName(r.puntoVenta))).map(r => normalizeDeptoName(r.puntoVenta)));
+    const sinPolitica = baseRows.filter(r => !r.politica).length;
+
+    this._alertDefs.fechasCortas = [
+      { id:'criticos', icon:'⚠', value:formatNumber(criticos), label: criticos===1?'producto crítico':'productos críticos', desc:'7 días o menos de vida útil', tone: criticos>0?TONE_RED:TONE_GREEN, predicate: r=>r.diasVidaUtil<=7 },
+      { id:'dobleRiesgo', icon:'●', value:formatNumber(dobleRiesgoSet.size), label: dobleRiesgoSet.size===1?'PDV con riesgo doble':'PDV con riesgo doble', desc:'También presentan agotados', tone: dobleRiesgoSet.size>0?TONE_AMBER:TONE_GREEN, predicate: r=>dobleRiesgoSet.has(normalizeDeptoName(r.puntoVenta)) },
+      { id:'sinPolitica', icon:'●', value:formatNumber(sinPolitica), label: sinPolitica===1?'registro sin política':'registros sin política', desc:'Sin política de manejo asignada', tone: sinPolitica>0?TONE_AMBER:TONE_GREEN, predicate: r=>!r.politica }
+    ];
+    renderAlertRow('an-fechasCortas-alertas', this._alertDefs.fechasCortas, { moduleKey:'fechasCortas', activeId:this.alertFilter.fechasCortas });
 
     const porMes = agSumByMonth(rows, 'fechaVisita', 'valorMonetario');
     renderLineChart('chart-fc-tendencia', porMes.map(p=>p[0]), [
@@ -4328,6 +4505,7 @@ class AnaliticaComercial {
   }
 
   renderDevoluciones(){
+    const baseRows = this.getFilteredBase('devoluciones');
     const rows = this.getFiltered('devoluciones');
     const valor = rows.reduce((a,r)=>a+r.valor,0);
     const unidades = rows.reduce((a,r)=>a+r.unidades,0);
@@ -4339,15 +4517,19 @@ class AnaliticaComercial {
     const ventaTotal = (SUPABASE_TABLES.venta||[]).reduce((a,r)=>a+r.ventaNeta,0);
     setTxt('an-dev-pct-venta', (ventaTotal>0 ? valor/ventaTotal*100 : 0).toFixed(2)+'%');
 
-    const porVencimiento = rows.filter(r => normalizeDeptoName(r.motivo).includes('VENCID'));
-    const pctVencimiento = rows.length ? porVencimiento.length/rows.length*100 : 0;
-    const marcaTop = agSum(rows,'marca','valor');
-    const pctMarcaTop = valor>0 && marcaTop.length ? marcaTop[0][1]/valor*100 : 0;
-    renderAlertRow('an-devoluciones-alertas', [
-      { icon:'⚠', value: pctVencimiento.toFixed(0)+'%', label:'devoluciones por vencimiento', desc:'Sobre el total de casos registrados', tone: pctVencimiento>=40?TONE_RED:TONE_AMBER },
-      { icon:'●', value: formatNumber(porVencimiento.length), label: porVencimiento.length===1?'caso por vencido':'casos por vencido', desc:'Motivo de devolución más común', tone:TONE_AMBER },
-      { icon:'●', value: pctMarcaTop.toFixed(0)+'%', label:'concentrado en 1 marca', desc: marcaTop.length ? `"${marcaTop[0][0]}" del valor devuelto` : 'Sin datos', tone:TONE_BLUE }
-    ]);
+    const porVencimientoBase = baseRows.filter(r => normalizeDeptoName(r.motivo).includes('VENCID'));
+    const pctVencimiento = baseRows.length ? porVencimientoBase.length/baseRows.length*100 : 0;
+    const marcaTopBase = agSum(baseRows,'marca','valor');
+    const valorBase = baseRows.reduce((a,r)=>a+r.valor,0);
+    const pctMarcaTop = valorBase>0 && marcaTopBase.length ? marcaTopBase[0][1]/valorBase*100 : 0;
+    const marcaTopNombre = marcaTopBase.length ? marcaTopBase[0][0] : null;
+
+    this._alertDefs.devoluciones = [
+      { id:'pctVencimiento', icon:'⚠', value: pctVencimiento.toFixed(0)+'%', label:'devoluciones por vencimiento', desc:'Sobre el total de casos registrados', tone: pctVencimiento>=40?TONE_RED:TONE_AMBER, predicate: r=>normalizeDeptoName(r.motivo).includes('VENCID') },
+      { id:'casosPorVencido', icon:'●', value: formatNumber(porVencimientoBase.length), label: porVencimientoBase.length===1?'caso por vencido':'casos por vencido', desc:'Motivo de devolución más común', tone:TONE_AMBER, predicate: r=>normalizeDeptoName(r.motivo).includes('VENCID') },
+      { id:'marcaTop', icon:'●', value: pctMarcaTop.toFixed(0)+'%', label:'concentrado en 1 marca', desc: marcaTopNombre ? `"${marcaTopNombre}" del valor devuelto` : 'Sin datos', tone:TONE_BLUE, predicate: marcaTopNombre ? (r=>normalizeDeptoName(r.marca)===normalizeDeptoName(marcaTopNombre)) : null }
+    ];
+    renderAlertRow('an-devoluciones-alertas', this._alertDefs.devoluciones, { moduleKey:'devoluciones', activeId:this.alertFilter.devoluciones });
 
     const porMes = agSumByMonth(rows, 'fecha', 'valor');
     renderLineChart('chart-dev-tendencia', porMes.map(p=>p[0]), [
@@ -4415,7 +4597,7 @@ window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
   [chartCampana, chartCumplimiento, chartRegion, chartArticulos, chartEjRelacion].forEach(c => c && c.resize());
-  ['donut-saldo', 'donut-llega', 'donut-salida', 'donut-cumplimiento'].forEach(id => {
+  ['donut-saldo', 'donut-llega', 'donut-salida', 'donut-cumplimiento', 'chart-gauge-proyectado-general', 'chart-gauge-real-general', 'mv-donut-cumple'].forEach(id => {
     const inst = echarts.getInstanceByDom(document.getElementById(id));
     if(inst) inst.resize();
   });
