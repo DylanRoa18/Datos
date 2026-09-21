@@ -75,6 +75,9 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
   .mini-kpi{ padding:12px; }
   .badge{ font-size:10px; padding:3px 8px; }
 }
+/* Salvavidas: ningún número de KPI debe salirse jamás de su tarjeta,
+   sin importar cuántos dígitos termine teniendo. */
+.card h3.tabular, .mini-kpi h3.tabular{ overflow-wrap:anywhere; word-break:break-word; }
 
 ::-webkit-scrollbar{height:6px; width:6px}
 ::-webkit-scrollbar-thumb{background:#CBD5E1; border-radius:6px}
@@ -110,9 +113,9 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
 }
 .vista-nav-btn{
   position:relative;
-  display:flex; align-items:center; justify-content:center; gap:10px;
-  padding:11px 14px 11px 16px; border-radius:12px; flex:1;
-  font-size:13px; font-weight:600; color:var(--text-muted);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px 10px; border-radius:12px; flex:1 1 47%;
+  font-size:12.5px; font-weight:600; color:var(--text-muted);
   transition: all .15s ease; white-space:nowrap;
 }
 .vista-nav-btn svg{ width:17px; height:17px; flex-shrink:0; stroke:currentColor; }
@@ -253,7 +256,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         <p class="text-xs font-medium" style="color:var(--text-muted)">Control operativo y analítica cruzada · Alquería & Eficacia</p>
       </div>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
       <span id="connection-status" class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold" style="background:var(--amber-bg); color:var(--amber)">
         <span class="w-2 h-2 mr-1.5 rounded-full animate-pulse" style="background:var(--amber)"></span>
         Conectando...
@@ -273,7 +276,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
   <aside class="w-full lg:w-60 lg:sticky lg:top-[96px] shrink-0 z-20">
     <nav class="card p-2 lg:p-3">
       <p class="sidebar-label hidden lg:block">Navegación</p>
-      <div class="flex lg:flex-col gap-1.5">
+      <div class="flex lg:flex-col gap-1.5 flex-wrap">
         <button id="nav-btn-general" onclick="setVista('general')" class="vista-nav-btn is-active">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
           <span>Vista General</span>
@@ -360,7 +363,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
 
   <!-- ===================== ALERTAS / SEMÁFORO ===================== -->
   <section>
-    <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
       <h3 class="text-xs font-extrabold tracking-wider uppercase" style="color:var(--text-muted)">Alertas prioritarias de control</h3>
       <button id="btn-clear-critical" onclick="clearCriticalMode()" class="hidden text-xs font-bold px-3 py-1.5 rounded-lg shadow-xs" style="background:var(--rose-bg); color:var(--rose)">
         Quitar filtro crítico ✕
@@ -993,7 +996,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         <button onclick="analiticaComercial.exportVentaCruce()" class="btn-export">⬇ Exportar</button>
       </div>
       <p class="text-xs mb-3" style="color:var(--text-muted)">Cada punto es una marca: a la derecha, más venta neta; arriba, más % de participación en la categoría. El tamaño del punto también refleja la venta.</p>
-      <div id="chart-venta-cruce" style="height:380px"></div>
+      <div id="chart-venta-cruce" style="height:400px"></div>
     </div>
     <div class="card p-6">
       <div class="flex items-center justify-between mb-3">
@@ -3335,19 +3338,16 @@ function formatCompact(num, isCurrency){
   const txt = new Intl.NumberFormat('es-CO', { notation:'compact', maximumFractionDigits:1 }).format(val);
   return isCurrency ? '$'+txt : txt;
 }
-// Corrige un problema de origen de datos en "unidades" de devoluciones:
-// algunas filas llegan con coma decimal donde en realidad es una cantidad
-// entera (ej. "0,4" debería ser 4; "1,456" debería ser 1.456 = mil
-// cuatrocientos cincuenta y seis). Un número entero se deja intacto; uno
-// con decimales se reinterpreta corriendo la coma (se quita el punto
-// decimal y se lee todo seguido como el entero real).
+// "Unidades" en devoluciones a veces llega con residuo decimal (ej.
+// 3.0000000001 o 0.4) que no tiene sentido como cantidad de unidades.
+// NOTA: antes esto intentaba "correr la coma" para adivinar el valor
+// entero real (0,4→4, 1,456→1.456), pero esa heurística fallaba mal en
+// filas con decimales largos (multiplicaba el valor por miles), inflando
+// sumas hasta cifras absurdas como billones de unidades. Ahora solo
+// redondea al entero más cercano — más conservador y siempre correcto
+// en magnitud, aunque no "adivine" una posible mala captura de origen.
 function fixUnidades(num){
-  const val = Number(num) || 0;
-  if(Number.isInteger(val)) return val;
-  const [intPart, decPart] = Math.abs(val).toString().split('.');
-  if(!decPart) return val;
-  const corregido = Number(intPart + decPart);
-  return val < 0 ? -corregido : corregido;
+  return Math.round(Number(num) || 0);
 }
 function agSum(rows, keyField, valField){
   const map = new Map();
@@ -3494,12 +3494,16 @@ function renderComboChart(domId, categories, barSeries, lineSeries){
       });
       return html;
     }},
-    legend:{ data:[barSeries.name, lineSeries.name], top:0, right:0, textStyle:{fontSize:11, color:'#64748B'} },
-    grid:{ top:40, bottom:40, left:50, right:50, containLabel:true },
+    // Sin "name" en los ejes: antes el nombre del eje (arriba de cada eje)
+    // se encimaba con la leyenda, que también vive arriba. La leyenda ya
+    // identifica cada serie, así que los ejes se quedan solo con sus
+    // números.
+    legend:{ data:[barSeries.name, lineSeries.name], top:6, left:'center', itemGap:16, textStyle:{fontSize:10.5, color:'#64748B'} },
+    grid:{ top:44, bottom:36, left:44, right:44, containLabel:true },
     xAxis:{ type:'category', data:categories, axisLabel:{ fontSize:10, color:'#64748B' } },
     yAxis:[
-      { type:'value', name:barSeries.name, nameTextStyle:{fontSize:9, color:'#94A3B8'}, axisLabel:{ fontSize:9, color:'#94A3B8' }, splitLine:{lineStyle:{color:'#F1F5F9'}} },
-      { type:'value', name:lineSeries.name, max:100, nameTextStyle:{fontSize:9, color:'#94A3B8'}, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:'{value}%' }, splitLine:{show:false} }
+      { type:'value', axisLabel:{ fontSize:9, color:'#94A3B8' }, splitLine:{lineStyle:{color:'#F1F5F9'}} },
+      { type:'value', max:100, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:'{value}%' }, splitLine:{show:false} }
     ],
     series:[
       { name:barSeries.name, type:'bar', data:barSeries.data, yAxisIndex:0, itemStyle:{ color:barSeries.color||'#CBD5E1', borderRadius:[4,4,0,0] }, barMaxWidth:28 },
@@ -3585,21 +3589,30 @@ function renderScatterChart(domId, points){
   const el = document.getElementById(domId);
   if(!el) return;
   const chart = echarts.getInstanceByDom(el) || echarts.init(el);
-  const maxVenta = Math.max(1, ...points.map(p=>p.venta));
-  // Eje Y dinámico: si ninguna marca pasa de, digamos, 35%, un eje fijo a
-  // 100% deja todo apachurrado abajo (como se veía antes). Y si hay muchos
-  // puntos, las etiquetas de texto se encima; a partir de ~15 se ocultan
-  // y se deja solo el tooltip al pasar el mouse.
+  // Escala LOGARÍTMICA en venta: cuando una marca (ej. la propia Alquería)
+  // vende muchísimo más que el resto, un eje lineal deja a todas las demás
+  // amontonadas contra el borde izquierdo, ilegibles. En log, cada orden
+  // de magnitud ocupa el mismo espacio visual, así que se separan.
+  const ventasValidas = points.filter(p => p.venta > 0);
+  const maxVenta = Math.max(1, ...ventasValidas.map(p=>p.venta));
+  const minVenta = ventasValidas.length ? Math.min(...ventasValidas.map(p=>p.venta)) : 1;
+  const logMax = Math.log10(maxVenta), logMin = Math.log10(Math.max(minVenta, 1));
+  const logRange = Math.max(logMax - logMin, 0.1);
+
   const maxParticipacion = points.length ? Math.max(...points.map(p=>p.participacion)) : 0;
   const yMax = Math.min(100, Math.max(10, Math.ceil((maxParticipacion*1.25)/5)*5));
-  const showLabels = points.length <= 15;
+  // Etiqueta de texto solo para marcas con participación real (>0) o la de
+  // mayor venta (para dar contexto de escala) — si se etiquetan todas,
+  // las que están en 0% se amontonan unas sobre otras, ilegible.
+  const ventaMasAlta = ventasValidas.length ? Math.max(...ventasValidas.map(p=>p.venta)) : 0;
+
   chart.setOption({
     tooltip:{ trigger:'item', formatter: (p) => {
       const d = p.data;
       return `<strong>${d.name}</strong><br>Venta Neta: ${currencyFormat(d.value[0])}<br>% Participación: ${d.value[1].toFixed(1)}%`;
     }},
-    grid:{ top:20, bottom:44, left:50, right:20, containLabel:true },
-    xAxis:{ type:'value', name:'Venta Neta', nameLocation:'middle', nameGap:28,
+    grid:{ top:20, bottom:44, left:55, right:20, containLabel:true },
+    xAxis:{ type:'log', name:'Venta Neta (escala log)', nameLocation:'middle', nameGap:28,
       nameTextStyle:{ fontSize:10, color:'#64748B' }, axisLabel:{ fontSize:9, color:'#94A3B8', formatter:(v)=>formatCompact(v,true) },
       splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
     yAxis:{ type:'value', name:'% Participación', max:yMax,
@@ -3607,12 +3620,17 @@ function renderScatterChart(domId, points){
       splitLine:{ lineStyle:{ color:'#F1F5F9' } } },
     series:[{
       type:'scatter',
-      symbolSize: (val) => Math.max(12, Math.min(46, 12 + (val[0]/maxVenta)*34)),
-      data: points.map(p => ({
+      symbolSize: (val) => {
+        if(val[0]<=0) return 10;
+        const t = (Math.log10(val[0]) - logMin) / logRange;
+        return Math.max(10, Math.min(34, 10 + t*24));
+      },
+      data: ventasValidas.map(p => ({
         name:p.marca, value:[p.venta, p.participacion],
-        itemStyle:{ color: p.participacion>=20?'#059669':(p.participacion>0?'#D97706':'#94A3B8'), opacity:0.85 }
+        itemStyle:{ color: p.participacion>=20?'#059669':(p.participacion>0?'#D97706':'#94A3B8'), opacity:0.85 },
+        label:{ show: p.participacion>0 || p.venta===ventaMasAlta }
       })),
-      label:{ show:showLabels, formatter:(p)=>p.data.name, position:'top', fontSize:9, color:'#334155' }
+      label:{ formatter:(p)=>p.data.name, position:'top', fontSize:9, color:'#334155' }
     }]
   }, true);
   if(!points.length){
@@ -3684,6 +3702,15 @@ const TONE_GREEN = { bg:'var(--green-bg)', fg:'var(--green)' };
 const TONE_BLUE = { bg:'var(--eficacia-blue-bg)', fg:'var(--eficacia-blue)' };
 
 function setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
+// Para KPIs de números grandes ($ o unidades): usa formato compacto (1,2M)
+// para que nunca se salga de la tarjeta, y deja el valor exacto en el
+// atributo title (aparece al pasar el mouse, en desktop).
+function setTxtCompact(id, value, isCurrency){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = formatCompact(value, isCurrency);
+  el.title = isCurrency ? currencyFormat(value) : formatNumber(value);
+}
 function emptyRow(cols){ return `<tr><td colspan="${cols}" class="py-4 text-center" style="color:var(--text-muted)">Sin datos.</td></tr>`; }
 function emptyMsg(text){ return `<p class="text-xs font-semibold text-center py-6" style="color:var(--text-muted)">${text}</p>`; }
 function itemRow(title, subtitle, badge, urgent){
@@ -4063,7 +4090,7 @@ class AnaliticaComercial {
     const ventaKilos = rows.reduce((a,r)=>a+r.ventaKilos,0);
     const cuotaPesos = rows.reduce((a,r)=>a+r.cuotaPesos,0);
     const cuotaKilos = rows.reduce((a,r)=>a+r.cuotaKilos,0);
-    setTxt('an-venta-neta', currencyFormat(ventaNeta));
+    setTxtCompact('an-venta-neta', ventaNeta, true);
     setTxt('an-venta-kilos', formatNumber(ventaKilos));
     setTxt('an-venta-cumplimiento', (cuotaPesos>0 ? ventaNeta/cuotaPesos*100 : 0).toFixed(1)+'%');
     setTxt('an-venta-cumplimiento-kg', (cuotaKilos>0 ? ventaKilos/cuotaKilos*100 : 0).toFixed(1)+'%');
@@ -4093,8 +4120,8 @@ class AnaliticaComercial {
     const devolucionesMes = devRows.reduce((a,r)=>a+r.valor, 0);
     const netoReal = ventaMes - devolucionesMes;
 
-    setTxt('an-venta-proyectado-valor', currencyFormat(proyectado));
-    setTxt('an-venta-neto-real', currencyFormat(netoReal));
+    setTxtCompact('an-venta-proyectado-valor', proyectado, true);
+    setTxtCompact('an-venta-neto-real', netoReal, true);
     const gaugeMax = Math.max(cuotaMes, netoReal, proyectado, 1) * 1.05;
     renderGaugeChart('chart-venta-gauge-proyectado', proyectado, {
       max: gaugeMax, label:'Proyectado', pointerColor:'#0052CC',
@@ -4465,8 +4492,8 @@ class AnaliticaComercial {
     const unidades = rows.reduce((a,r)=>a+r.cantidadUnidades,0);
     const valor = rows.reduce((a,r)=>a+r.valorMonetario,0);
     const diasProm = rows.length ? rows.reduce((a,r)=>a+r.diasVidaUtil,0)/rows.length : 0;
-    setTxt('an-fc-unidades', formatNumber(unidades));
-    setTxt('an-fc-valor', currencyFormat(valor));
+    setTxtCompact('an-fc-unidades', unidades, false);
+    setTxtCompact('an-fc-valor', valor, true);
     setTxt('an-fc-pdv', formatNumber(agCountDistinct(rows, 'puntoVenta')));
     setTxt('an-fc-dias-prom', diasProm.toFixed(0));
 
@@ -4509,8 +4536,8 @@ class AnaliticaComercial {
     const rows = this.getFiltered('devoluciones');
     const valor = rows.reduce((a,r)=>a+r.valor,0);
     const unidades = rows.reduce((a,r)=>a+r.unidades,0);
-    setTxt('an-dev-valor', currencyFormat(valor));
-    setTxt('an-dev-unidades', formatNumber(unidades));
+    setTxtCompact('an-dev-valor', valor, true);
+    setTxtCompact('an-dev-unidades', unidades, false);
     const porMotivo = agSum(rows, 'motivo', 'valor');
     setTxt('an-dev-top-motivo', porMotivo.length ? porMotivo[0][0] : '—');
 
