@@ -110,7 +110,7 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
   .card.px-5.py-4.flex.flex-wrap>div select{width:100%;min-width:0}
   .card.px-5.py-4.flex.flex-wrap>button{width:100%;margin-left:0!important;padding:9px 10px;border-top:1px solid var(--border);margin-top:2px}
   [id^="chart-"]{max-width:100%;overflow:hidden}
-  #chart-venta-tendencia,#chart-venta-regional,#chart-venta-marca,#chart-part-tendencia,#chart-part-marca,#chart-part-regional,#chart-cob-ruta,#chart-cob-canal,#chart-cob-distribucion,#chart-agot-tendencia,#chart-agot-causal,#chart-agot-estado,#chart-fc-tendencia,#chart-fc-categoria,#chart-dev-tendencia,#chart-dev-motivo,#chart-dev-marca{height:225px!important}
+  #chart-venta-tendencia,#chart-venta-regional,#chart-part-tendencia,#chart-part-marca,#chart-part-regional,#chart-cob-ruta,#chart-cob-canal,#chart-cob-distribucion,#chart-agot-tendencia,#chart-agot-causal,#chart-agot-estado,#chart-fc-tendencia,#chart-fc-categoria,#chart-dev-tendencia,#chart-dev-motivo,#chart-dev-marca{height:225px!important}
   #chart-venta-gauge-proyectado,#chart-venta-gauge-real{height:160px!important}
   #chart-gauge-proyectado-general,#chart-gauge-real-general{height:175px!important}
   #chart-ej-relacion{min-width:0!important}
@@ -314,6 +314,9 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
       </div>
     </div>
     <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+      <button id="mobile-menu-btn" class="mobile-menu-btn" type="button" aria-label="Abrir menú" onclick="toggleMobileNav(true)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
       <span id="connection-status" class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold" style="background:var(--amber-bg); color:var(--amber)">
         <span class="w-2 h-2 mr-1.5 rounded-full animate-pulse" style="background:var(--amber)"></span>
         Conectando...
@@ -332,6 +335,15 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
   <!-- ===================== SIDEBAR DE NAVEGACIÓN ===================== -->
   <aside id="dashboard-sidebar" class="w-full lg:w-60 lg:sticky lg:top-[96px] shrink-0 z-20">
     <nav class="card p-2 lg:p-3">
+      <div class="mobile-nav-close items-center justify-between mb-3">
+        <div>
+          <p class="text-sm font-extrabold" style="color:var(--text)">Menú</p>
+          <p class="text-[10px] font-medium" style="color:var(--text-muted)">Selecciona una vista</p>
+        </div>
+        <button type="button" onclick="toggleMobileNav(false)" aria-label="Cerrar menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </button>
+      </div>
       <p class="sidebar-label hidden lg:block">Navegación</p>
       <div class="flex lg:flex-col gap-1.5 flex-wrap">
         <button id="nav-btn-general" onclick="setVista('general')" class="vista-nav-btn is-active">
@@ -970,6 +982,40 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
         </div>
       </div>
 
+      <!-- Estimación informativa de comisión variable -->
+      <div class="card p-6">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold tracking-tight font-display mb-1">Estimación de Comisión Variable</h3>
+            <p class="text-[11px] font-medium" style="color:var(--text-muted)">Aproximación según los datos disponibles en el dashboard. No reemplaza la liquidación oficial.</p>
+          </div>
+          <span id="mv-comision-status" class="badge" style="background:var(--amber-bg);color:var(--amber)">Estimado</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="mini-kpi">
+            <p class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Cumplimiento estimado</p>
+            <h3 id="mv-comision-cumpl" class="text-3xl font-extrabold tracking-tight tabular font-display mt-1">0.0%</h3>
+            <p id="mv-comision-cumpl-note" class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">Con datos disponibles</p>
+          </div>
+          <div class="mini-kpi">
+            <p class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Llave de entrada</p>
+            <h3 id="mv-comision-llave" class="text-3xl font-extrabold tracking-tight tabular font-display mt-1">$0</h3>
+            <p id="mv-comision-llave-note" class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">Sin llave abierta</p>
+          </div>
+          <div class="mini-kpi">
+            <p class="text-xs font-extrabold uppercase tracking-wider" style="color:var(--text-muted)">Comisión aprox.</p>
+            <h3 id="mv-comision-aprox" class="text-3xl font-extrabold tracking-tight tabular font-display mt-1" style="color:var(--green)">$0</h3>
+            <p id="mv-comision-aprox-note" class="text-[10.5px] font-semibold mt-1" style="color:var(--text-muted)">Pendiente de datos</p>
+          </div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="rounded-xl p-3" style="background:var(--eficacia-blue-bg)"><p class="text-[10px] font-bold uppercase" style="color:var(--eficacia-blue)">Tienda Perfecta</p><p id="mv-comision-tienda" class="text-lg font-extrabold mt-1">0.0%</p><p class="text-[9.5px]" style="color:var(--text-muted)">Planes + participación disponibles</p></div>
+          <div class="rounded-xl p-3" style="background:#F8FAFC"><p class="text-[10px] font-bold uppercase" style="color:var(--text-muted)">Ventas</p><p id="mv-comision-ventas" class="text-lg font-extrabold mt-1">0.0%</p><p class="text-[9.5px]" style="color:var(--text-muted)">Venta neta vs cuota</p></div>
+          <div class="rounded-xl p-3" style="background:var(--amber-bg)"><p class="text-[10px] font-bold uppercase" style="color:var(--amber)">Devoluciones</p><p id="mv-comision-dev" class="text-lg font-extrabold mt-1">—</p><p id="mv-comision-dev-note" class="text-[9.5px]" style="color:var(--text-muted)">Objetivo &lt; 3%</p></div>
+          <div class="rounded-xl p-3" style="background:#F8FAFC"><p class="text-[10px] font-bold uppercase" style="color:var(--text-muted)">Dato faltante</p><p id="mv-comision-faltante" class="text-lg font-extrabold mt-1">Actividades</p><p class="text-[9.5px]" style="color:var(--text-muted)">También se requiere validar reglas de ventas/FC</p></div>
+        </div>
+      </div>
+
       <!-- Complemento: Agotados y Fechas Cortas en mis PDV (tablas Supabase) -->
       <div class="card p-6">
         <h3 class="text-base font-bold tracking-tight font-display mb-4">Detalle de Hallazgos en mis PDV</h3>
@@ -1065,7 +1111,6 @@ select:focus, button:focus, input:focus{outline:2px solid var(--eficacia-blue); 
     <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Evolución de Venta Neta vs Cuota por Mes</h3><div id="chart-venta-tendencia" style="height:280px"></div></div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Venta Neta vs Cuota por Regional</h3><div id="chart-venta-regional" style="height:280px"></div></div>
-      <div class="card p-6"><h3 class="text-sm font-bold mb-3 font-display">Venta Neta por Marca (Top 8)</h3><div id="chart-venta-marca" style="height:280px"></div></div>
     </div>
     <div class="card p-6">
       <div class="flex items-center justify-between mb-3">
@@ -3342,6 +3387,90 @@ class VistaMercaderista {
         <p class="text-[11px] truncate" style="color:var(--text-muted)">• ${marca} — ${pct.toFixed(1)}%</p>
       `).join('') || `<p class="text-[11px]" style="color:var(--text-muted)">Sin visitas de participación registradas.</p>`;
     }
+
+    // ---------------------------------------------------------
+    // Estimación informativa de comisión variable
+    // ---------------------------------------------------------
+    // Regla entregada por el usuario:
+    // 80-100% => llave 100% ($250.000)
+    // 60-79%  => llave 60%  ($150.000)
+    // <60%    => sin llave
+    // La estimación usa únicamente datos que sí existen en el dashboard.
+    // Actividades y la separación Sell Out/Sell In no están disponibles aquí,
+    // por lo que se muestran como datos pendientes y no se inventan.
+    const clampPct = v => Math.max(0, Math.min(100, Number(v)||0));
+    const planObjetivo = misRegistros.reduce((a,r)=>a+Number(r.cantidadObjetivo||0),0);
+    const planImplementado = misRegistros.reduce((a,r)=>a+Number(r.cantidadImplementada||0),0);
+    const planPct = planObjetivo > 0 ? clampPct(planImplementado/planObjetivo*100) : null;
+
+    const partConObj = misParticipacion.filter(r => Number(r.objetivoParticipacion)>0 && Number(r.pctParticipacion)>0);
+    const partCumpl = partConObj.length
+      ? clampPct(partConObj.reduce((a,r)=>a+(Number(r.pctParticipacion)/Number(r.objetivoParticipacion)*100),0)/partConObj.length)
+      : null;
+
+    // Tienda Perfecta: solo se ponderan los componentes disponibles
+    // (Planes 40% + Participación 30%). Actividades 30% queda pendiente.
+    const tpValores = [];
+    if(planPct !== null) tpValores.push({v:planPct,w:40});
+    if(partCumpl !== null) tpValores.push({v:partCumpl,w:30});
+    const tpPct = tpValores.length
+      ? clampPct(tpValores.reduce((a,x)=>a+x.v*x.w,0)/tpValores.reduce((a,x)=>a+x.w,0))
+      : null;
+
+    // Ventas: cruce aproximado por PDV, porque la tabla venta no trae
+    // código de cliente en el modelo actual.
+    const misVenta = (SUPABASE_TABLES.venta||[]).filter(r => {
+      const key = String(r.puntoVenta||'').trim();
+      return key && codigosPDV.has(key);
+    });
+    const ventaNeta = misVenta.reduce((a,r)=>a+Number(r.ventaNeta||0),0);
+    const cuotaVenta = misVenta.reduce((a,r)=>a+Number(r.cuotaPesos||0),0);
+    const ventaPct = cuotaVenta > 0 ? clampPct(ventaNeta/cuotaVenta*100) : null;
+
+    // Devoluciones: se calcula el valor devuelto frente a venta neta.
+    // El objetivo informado es <3%.
+    const valorDev = misDevoluciones.reduce((a,r)=>a+Number(r.valor||0),0);
+    const devRate = ventaNeta > 0 ? valorDev/ventaNeta*100 : null;
+    const devPctCumpl = devRate === null ? null : clampPct(devRate < 3 ? 100 : (3/devRate*100));
+
+    // Bloque Fechas Cortas: la fuente actual permite saber hallazgos, pero
+    // no permite demostrar que el 100% de las fechas cortas fue reportado
+    // frente a visitas programadas; por eso no entra en el cálculo.
+    const componentes = [];
+    if(tpPct !== null) componentes.push({v:tpPct,w:60});
+    if(ventaPct !== null) componentes.push({v:ventaPct,w:20});
+    if(devPctCumpl !== null) componentes.push({v:devPctCumpl,w:20});
+    const cumplimientoEstimado = componentes.length
+      ? clampPct(componentes.reduce((a,x)=>a+x.v*x.w,0)/componentes.reduce((a,x)=>a+x.w,0))
+      : 0;
+
+    let llave = 0;
+    let llaveTexto = 'Sin llave abierta';
+    if(cumplimientoEstimado >= 80){ llave = 250000; llaveTexto = 'Llave 100%'; }
+    else if(cumplimientoEstimado >= 60){ llave = 150000; llaveTexto = 'Llave 60%'; }
+
+    // Se aplica el cumplimiento estimado como aproximación sobre la llave.
+    const comisionAprox = llave > 0 ? llave * cumplimientoEstimado/100 : 0;
+    const money = v => '$' + Math.round(Number(v)||0).toLocaleString('es-CO');
+    const setCommission = (id,val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+    setCommission('mv-comision-cumpl', cumplimientoEstimado.toFixed(1)+'%');
+    setCommission('mv-comision-cumpl-note', `${componentes.length} de 3 bloques calculables con los datos actuales`);
+    setCommission('mv-comision-llave', money(llave));
+    setCommission('mv-comision-llave-note', llaveTexto);
+    setCommission('mv-comision-aprox', money(comisionAprox));
+    setCommission('mv-comision-aprox-note', llave ? 'Estimación sobre la llave disponible' : 'No alcanza el mínimo de 60%');
+    setCommission('mv-comision-tienda', tpPct === null ? '—' : tpPct.toFixed(1)+'%');
+    setCommission('mv-comision-ventas', ventaPct === null ? '—' : ventaPct.toFixed(1)+'%');
+    setCommission('mv-comision-dev', devPctCumpl === null ? '—' : devPctCumpl.toFixed(1)+'%');
+    setCommission('mv-comision-dev-note', devRate === null ? 'Sin venta comparable' : `Devolución: ${devRate.toFixed(2)}% · objetivo <3%`);
+    const status = document.getElementById('mv-comision-status');
+    if(status){
+      status.textContent = cumplimientoEstimado >= 80 ? 'Llave 100%' : cumplimientoEstimado >= 60 ? 'Llave 60%' : 'Sin llave';
+      status.style.background = cumplimientoEstimado >= 80 ? 'var(--green-bg)' : cumplimientoEstimado >= 60 ? 'var(--amber-bg)' : 'var(--rose-bg)';
+      status.style.color = cumplimientoEstimado >= 80 ? 'var(--green)' : cumplimientoEstimado >= 60 ? 'var(--amber)' : 'var(--rose)';
+    }
+    const faltanteEl=document.getElementById('mv-comision-faltante');
+    if(faltanteEl) faltanteEl.textContent='Actividades + FC';
   }
   itemTemplate(r, esCompleto, indice, campanasPendientes){
     const c = cumplimientoColor(r.pct);
@@ -4193,7 +4322,7 @@ class AnaliticaComercial {
 
   resizeModule(key){
     const idsMap = {
-      venta:['chart-venta-tendencia','chart-venta-regional','chart-venta-marca','chart-venta-gauge-proyectado','chart-venta-gauge-real'],
+      venta:['chart-venta-tendencia','chart-venta-regional','chart-venta-gauge-proyectado','chart-venta-gauge-real'],
       participacion:['chart-part-tendencia','chart-part-marca','chart-part-regional'],
       cobertura:['chart-cob-donut','chart-cob-ruta','chart-cob-canal','chart-cob-distribucion'],
       agotados:['chart-agot-tendencia','chart-agot-causal','chart-agot-estado'],
@@ -4308,7 +4437,6 @@ class AnaliticaComercial {
       { name:'Venta Neta', data: cats.map(c => (porRegionalVenta.find(p=>p[0]===c)||[0,0])[1]), color:'#0052CC' },
       { name:'Cuota', data: cats.map(c => porRegionalCuotaMap.get(c)||0), color:'#DA291C' }
     ], { currency:true });
-    renderHBar('chart-venta-marca', agSum(rows, 'marca', 'ventaNeta'), { limit:8, color:'#0052CC', currency:true });
 
     const porProducto = new Map();
     rows.forEach(r => {
@@ -4722,6 +4850,8 @@ function setVista(vista){
     const btn = document.getElementById(VISTA_NAV_BTN[v]);
     if(btn) btn.classList.toggle('is-active', v === vista);
   });
+
+  if(window.matchMedia('(max-width: 1023px)').matches) toggleMobileNav(false);
 
   if(vista === 'mercaderista'){
     mercaderistaVista.refresh();
