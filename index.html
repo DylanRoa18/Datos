@@ -791,7 +791,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
               <tr>
                 <th>Ruta</th><th>Líder / Supervisor</th><th>Llaves</th>
                 <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
-                <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Dif. vs Excel</th>
+                <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Control Excel</th>
               </tr>
             </thead>
             <tbody id="liq-tabla-rutas"></tbody>
@@ -814,7 +814,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
               <tr>
                 <th>Nombre</th><th>Llaves</th>
                 <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
-                <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Dif. vs Excel</th>
+                <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Control Excel</th>
               </tr>
             </thead>
             <tbody id="liq-tabla-personas"></tbody>
@@ -1123,12 +1123,28 @@ function factorEscalonado(p){
   if(r === 80) return 0.7;
   return 0;
 }
-function calcComision(captura, cobertura, tp, ventas, fcdv){
-  const llavesOk = captura !== null && cobertura !== null && captura >= COMISION.llaveMinima && cobertura >= COMISION.llaveMinima;
-  const pct = llavesOk
-    ? (COMISION.pesoTP * factorTiendaPerfecta(tp) + COMISION.pesoVentas * factorEscalonado(ventas) + COMISION.pesoFcDv * factorEscalonado(fcdv)) * 100
+// Las reglas pueden cambiar de un mes a otro (ej. Julio: llaves al 70%).
+// Por eso, cuando el Excel ya trae el resultado, se usa ese:
+//   - "Corresponde Comision" / "Cumple Llaves" (SI/NO) para las llaves
+//   - % de comisión pagada = Valor a pagar / Valor comisión
+// Las fórmulas solo se usan si el Excel no trae esos datos.
+function calcComision(captura, cobertura, tp, ventas, fcdv, excel = {}){
+  const umbral = num(excel.umbral) || COMISION.llaveMinima;
+  const siNo = normKey(excel.cumple);
+  const llavesOk = siNo === 'SI' ? true : siNo === 'NO' ? false
+    : captura !== null && cobertura !== null && captura >= umbral && cobertura >= umbral;
+  const pctExcel = num(excel.pctComision);
+  const pct = pctExcel !== null ? pctExcel
+    : llavesOk ? (COMISION.pesoTP * factorTiendaPerfecta(tp) + COMISION.pesoVentas * factorEscalonado(ventas) + COMISION.pesoFcDv * factorEscalonado(fcdv)) * 100
     : 0;
-  return { llavesOk, pctComision: pct };
+  return { llavesOk, pctComision: pct, umbralLlave: umbral };
+}
+// Umbral de llaves más común en un grupo de filas (60% si no viene)
+function umbralLlaves(rows){
+  const cuenta = {};
+  rows.forEach(r => { const u = r.umbralLlave || COMISION.llaveMinima; cuenta[u] = (cuenta[u] || 0) + 1; });
+  const orden = Object.entries(cuenta).sort((a, b) => b[1] - a[1]);
+  return orden.length ? Number(orden[0][0]) : COMISION.llaveMinima;
 }
 
 
@@ -1374,8 +1390,11 @@ function prepararCampo({ rutas, indicadores, lideres }){
     const captura = num(r.pct_captura), cobertura = num(r.pct_cobertura);
     const tp = num(r.pct_tienda_perfecta), ventas = num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
     return { ...r, pct_captura:captura, pct_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv,
-      ...calcComision(captura, cobertura, tp, ventas, fcdv) };
+      ...calcComision(captura, cobertura, tp, ventas, fcdv,
+        { umbral:r.umbral_llave, cumple:r.corresponde_comision, pctComision:r.pct_comision }) };
   });
+  const umbralPorMes = {};
+  rutasOk.forEach(r => { if(r.umbral_llave) umbralPorMes[r.mes_orden] = r.umbral_llave; });
 
   // Indicadores no trae regional ni líder: se toman de la liquidación por ruta.
   // El supervisor también se toma de la liquidación, para que los nombres
@@ -1401,7 +1420,8 @@ function prepararCampo({ rutas, indicadores, lideres }){
     const captura = num(r.pct_llave_captura), cobertura = num(r.pct_llave_cobertura);
     const tp = num(r.pct_tienda_perfecta), ventas = num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
     return { ...r, pct_llave_captura:captura, pct_llave_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv,
-      ...calcComision(captura, cobertura, tp, ventas, fcdv) };
+      ...calcComision(captura, cobertura, tp, ventas, fcdv,
+        { umbral:umbralPorMes[r.mes_orden], cumple:r.cumple_llaves, pctComision:r.pct_comision }) };
   });
 
   return { rutas: rutasOk, indicadores: indicadoresOk, lideres: lideresOk };
@@ -2089,7 +2109,7 @@ function alertasCampo(rutas, personas, proy){
   return {
     lista: [
       { id:'sinLlaves', icono:ICONOS.candado, valor:formatNumber(rutas.filter(pred.sinLlaves).length), titulo:'Rutas sin llaves abiertas',
-        desc:`Captura o cobertura por debajo de ${COMISION.llaveMinima}%: no comisionan.`, tono:TONOS.rojo },
+        desc:`No cumplen las llaves del mes (mínimo ${umbralLlaves(rutas)}%): no comisionan.`, tono:TONOS.rojo },
       { id:'tpBajo', icono:ICONOS.tienda, valor:formatNumber(rutas.filter(pred.tpBajo).length), titulo:'Tienda Perfecta bajo 80%',
         desc:'Pierden parte o todo el 60% de la comisión.', tono:TONOS.ambar },
       { id:'ventasBajo', icono:ICONOS.tendencia, valor:formatNumber(rutas.filter(pred.ventasBajo).length), titulo:'Ventas bajo lo proyectado',
@@ -2236,9 +2256,9 @@ function renderCampo(){
 
   document.getElementById('campo-anillos').innerHTML = [
     anillo('Llave 1 · Captura', 'Captura de información', 'LLAVE 1', TONOS.azul, r => r.pct_captura,
-      v => `Mínimo ${COMISION.llaveMinima}% para comisionar`, false),
+      v => `Mínimo ${umbralLlaves(rutas)}% para comisionar`, false),
     anillo('Llave 2 · Cobertura', 'Cobertura de puntos de venta', 'LLAVE 2', TONOS.azul, r => r.pct_cobertura,
-      v => `Mínimo ${COMISION.llaveMinima}% para comisionar`, false),
+      v => `Mínimo ${umbralLlaves(rutas)}% para comisionar`, false),
     anillo('Tienda Perfecta', '60% de la comisión', 'TP', TONOS.verde, r => r.pct_tienda_perfecta,
       v => `Desde 80% paga completo · 60-79% paga 60%`, false),
     anillo('Ventas', '20% de la comisión', 'VENTAS', TONOS.morado, r => r.pct_ventas,
@@ -2523,18 +2543,20 @@ function liquidar(r, d, cargo){
     fcdv: llaves ? base.fcdv * factorEscalonado(pct.fcdv) : 0
   };
   const totalCalc = calc.tp + calc.ventas + calc.fcdv;
-  const pagado = {
+  // Con las llaves cerradas no se paga ningún componente, aunque el Excel
+  // muestre valores en "$ Liquidar" (el Valor a pagar queda en 0).
+  const pagado = llaves ? {
     tp: n(d.liquidado_tp) ?? calc.tp,
     ventas: n(d.liquidado_ventas) ?? calc.ventas,
     fcdv: n(d.liquidado_fc_dv) ?? calc.fcdv
-  };
+  } : { tp:0, ventas:0, fcdv:0 };
   const pagar = n(d.valor_pagar) ?? totalCalc;
 
   // Siguiente tramo de cada componente y cuánto sumaría
   const tramos = [];
   if(!llaves){
     const potencial = base.tp * factorTiendaPerfecta(pct.tp) + base.ventas * factorEscalonado(pct.ventas) + base.fcdv * factorEscalonado(pct.fcdv);
-    tramos.push({ texto:'Abrir llaves (captura y cobertura ≥ 60%)', ganancia:potencial });
+    tramos.push({ texto:`Abrir llaves (mínimo ${r.umbralLlave || COMISION.llaveMinima}%)`, ganancia:potencial });
   } else {
     if(pct.tp !== null && pct.tp < 80){
       const meta = pct.tp < 60 ? 60 : 80;
@@ -2548,22 +2570,50 @@ function liquidar(r, d, cargo){
   }
   tramos.sort((a, b) => b.ganancia - a.ganancia);
 
+  // Control interno del Excel: ¿Valor a pagar = suma de los tres "$ Liquidar"?
+  const tieneComponentes = [d.liquidado_tp, d.liquidado_ventas, d.liquidado_fc_dv].every(v => n(v) !== null);
+  const sumaComponentes = pagado.tp + pagado.ventas + pagado.fcdv;
+  // ¿Esta fila se liquidó igual a las reglas estándar? (sirve para saber si el mes las usa)
+  const coincideReglas = tieneComponentes && llaves
+    ? Math.abs(calc.tp - pagado.tp) < 1 && Math.abs(calc.ventas - pagado.ventas) < 1 && Math.abs(calc.fcdv - pagado.fcdv) < 1
+    : null;
+
   return {
-    ...r, cargoTipo: cargo, baseTotal, base, pagado, pagar, totalCalc,
-    diferencia: n(d.valor_pagar) !== null ? n(d.valor_pagar) - totalCalc : null,
+    ...r, cargoTipo: cargo, baseTotal, base, pagado, pagar, totalCalc, sumaComponentes, coincideReglas,
+    diferencia: n(d.valor_pagar) !== null && tieneComponentes ? n(d.valor_pagar) - sumaComponentes : null,
     perdidoLlaves: llaves ? 0 : baseTotal,
     tramos: tramos.filter(t => t.ganancia > 0)
   };
 }
 
+// La simulación de "siguiente tramo" usa las reglas estándar. Solo se muestra
+// en los meses que realmente se liquidaron con ellas: si menos del 90% de
+// las rutas con llaves abiertas coinciden, ese mes tuvo reglas distintas.
+function mesesConReglasEstandar(rutas){
+  const conteo = {};
+  rutas.forEach(r => {
+    if(r.coincideReglas === null) return;
+    const c = conteo[r.mes_orden] = conteo[r.mes_orden] || { si:0, total:0 };
+    c.total++; if(r.coincideReglas) c.si++;
+  });
+  const meses = {};
+  Object.entries(conteo).forEach(([mes, c]) => { meses[mes] = c.total === 0 || c.si / c.total >= 0.9; });
+  return meses;
+}
+function aplicarSimulacion(filas, meses){
+  return filas.map(r => meses[r.mes_orden] === false ? { ...r, tramos:[], sinSimulacion:true } : r);
+}
 function datosLiqRutas(){
-  return unirDinero(DATA.rutas, DATA.dineroRutas || [], x => claveRuta(x.ruta)).map(({ r, d }) => liquidar(r, d, 'mercaderista'));
+  const rutas = unirDinero(DATA.rutas, DATA.dineroRutas || [], x => claveRuta(x.ruta)).map(({ r, d }) => liquidar(r, d, 'mercaderista'));
+  return aplicarSimulacion(rutas, mesesConReglasEstandar(rutas));
 }
 function datosLiqPersonas(){
-  return unirDinero(DATA.lideres, DATA.dineroLideres || [], x => `${normKey(x.cargo)}|${normKey(x.nombre)}`)
+  const rutas = unirDinero(DATA.rutas, DATA.dineroRutas || [], x => claveRuta(x.ruta)).map(({ r, d }) => liquidar(r, d, 'mercaderista'));
+  const personas = unirDinero(DATA.lideres, DATA.dineroLideres || [], x => `${normKey(x.cargo)}|${normKey(x.nombre)}`)
     .map(({ r, d }) => liquidar(
       { ...r, pct_captura:r.pct_llave_captura, pct_cobertura:r.pct_llave_cobertura },
       d, tipoCargo(r.cargo)));
+  return aplicarSimulacion(personas, mesesConReglasEstandar(rutas));
 }
 
 // ---------- Filtros ----------
@@ -2607,6 +2657,7 @@ function resumenPago(filas){
     bolsa, pagar, perdidoLlaves,
     perdidoTramos: Math.max(0, bolsa - pagar - perdidoLlaves),
     potencial: suma(filas, r => r.tramos[0] ? r.tramos[0].ganancia : 0),
+    sinSimulacion: filas.length > 0 && filas.every(r => r.sinSimulacion),
     componentes: ['tp', 'ventas', 'fcdv'].map(k => ({ k, base: suma(filas, r => r.base[k]), pagado: suma(filas, r => r.pagado[k]) }))
   };
 }
@@ -2628,7 +2679,7 @@ function tarjetaResumen(titulo, s){
       ${stat('Bolsa total', fmtCOP(s.bolsa))}
       ${stat('Perdido por llaves', fmtCOP(s.perdidoLlaves), s.perdidoLlaves > 0 ? 'var(--alqueria-red)' : '')}
       ${stat('Perdido por tramos', fmtCOP(s.perdidoTramos), s.perdidoTramos > 0 ? 'var(--amber)' : '')}
-      ${stat('Si suben un tramo', '+' + fmtCOP(s.potencial), 'var(--eficacia-blue)')}
+      ${stat('Si suben un tramo', s.sinSimulacion ? 'No aplica' : '+' + fmtCOP(s.potencial), s.sinSimulacion ? 'var(--text-muted)' : 'var(--eficacia-blue)')}
     </div>
     <div class="mt-4">
       ${s.componentes.map(c => {
@@ -2650,6 +2701,7 @@ function celdaComponente(r, k, pct){
     <span class="celda-sub">${fmtPct(pct)} · de ${fmtCOP(r.base[k])}</span></td>`;
 }
 function celdaTramos(r){
+  if(r.sinSimulacion) return `<td><span class="text-[11px] font-semibold muted">No aplica: este mes se liquidó con reglas distintas</span></td>`;
   if(!r.tramos.length) return `<td><span class="badge" style="color:var(--green);background:var(--green-bg)">Tope alcanzado</span></td>`;
   return `<td>${r.tramos.slice(0, 2).map(t =>
     `<span class="block text-[11px] font-semibold">${esc(t.texto)} <span style="color:var(--green)">+${fmtCOP(t.ganancia)}</span></span>`).join('')}</td>`;
@@ -2657,7 +2709,7 @@ function celdaTramos(r){
 function celdaDiferencia(r){
   if(r.diferencia === null) return `<td class="num muted">—</td>`;
   if(Math.abs(r.diferencia) < 1) return `<td class="num"><span class="badge" style="color:var(--green);background:var(--green-bg)">Cuadra</span></td>`;
-  return `<td class="num"><span class="badge" style="color:var(--amber);background:var(--amber-bg)" title="Excel paga ${fmtCOP(r.pagar)} · reglas calculan ${fmtCOP(r.totalCalc)}">${r.diferencia > 0 ? '+' : ''}${fmtCOP(r.diferencia)}</span></td>`;
+  return `<td class="num"><span class="badge" style="color:var(--alqueria-red);background:var(--alqueria-red-bg)" title="Valor a pagar ${fmtCOP(r.pagar)} · suma de componentes ${fmtCOP(r.sumaComponentes)}">${r.diferencia > 0 ? '+' : ''}${fmtCOP(r.diferencia)}</span></td>`;
 }
 
 function filasLiqRutas(rutas){
@@ -2744,7 +2796,9 @@ function renderFocoLiq(rutas, personas){
       stat('FC & DV', fmtCOP(r.pagado.fcdv), null, fmtPct(r.pct_fc_dv)),
       stat('Dejó de ganar', fmtCOP(Math.max(0, r.baseTotal - r.pagar)), r.baseTotal - r.pagar > 0 ? 'var(--amber)' : '')
     ].join('');
-    extra = r.tramos.length
+    extra = r.sinSimulacion
+      ? `<p class="text-xs font-semibold mt-4 pt-3 muted" style="border-top:1px solid var(--border)">Este mes se liquidó con reglas distintas a las estándar, por eso no se simula el siguiente tramo.</p>`
+      : r.tramos.length
       ? `<p class="text-xs font-semibold mt-4 pt-3" style="border-top:1px solid var(--border)">Para ganar más: ${r.tramos.map(t =>
           `${esc(t.texto)} <span style="color:var(--green)">+${fmtCOP(t.ganancia)}</span>`).join(' · ')}</p>`
       : `<p class="text-xs font-semibold mt-4 pt-3" style="border-top:1px solid var(--border);color:var(--green)">Llegó al tope de todos los componentes.</p>`;
@@ -2755,7 +2809,7 @@ function renderFocoLiq(rutas, personas){
       stat('Rutas que comisionan', formatNumber(s.comisionan), null, `de ${formatNumber(s.n)}`),
       stat('Perdido por llaves', fmtCOP(s.perdidoLlaves), s.perdidoLlaves > 0 ? 'var(--alqueria-red)' : ''),
       stat('Perdido por tramos', fmtCOP(s.perdidoTramos), s.perdidoTramos > 0 ? 'var(--amber)' : ''),
-      stat('Si suben un tramo', '+' + fmtCOP(s.potencial), 'var(--eficacia-blue)')
+      stat('Si suben un tramo', s.sinSimulacion ? 'No aplica' : '+' + fmtCOP(s.potencial), s.sinSimulacion ? 'var(--text-muted)' : 'var(--eficacia-blue)')
     ].join('');
   }
 
@@ -2795,11 +2849,11 @@ function renderAnillosLiq(rutas){
   const conLlaves = rutas.filter(r => r.llavesOk).length;
 
   document.getElementById('liq-anillos').innerHTML = [
-    ringCard({ titulo:'Llave 1 · Captura', sub:'Mínimo 60% para comisionar', badge:'LLAVE 1', badgeTono:TONOS.azul,
-      pct:captura, color:tono(captura, [COMISION.llaveMinima, COMISION.llaveMinima]).hex,
+    ringCard({ titulo:'Llave 1 · Captura', sub:`Mínimo ${umbralLlaves(rutas)}% para comisionar`, badge:'LLAVE 1', badgeTono:TONOS.azul,
+      pct:captura, color:tono(captura, [umbralLlaves(rutas), umbralLlaves(rutas)]).hex,
       nota: unaRuta ? (rutas[0].llavesOk ? 'Llaves abiertas' : 'Llaves cerradas: no comisiona') : `${formatNumber(conLlaves)} de ${formatNumber(rutas.length)} rutas con llaves abiertas` }),
-    ringCard({ titulo:'Llave 2 · Cobertura', sub:'Mínimo 60% para comisionar', badge:'LLAVE 2', badgeTono:TONOS.azul,
-      pct:cobertura, color:tono(cobertura, [COMISION.llaveMinima, COMISION.llaveMinima]).hex,
+    ringCard({ titulo:'Llave 2 · Cobertura', sub:`Mínimo ${umbralLlaves(rutas)}% para comisionar`, badge:'LLAVE 2', badgeTono:TONOS.azul,
+      pct:cobertura, color:tono(cobertura, [umbralLlaves(rutas), umbralLlaves(rutas)]).hex,
       nota: unaRuta ? '' : `Perdido por llaves: <strong>${fmtCOP(s.perdidoLlaves)}</strong>` }),
     ringCard({ titulo:'Tienda Perfecta', sub:'60% de la comisión', badge:'TP', badgeTono:TONOS.verde,
       pct:tp, color:tono(tp, SEMAFORO_CAMPO).hex, nota: notaDinero('tp') + pie }),
@@ -2810,7 +2864,7 @@ function renderAnillosLiq(rutas){
     ringCard({ titulo:'Comisión pagada', sub:'Porcentaje de la bolsa que se paga', badge:'$', badgeTono:TONOS.verde,
       pct:pctBolsa, color:tono(pctBolsa, SEMAFORO_CAMPO).hex,
       nota:`<strong>${fmtCOP(s.pagar)}</strong> de ${fmtCOP(s.bolsa)}`,
-      delta: s.potencial > 0 ? { texto:`+${fmtCOP(s.potencial)} si ${unaRuta ? 'sube' : 'suben'} un tramo`, color:'var(--eficacia-blue)' } : null })
+      delta: s.potencial > 0 && !s.sinSimulacion ? { texto:`+${fmtCOP(s.potencial)} si ${unaRuta ? 'sube' : 'suben'} un tramo`, color:'var(--eficacia-blue)' } : null })
   ].join('');
 }
 
@@ -2893,22 +2947,22 @@ function limpiarFiltrosLiq(){
 function exportarLiqRutas(){
   const filas = filasLiqRutas(filtrarLiq(datosLiqRutas()));
   exportarXLSX('liquidacion_rutas',
-    ['Mes','Regional','Ruta','Líder','Supervisor','Llaves','% Captura','% Cobertura','% TP','$ TP','% Ventas','$ Ventas','% FC & DV','$ FC & DV','Bolsa','A pagar','Calculado por reglas','Diferencia','Siguiente tramo','Ganancia siguiente tramo'],
+    ['Mes','Regional','Ruta','Líder','Supervisor','Llaves','% Captura','% Cobertura','% TP','$ TP','% Ventas','$ Ventas','% FC & DV','$ FC & DV','Bolsa','A pagar','Suma componentes Excel','Control (diferencia)','Siguiente tramo','Ganancia siguiente tramo'],
     filas.map(r => [r.mes, r.regional, r.ruta, r.lider, r.supervisor, r.llavesOk ? 'Abiertas' : 'Cerradas',
       pctNum(r.pct_captura), pctNum(r.pct_cobertura), pctNum(r.pct_tienda_perfecta), Math.round(r.pagado.tp),
       pctNum(r.pct_ventas), Math.round(r.pagado.ventas), pctNum(r.pct_fc_dv), Math.round(r.pagado.fcdv),
-      Math.round(r.baseTotal), Math.round(r.pagar), Math.round(r.totalCalc), r.diferencia === null ? '' : Math.round(r.diferencia),
-      r.tramos[0] ? r.tramos[0].texto : 'Tope alcanzado', r.tramos[0] ? Math.round(r.tramos[0].ganancia) : 0]));
+      Math.round(r.baseTotal), Math.round(r.pagar), Math.round(r.sumaComponentes), r.diferencia === null ? '' : Math.round(r.diferencia),
+      r.sinSimulacion ? 'No aplica (reglas del mes distintas)' : r.tramos[0] ? r.tramos[0].texto : 'Tope alcanzado', r.tramos[0] ? Math.round(r.tramos[0].ganancia) : 0]));
 }
 function exportarLiqPersonas(){
   const filas = filtrarLiqPersonas(datosLiqPersonas(), filtrarLiq(datosLiqRutas()));
   exportarXLSX('liquidacion_lideres_supervisores',
-    ['Mes','Cargo','Nombre','Llaves','% Captura','% Cobertura','% TP','$ TP','% Ventas','$ Ventas','% FC & DV','$ FC & DV','Bolsa','A pagar','Calculado por reglas','Diferencia','Siguiente tramo','Ganancia siguiente tramo'],
+    ['Mes','Cargo','Nombre','Llaves','% Captura','% Cobertura','% TP','$ TP','% Ventas','$ Ventas','% FC & DV','$ FC & DV','Bolsa','A pagar','Suma componentes Excel','Control (diferencia)','Siguiente tramo','Ganancia siguiente tramo'],
     filas.map(r => [r.mes, r.cargo, r.nombre, r.llavesOk ? 'Abiertas' : 'Cerradas',
       pctNum(r.pct_captura), pctNum(r.pct_cobertura), pctNum(r.pct_tienda_perfecta), Math.round(r.pagado.tp),
       pctNum(r.pct_ventas), Math.round(r.pagado.ventas), pctNum(r.pct_fc_dv), Math.round(r.pagado.fcdv),
-      Math.round(r.baseTotal), Math.round(r.pagar), Math.round(r.totalCalc), r.diferencia === null ? '' : Math.round(r.diferencia),
-      r.tramos[0] ? r.tramos[0].texto : 'Tope alcanzado', r.tramos[0] ? Math.round(r.tramos[0].ganancia) : 0]));
+      Math.round(r.baseTotal), Math.round(r.pagar), Math.round(r.sumaComponentes), r.diferencia === null ? '' : Math.round(r.diferencia),
+      r.sinSimulacion ? 'No aplica (reglas del mes distintas)' : r.tramos[0] ? r.tramos[0].texto : 'Tope alcanzado', r.tramos[0] ? Math.round(r.tramos[0].ganancia) : 0]));
 }
 
 

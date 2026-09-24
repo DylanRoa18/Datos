@@ -2,8 +2,9 @@
 ============================================================
  SINCRONIZAR SUPABASE · SEGUIMIENTO DE CAMPO
 ============================================================
-Sube a Supabase las 3 hojas del Excel de preliquidación usando
-la limpieza de extraer_base.py (deben estar en la misma carpeta).
+Sube a Supabase TODOS los Excel de preliquidación de la carpeta
+"BASE DE DATOS" usando la limpieza de extraer_base.py (deben estar en
+la misma carpeta). Cada mes se reemplaza sin tocar los demás.
 
 Carga 5 tablas: 3 con porcentajes (las lee cualquiera) y 2 con valores
 en dinero (campo_comision_*), que solo ven los usuarios con login.
@@ -30,7 +31,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client
 
-from extraer_base import TABLAS, cargar_preliquidacion
+from extraer_base import TABLAS, cargar_todas
 
 
 # ============================================================
@@ -135,7 +136,7 @@ def main():
     supabase = conectar()
     print(f"Supabase: {SUPABASE_URL}")
 
-    archivo, bases = cargar_preliquidacion()
+    archivos, bases = cargar_todas()
     resumen = []
 
     for clave, tabla in TABLAS:
@@ -164,7 +165,9 @@ def main():
     print("\n" + "=" * 70)
     print(" RESUMEN")
     print("=" * 70)
-    print(f"Archivo: {archivo.name}")
+    print("Archivos procesados:")
+    for a in archivos:
+        print(f"   • {a.name}")
     for tabla, estado, cantidad in resumen:
         print(f"{'✅' if estado == 'OK' else '❌'} {tabla:<28} {estado:<8} {cantidad:>8,}")
     print(f"\nTiempo total: {time.time() - inicio_total:.1f} s\n")
@@ -179,3 +182,4 @@ if __name__ == "__main__":
     except Exception as error:
         print(f"\n❌ {error}")
         sys.exit(1)
+        

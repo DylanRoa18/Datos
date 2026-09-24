@@ -17,7 +17,8 @@ dos tablas protegidas que solo ven los usuarios con login:
     Liquidacion Lideres y Superviso  -> campo_comision_lideres
 
 Qué hace:
-  - Encuentra el archivo más reciente dentro de "BASE DE DATOS".
+  - Procesa TODOS los Excel de preliquidación que haya en "BASE DE DATOS"
+    (cualquier .xlsx/.xls cuyo nombre contenga "PreLiquidacion").
   - Detecta la fila de encabezados aunque haya títulos arriba.
   - Resuelve columnas repetidas ("$ Liquidar", "Categoria Efec"...).
   - Convierte porcentajes a escala 0-100 (0.85 -> 85).
@@ -51,8 +52,10 @@ CARPETA_BASE = Path(__file__).resolve().parent / "BASE DE DATOS"
 # Si la carpeta no está junto al .py, pon la ruta completa:
 # CARPETA_BASE = Path(r"C:\Users\Dylan\Desktop\BASE DE DATOS")
 
-# Patrón del archivo de preliquidación (se toma el más reciente)
-PATRON_ARCHIVO = "PreLiquidacion*.xls*"
+# Se procesan todos los Excel cuyo nombre contenga este texto
+# (sin importar mayúsculas, tildes, espacios o guiones).
+TEXTO_EN_NOMBRE = "PRELIQUIDACION"
+EXTENSIONES = (".xlsx", ".xlsm", ".xls")
 
 # Año que se usa cuando la columna MES solo dice "Agosto"
 ANIO_POR_DEFECTO = datetime.now().year
@@ -127,6 +130,7 @@ HOJAS = {
         "hoja": "Liquidacion por Rutas",
         "tabla": "campo_liquidacion_rutas",
         "clave": "RUTA",
+        "detectar_umbral": True,
         "columnas": [
             ("MES", "mes", "mes"),
             ("REGIONAL", "regional", "texto"),
@@ -206,6 +210,31 @@ TABLAS = [
 ]
 
 
+# Columnas que no todos los meses traen: si faltan no se avisa
+COLUMNAS_OPCIONALES = {"LIDER ALQUERIA", "PROMEDIO LLAVES", "OBSERVACIONES", "COMENTARIO", "PROM. LLAVE"}
+
+
+# ============================================================
+# NOMBRES ALTERNATIVOS DE COLUMNAS
+# ============================================================
+# Si un mes el Excel trae el encabezado escrito distinto, agrégalo aquí.
+# (Se comparan sin tildes, mayúsculas, espacios ni puntos.)
+
+ALIAS_COLUMNAS = {
+    "SUPERVISOR": ["NOMBRE SUPERVISOR", "SUPERVISOR ALQUERIA", "SUPERVISORA", "SUPERVISOR EFICACIA"],
+    "LIDER": ["LIDER EFICACIA", "LIDER DE EJECUCION", "NOMBRE LIDER"],
+    "RUTA": ["RUTAS", "NOMBRE RUTA", "COD RUTA"],
+    "% CUMPL. CAPTURA": ["% CUMPLIMIENTO CAPTURA", "% CAPTURA"],
+    "% CUMPLIMIENTO COBERTURA": ["% CUMPL. COBERTURA", "% COBERTURA"],
+    "% CUMPLIMIENTO TP": ["% CUMPL. TP", "% TP", "% TIENDA PERFECTA", "% CUMPLIMIENTO TIENDA PERFECTA"],
+    "% CUMPLIMIENTO VENTAS": ["% CUMPL. VENTAS", "% VENTAS", "% CUMPLIMIENTO VENTA"],
+    "% CUMPLIMIENTO FC & DV": ["% CUMPL. FC & DV", "% FC & DV", "% CUMPLIMIENTO FC Y DV", "% CUMPLIMIENTO FC & DEV"],
+    "% CUMPL. TP": ["% CUMPLIMIENTO TP", "% TP"],
+    "% VENTAS": ["% CUMPLIMIENTO VENTAS", "% CUMPL. VENTAS"],
+    "% FC & DV": ["% CUMPLIMIENTO FC & DV", "% CUMPL. FC & DV", "% FC Y DV"],
+}
+
+
 # ============================================================
 # UTILIDADES DE TEXTO
 # ============================================================
@@ -282,7 +311,7 @@ def columna_a_porcentaje(serie):
     Excel entrega los % como fracción (0.85); si la columna ya
     viene en 0-100 (85) se respeta.
     """
-    numeros = serie.apply(convertir_numero)
+    numeros = pd.to_numeric(serie.apply(convertir_numero), errors="coerce")
     maximo = numeros.abs().max(skipna=True)
     if pd.notna(maximo) and maximo <= UMBRAL_FRACCION:
         numeros = numeros * 100
@@ -345,15 +374,30 @@ def interpretar_mes(valor, respaldo):
 # ARCHIVO Y HOJAS
 # ============================================================
 
-def buscar_archivo():
-    """Toma el archivo de preliquidación modificado más recientemente."""
-    candidatos = [
-        a for a in CARPETA_BASE.glob(PATRON_ARCHIVO)
-        if a.is_file() and not a.name.startswith("~$")
+def es_preliquidacion(archivo):
+    nombre = re.sub(r"[^A-Z0-9]", "", normalizar(archivo.stem))
+    return TEXTO_EN_NOMBRE in nombre
+
+
+def buscar_archivos():
+    """
+    Devuelve (preliquidaciones, otros_excel).
+    Las preliquidaciones van ordenadas de la más antigua a la más reciente
+    (por mes del nombre y luego por fecha de modificación), así, si dos
+    archivos traen el mismo mes, gana el más reciente.
+    """
+    excels = [
+        a for a in CARPETA_BASE.iterdir()
+        if a.is_file() and a.suffix.lower() in EXTENSIONES and not a.name.startswith("~$")
     ]
-    if not candidatos:
-        return None
-    return max(candidatos, key=lambda a: a.stat().st_mtime)
+    preliq = [a for a in excels if es_preliquidacion(a)]
+    otros = [a for a in excels if a not in preliq]
+
+    def orden(a):
+        mes = mes_desde_nombre_archivo(a)
+        return ((mes[0] * 100 + mes[1]) if mes else 0, a.stat().st_mtime)
+
+    return sorted(preliq, key=orden), otros
 
 
 def buscar_hoja(nombres_hojas, nombre_esperado):
@@ -399,33 +443,100 @@ def leer_hoja(archivo, nombre_hoja, clave):
 # LIMPIEZA DE UNA HOJA
 # ============================================================
 
+def clave_columna(nombre):
+    """Encabezado sin espacios ni puntuación: '% CUMPL.TP' == '% CUMPL. TP'."""
+    base, _, repeticion = nombre.partition(" #")
+    # "$ LIQUIDAR.1" (copias hechas con otras herramientas) = "$ LIQUIDAR #2"
+    copia = re.search(r"\.(\d+)$", base)
+    if copia and not repeticion:
+        base, repeticion = base[:copia.start()], str(int(copia.group(1)) + 1)
+    return re.sub(r"[^A-Z0-9%&$]", "", base) + (f"#{repeticion}" if repeticion else "")
+
+
+def resolver_columna(esperada, tipo, disponibles, usadas):
+    """
+    Busca la columna del Excel que corresponde a la esperada:
+    1) nombre exacto, 2) mismo nombre sin espacios/puntos, 3) nombres
+    alternativos, 4) solo para texto: un único encabezado que lo contenga.
+    """
+    libres = [c for c in disponibles if c not in usadas and c != "__FILA_EXCEL"]
+    if esperada in libres:
+        return esperada
+
+    por_clave = {clave_columna(c): c for c in libres}
+    for candidato in [esperada] + ALIAS_COLUMNAS.get(esperada, []):
+        encontrada = por_clave.get(clave_columna(candidato))
+        if encontrada:
+            return encontrada
+
+    if tipo == "texto" and " #" not in esperada:
+        objetivo = clave_columna(esperada)
+        contienen = [c for c in libres if " #" not in c and objetivo in clave_columna(c)]
+        if len(contienen) == 1:
+            return contienen[0]
+    return None
+
+
 def preparar_hoja(datos, config, mes_respaldo):
     """Selecciona, convierte y renombra las columnas de una hoja
     (incluidas las de dinero, que luego se separan)."""
     columnas = config["columnas"] + (config["dinero"]["columnas"] if "dinero" in config else [])
-    esperadas = [col for col, _, _ in columnas]
-    faltantes = [col for col in esperadas if col not in datos.columns]
     avisos = []
 
+    # Relaciona cada columna esperada con la real del Excel
+    mapa, usadas, faltantes, renombradas = {}, set(), [], []
+    for esperada, _, tipo in columnas:
+        real = resolver_columna(esperada, tipo, list(datos.columns), usadas)
+        if real is None:
+            faltantes.append(esperada)
+        else:
+            mapa[esperada] = real
+            usadas.add(real)
+            if real != esperada:
+                renombradas.append(f'"{real}" como {esperada}')
+
+    if renombradas:
+        avisos.append("Encabezados leídos con otro nombre: " + "; ".join(renombradas))
+    faltantes = [f for f in faltantes if f not in COLUMNAS_OPCIONALES]
     if faltantes:
-        avisos.append("Columnas faltantes (quedan vacías): " + ", ".join(faltantes))
+        disponibles = [c for c in datos.columns if c not in usadas and c != "__FILA_EXCEL"
+                       and not str(c).startswith("CATEGORIA EFEC")]
+        avisos.append("Columnas faltantes (quedan vacías): " + ", ".join(faltantes)
+                      + ("\n     Encabezados sin usar en la hoja: " + ", ".join(disponibles) if disponibles else ""))
 
     salida = pd.DataFrame(index=datos.index)
     salida["fila_excel"] = datos["__FILA_EXCEL"].astype(int)
 
+    # Umbral de las llaves de ese mes, tomado del encabezado
+    # "Categoria Efec 60%" / "Categoria Efec 70%" (Liquidación por Rutas)
+    if config.get("detectar_umbral"):
+        umbral = None
+        for col in datos.columns:
+            m = re.match(r"^CATEGORIA EFEC (\d+)%", str(col))
+            if m:
+                umbral = int(m.group(1))
+                break
+        salida["umbral_llave"] = umbral
+        if umbral:
+            avisos.append(f"ℹ️  Llaves de este mes: mínimo {umbral}% (encabezado \"Categoria Efec {umbral}%\").")
+
     for encabezado, destino, tipo in columnas:
-        serie = datos[encabezado] if encabezado in datos.columns else pd.Series([None] * len(datos), index=datos.index)
+        serie = datos[mapa[encabezado]] if encabezado in mapa else pd.Series([None] * len(datos), index=datos.index)
 
         if tipo == "pct":
             salida[destino] = columna_a_porcentaje(serie)
         elif tipo == "numero":
-            salida[destino] = serie.apply(convertir_numero)
+            salida[destino] = pd.to_numeric(serie.apply(convertir_numero), errors="coerce")
         elif tipo == "mes":
             partes = serie.apply(lambda v: interpretar_mes(v, mes_respaldo))
             salida["mes_orden"] = partes.apply(lambda p: p[0] * 100 + p[1] if p else None)
             salida["mes"] = partes.apply(lambda p: f"{NOMBRES_MES[p[1]]} {p[0]}" if p else None)
         else:
             salida[destino] = serie.apply(limpiar_texto)
+            if destino == "regional":
+                # "REGIONAL BOGOTA" y "BOGOTA" quedan iguales entre meses
+                salida[destino] = salida[destino].apply(
+                    lambda v: re.sub(r"^REGIONAL\s+", "", v, flags=re.I) if isinstance(v, str) else v)
 
     # Quitar filas sin clave y filas de totales
     clave_destino = next(d for c, d, _ in config["columnas"] if c == config["clave"])
@@ -468,11 +579,9 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
     if not CARPETA_BASE.exists():
         raise FileNotFoundError(f"No existe la carpeta: {CARPETA_BASE}")
 
-    archivo = Path(archivo) if archivo else buscar_archivo()
     if archivo is None:
-        raise FileNotFoundError(
-            f'No hay ningún archivo "{PATRON_ARCHIVO}" en {CARPETA_BASE}'
-        )
+        raise ValueError("Indica el archivo a leer (o usa cargar_todas).")
+    archivo = Path(archivo)
 
     log(f"\n📄 Archivo: {archivo.name}")
     mes_respaldo = mes_desde_nombre_archivo(archivo)
@@ -500,18 +609,69 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
             continue
 
         for aviso in avisos:
-            log(f"⚠️  {aviso}")
+            log(aviso if aviso.startswith("ℹ️") else f"⚠️  {aviso}")
 
         meses = sorted(df["mes"].dropna().unique().tolist()) if len(df) else []
         log(f"✅ Registros: {len(df):,}   Meses: {', '.join(meses) or '—'}")
 
         if "dinero" in config:
+            # Porcentaje de la comisión que se paga según el Excel (no es dinero)
+            base = pd.to_numeric(df["valor_comision"], errors="coerce")
+            pagar = pd.to_numeric(df["valor_pagar"], errors="coerce")
+            df["pct_comision"] = (pagar / base.where(base > 0) * 100).round(2)
+            df = df.astype(object).where(pd.notna(df), None)
             resultado[clave], resultado[f"{clave}_DINERO"] = separar_dinero(df, config)
             log(f"🔒 Valores en dinero separados -> {config['dinero']['tabla']}")
         else:
             resultado[clave] = df
 
     return archivo, resultado
+
+
+def cargar_todas(mostrar=True):
+    """
+    Lee todas las preliquidaciones de la carpeta y une sus datos.
+    Devuelve (lista_de_archivos, dict con las claves de TABLAS).
+    Si un mes aparece en varios archivos, se queda el del archivo más reciente.
+    """
+    def log(msg=""):
+        if mostrar:
+            print(msg)
+
+    if not CARPETA_BASE.exists():
+        raise FileNotFoundError(f"No existe la carpeta: {CARPETA_BASE}")
+
+    archivos, otros = buscar_archivos()
+
+    log(f"\n🔎 Archivos de preliquidación encontrados: {len(archivos)}")
+    for a in archivos:
+        log(f"   • {a.name}")
+    if otros:
+        log("   (Otros Excel en la carpeta que NO se procesan porque su nombre no dice 'PreLiquidacion':)")
+        for a in otros:
+            log(f"     - {a.name}")
+
+    if not archivos:
+        raise FileNotFoundError(
+            f'No hay ningún Excel cuyo nombre contenga "PreLiquidacion" en {CARPETA_BASE}'
+        )
+
+    union = {}
+    for archivo in archivos:
+        _, bases = cargar_preliquidacion(archivo, mostrar)
+        for clave, df in bases.items():
+            if clave in union and len(df):
+                meses_nuevos = set(df["mes_orden"].unique())
+                repetidos = set(union[clave]["mes_orden"].unique()) & meses_nuevos
+                if repetidos and clave in ("RUTAS", "INDICADORES", "LIDERES"):
+                    log(f"⚠️  {archivo.name} repite {', '.join(sorted(str(m) for m in repetidos))} "
+                        f"en {clave}: se usa este archivo por ser el más reciente.")
+                union[clave] = union[clave][~union[clave]["mes_orden"].isin(meses_nuevos)]
+                union[clave] = pd.concat([union[clave], df], ignore_index=True)
+            else:
+                union[clave] = df
+
+    return archivos, union
 
 
 # ============================================================
@@ -525,7 +685,7 @@ def main():
     print(f"\n📁 Carpeta: {CARPETA_BASE}")
 
     try:
-        archivo, bases = cargar_preliquidacion()
+        archivos, bases = cargar_todas()
     except Exception as error:
         print(f"\n❌ {error}")
         input("\nPresiona ENTER para salir...")
@@ -547,8 +707,9 @@ def main():
         df = bases[clave]
         ruta_csv = CARPETA_CSV / f"{tabla}.csv"
         df.to_csv(ruta_csv, index=False, encoding="utf-8-sig")
-        control.append({"TABLA": tabla, "REGISTROS": len(df), "ESTADO": "OK"})
-        print(f"✅ {tabla:<28} {len(df):>8,} registros")
+        meses = ", ".join(sorted(df["mes"].dropna().unique().tolist()))
+        control.append({"TABLA": tabla, "REGISTROS": len(df), "MESES": meses, "ESTADO": "OK"})
+        print(f"✅ {tabla:<28} {len(df):>8,} registros   ({meses})")
 
     pd.DataFrame(control).to_excel(ARCHIVO_CONTROL, index=False, sheet_name="CONTROL")
 
