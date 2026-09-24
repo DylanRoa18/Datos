@@ -10,6 +10,12 @@ limpias sus 3 hojas:
     Liquidacion por Rutas            -> campo_liquidacion_rutas
     Liquidacion Lideres y Superviso  -> campo_liquidacion_lideres
 
+Además, los valores en dinero de las hojas de liquidación se separan en
+dos tablas protegidas que solo ven los usuarios con login:
+
+    Liquidacion por Rutas            -> campo_comision_rutas
+    Liquidacion Lideres y Superviso  -> campo_comision_lideres
+
 Qué hace:
   - Encuentra el archivo más reciente dentro de "BASE DE DATOS".
   - Detecta la fila de encabezados aunque haya títulos arriba.
@@ -18,8 +24,8 @@ Qué hace:
   - Normaliza el mes (texto "Agosto", fecha, 2026-08...) a:
         mes        -> "Agosto 2026"   (etiqueta para mostrar)
         mes_orden  -> 202608          (para ordenar y comparar)
-  - NO toma columnas de dinero: el dashboard trabaja solo con
-    porcentajes de cumplimiento.
+  - Las tablas públicas solo llevan porcentajes; el dinero va aparte.
+  - Guarda "fila_excel" en ambas tablas para unirlas fila a fila.
 
 Uso:
   - Ejecutarlo directo genera CSV + archivo de control para revisar.
@@ -137,6 +143,21 @@ HOJAS = {
             ("CORRESPONDE COMISION", "corresponde_comision", "texto"),
             ("OBSERVACIONES", "observaciones", "texto"),
         ],
+        # Valores en dinero -> tabla protegida (solo usuarios con login)
+        "dinero": {
+            "tabla": "campo_comision_rutas",
+            "identidad": ["regional", "ruta", "lider", "supervisor"],
+            "columnas": [
+                ("VALOR COMISION", "valor_comision", "numero"),
+                ("VALOR COMISION TP", "base_tp", "numero"),
+                ("$ LIQUIDAR", "liquidado_tp", "numero"),
+                ("VALOR COMISION VENTAS", "base_ventas", "numero"),
+                ("$ LIQUIDAR #2", "liquidado_ventas", "numero"),
+                ("VALOR COMISION FC Y DEV", "base_fc_dv", "numero"),
+                ("$ LIQUIDAR #3", "liquidado_fc_dv", "numero"),
+                ("VALOR TOTAL A PAGAR REAL", "valor_pagar", "numero"),
+            ],
+        },
     },
 
     "LIDERES": {
@@ -156,8 +177,33 @@ HOJAS = {
             ("CUMPLE LLAVES", "cumple_llaves", "texto"),
             ("COMENTARIO", "comentario", "texto"),
         ],
+        # En esta hoja "VALOR COMISION" se repite: #1 = TP liquidado,
+        # #2 = Ventas liquidado, #3 = FC & DV liquidado, #4 = base total.
+        "dinero": {
+            "tabla": "campo_comision_lideres",
+            "identidad": ["cargo", "nombre"],
+            "columnas": [
+                ("VALOR COMISION #4", "valor_comision", "numero"),
+                ("VALOR COMISION TP", "base_tp", "numero"),
+                ("VALOR COMISION", "liquidado_tp", "numero"),
+                ("VALOR COMISION VENTAS", "base_ventas", "numero"),
+                ("VALOR COMISION #2", "liquidado_ventas", "numero"),
+                ("VALOR COMISION X FC DV", "base_fc_dv", "numero"),
+                ("VALOR COMISION #3", "liquidado_fc_dv", "numero"),
+                ("VALOR A PAGAR", "valor_pagar", "numero"),
+            ],
+        },
     },
 }
+
+# Orden de carga: (clave en el resultado, tabla de Supabase)
+TABLAS = [
+    ("INDICADORES", "campo_indicadores"),
+    ("RUTAS", "campo_liquidacion_rutas"),
+    ("RUTAS_DINERO", "campo_comision_rutas"),
+    ("LIDERES", "campo_liquidacion_lideres"),
+    ("LIDERES_DINERO", "campo_comision_lideres"),
+]
 
 
 # ============================================================
@@ -343,8 +389,10 @@ def leer_hoja(archivo, nombre_hoja, clave):
     encabezados = desduplicar([normalizar(v) for v in crudo.iloc[fila_encabezado].tolist()])
     datos = crudo.iloc[fila_encabezado + 1:].copy()
     datos.columns = encabezados
-    datos = datos.dropna(how="all").reset_index(drop=True)
-    return datos
+    datos = datos.dropna(how="all")
+    # Número de fila real en Excel (1 = primera fila de la hoja)
+    datos["__FILA_EXCEL"] = datos.index + 1
+    return datos.reset_index(drop=True)
 
 
 # ============================================================
@@ -352,8 +400,10 @@ def leer_hoja(archivo, nombre_hoja, clave):
 # ============================================================
 
 def preparar_hoja(datos, config, mes_respaldo):
-    """Selecciona, convierte y renombra las columnas de una hoja."""
-    esperadas = [col for col, _, _ in config["columnas"]]
+    """Selecciona, convierte y renombra las columnas de una hoja
+    (incluidas las de dinero, que luego se separan)."""
+    columnas = config["columnas"] + (config["dinero"]["columnas"] if "dinero" in config else [])
+    esperadas = [col for col, _, _ in columnas]
     faltantes = [col for col in esperadas if col not in datos.columns]
     avisos = []
 
@@ -361,8 +411,9 @@ def preparar_hoja(datos, config, mes_respaldo):
         avisos.append("Columnas faltantes (quedan vacías): " + ", ".join(faltantes))
 
     salida = pd.DataFrame(index=datos.index)
+    salida["fila_excel"] = datos["__FILA_EXCEL"].astype(int)
 
-    for encabezado, destino, tipo in config["columnas"]:
+    for encabezado, destino, tipo in columnas:
         serie = datos[encabezado] if encabezado in datos.columns else pd.Series([None] * len(datos), index=datos.index)
 
         if tipo == "pct":
@@ -395,9 +446,19 @@ def preparar_hoja(datos, config, mes_respaldo):
 # FUNCIÓN PRINCIPAL (la usa sincronizar_supabase.py)
 # ============================================================
 
+def separar_dinero(df, config):
+    """Divide una hoja en (tabla pública solo con %, tabla protegida con dinero)."""
+    dinero = config["dinero"]
+    cols_dinero = [d for _, d, _ in dinero["columnas"]]
+    publica = df.drop(columns=cols_dinero)
+    protegida = df[["fila_excel", "mes", "mes_orden"] + dinero["identidad"] + cols_dinero].copy()
+    return publica, protegida
+
+
 def cargar_preliquidacion(archivo=None, mostrar=True):
     """
-    Devuelve (archivo, {"INDICADORES": df, "RUTAS": df, "LIDERES": df}).
+    Devuelve (archivo, dict) con las claves de TABLAS:
+    INDICADORES, RUTAS, RUTAS_DINERO, LIDERES, LIDERES_DINERO.
     Los DataFrames ya tienen los nombres de columna de Supabase.
     """
     def log(msg=""):
@@ -443,7 +504,12 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
 
         meses = sorted(df["mes"].dropna().unique().tolist()) if len(df) else []
         log(f"✅ Registros: {len(df):,}   Meses: {', '.join(meses) or '—'}")
-        resultado[clave] = df
+
+        if "dinero" in config:
+            resultado[clave], resultado[f"{clave}_DINERO"] = separar_dinero(df, config)
+            log(f"🔒 Valores en dinero separados -> {config['dinero']['tabla']}")
+        else:
+            resultado[clave] = df
 
     return archivo, resultado
 
@@ -472,17 +538,17 @@ def main():
     print(" GENERANDO CSV")
     print("=" * 70)
 
-    for clave, config in HOJAS.items():
+    for clave, tabla in TABLAS:
         if clave not in bases:
-            control.append({"HOJA": config["hoja"], "TABLA": config["tabla"], "REGISTROS": 0, "ESTADO": "NO CARGADA"})
-            print(f"❌ {config['tabla']:<28} NO CARGADA")
+            control.append({"TABLA": tabla, "REGISTROS": 0, "ESTADO": "NO CARGADA"})
+            print(f"❌ {tabla:<28} NO CARGADA")
             continue
 
         df = bases[clave]
-        ruta_csv = CARPETA_CSV / f"{config['tabla']}.csv"
+        ruta_csv = CARPETA_CSV / f"{tabla}.csv"
         df.to_csv(ruta_csv, index=False, encoding="utf-8-sig")
-        control.append({"HOJA": config["hoja"], "TABLA": config["tabla"], "REGISTROS": len(df), "ESTADO": "OK"})
-        print(f"✅ {config['tabla']:<28} {len(df):>8,} registros")
+        control.append({"TABLA": tabla, "REGISTROS": len(df), "ESTADO": "OK"})
+        print(f"✅ {tabla:<28} {len(df):>8,} registros")
 
     pd.DataFrame(control).to_excel(ARCHIVO_CONTROL, index=False, sheet_name="CONTROL")
 

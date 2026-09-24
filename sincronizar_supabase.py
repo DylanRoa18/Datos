@@ -5,6 +5,9 @@
 Sube a Supabase las 3 hojas del Excel de preliquidación usando
 la limpieza de extraer_base.py (deben estar en la misma carpeta).
 
+Carga 5 tablas: 3 con porcentajes (las lee cualquiera) y 2 con valores
+en dinero (campo_comision_*), que solo ven los usuarios con login.
+
 Modo de reemplazo:
   "MES"  -> borra en Supabase SOLO los meses que trae el Excel y los
             vuelve a cargar. Los meses anteriores se conservan, así el
@@ -14,6 +17,8 @@ Modo de reemplazo:
 Archivo .env (junto a este script):
   SUPABASE_URL=https://bfbcplixcousebflrosx.supabase.co
   SUPABASE_KEY=<service_role key>   (nunca la pongas en el HTML)
+  La service_role es obligatoria: las tablas de dinero están protegidas
+  y con la clave pública no se podría escribir en ellas.
 ============================================================
 """
 
@@ -25,7 +30,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client
 
-from extraer_base import HOJAS, cargar_preliquidacion
+from extraer_base import TABLAS, cargar_preliquidacion
 
 
 # ============================================================
@@ -133,8 +138,7 @@ def main():
     archivo, bases = cargar_preliquidacion()
     resumen = []
 
-    for clave, config in HOJAS.items():
-        tabla = config["tabla"]
+    for clave, tabla in TABLAS:
         print("\n" + "-" * 70)
 
         if clave not in bases or bases[clave].empty:

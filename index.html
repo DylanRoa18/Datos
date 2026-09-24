@@ -38,6 +38,8 @@
   --purple-bg:#EEF2FF;
 }
 *{box-sizing:border-box}
+/* Componentes con display propio que también se ocultan con .hidden */
+.foco-cargando.hidden,.modal.hidden,.lb-orden.hidden,.vista-nav-btn.hidden{display:none}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,.font-display{font-family:'Plus Jakarta Sans',sans-serif}
 .tabular{font-variant-numeric:tabular-nums}
@@ -129,7 +131,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 /* Tablas */
 /* Tablas: ocupan todo el ancho y el texto se acomoda en varias líneas,
    así nunca hay que desplazarse de izquierda a derecha. */
-.table-scroll{overflow-y:auto;overflow-x:auto;border-radius:16px;border:1px solid var(--border);max-height:560px}
+.table-scroll{overflow-y:auto;overflow-x:hidden;border-radius:16px;border:1px solid var(--border);max-height:560px}
 .table-scroll table{width:100%;table-layout:auto;font-size:11.5px;border-collapse:separate;border-spacing:0}
 .table-scroll thead th{position:sticky;top:0;z-index:5;
   /* fondo sólido: el tinte va sobre blanco para que las filas no se transparenten */
@@ -150,6 +152,13 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .table-scroll th .sort-flecha{font-size:9px;margin-left:3px}
 .num{text-align:right;font-variant-numeric:tabular-nums}
 .celda-sub{display:block;font-size:10.5px;font-weight:500;color:var(--text-muted);margin-top:1px}
+
+/* Pantallas medianas: tablas más compactas para que quepan sin scroll lateral */
+@media (max-width:1440px){
+  .table-scroll table{font-size:11px}
+  .table-scroll th,.table-scroll td{padding:8px 7px}
+  .table-scroll .badge{padding:3px 7px;font-size:10.5px}
+}
 
 /* Rejilla que reparte las tarjetas según cuántas estén visibles */
 .auto-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr))}
@@ -177,7 +186,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
   .foco-stats{grid-template-columns:repeat(2,1fr);row-gap:12px}
   .foco-stat{border-left:none;padding-left:0}
 }
-#vista-pop.en-foco .section-title,#vista-campo.en-foco .section-title{color:var(--foco);border-left:3px solid var(--foco);padding-left:8px}
+#vista-pop.en-foco .section-title,#vista-campo.en-foco .section-title,#vista-liquidacion.en-foco .section-title{color:var(--foco);border-left:3px solid var(--foco);padding-left:8px}
 
 .foco-cargando{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:120px;gap:14px;
   background:rgba(244,246,249,.82);backdrop-filter:blur(3px);border-radius:20px;color:var(--foco,var(--eficacia-blue))}
@@ -199,14 +208,43 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .mobile-menu-btn svg{width:19px;height:19px}
 .mobile-nav-close{display:none}
 
+/* Encabezado: en escritorio todo en una fila; en móvil logos + botones
+   arriba y el título del panel en su propia fila. */
+.header-inner{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"marca titulo acciones";align-items:center;column-gap:16px}
+.header-marca{grid-area:marca;display:flex;align-items:center;gap:12px;padding-right:16px;border-right:1px solid var(--border)}
+.header-titulo{grid-area:titulo}
+.header-acciones{grid-area:acciones;display:flex;align-items:center;gap:10px}
+.btn-actualizar{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;background:var(--alqueria-red);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
+.btn-actualizar:hover{opacity:.9}
+.btn-actualizar svg{width:15px;height:15px}
+@media (max-width:640px){
+  .header-inner{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"marca acciones" "titulo titulo";row-gap:10px;padding-top:10px;padding-bottom:10px}
+  .header-marca{border-right:none;padding-right:0;gap:10px;min-width:0}
+  .header-marca .brand-logo{height:22px;max-width:42vw}
+  .header-titulo{padding-top:8px;border-top:1px solid var(--border)}
+  .header-titulo h1{font-size:15px}
+  .header-titulo p{white-space:normal}
+  .btn-actualizar{padding:9px 11px}
+  .btn-actualizar span{display:none}
+  .header-acciones{gap:8px}
+}
+
+/* Login y sesión */
+.auth-bloque{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.sesion-info{margin-top:8px;padding:10px 12px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border)}
+.sesion-salir{margin-top:8px;font-size:11px;font-weight:700;color:var(--alqueria-red)}
+.sesion-salir:hover{text-decoration:underline}
+.modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal.hidden{display:none}
+.modal-fondo{position:absolute;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(2px)}
+.modal-caja{position:relative;width:100%;max-width:380px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 24px 60px rgba(15,23,42,.25)}
+.modal-caja .filter{min-width:0}
+
 /* ============================================================
    3. RESPONSIVE
    ============================================================ */
 @media (max-width:1023px){
   .mobile-menu-btn{display:inline-flex}
-  header .brand-logo{height:22px}
-  header h1{font-size:13px!important}
-  header p{font-size:10px!important}
   #mobile-nav-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.38);z-index:55}
   #mobile-nav-overlay.is-open{display:block}
   #dashboard-sidebar{position:fixed;top:0;right:0;bottom:0;width:min(82vw,300px);z-index:60;transform:translateX(105%);transition:transform .24s ease;padding:12px;background:#fff;overflow-y:auto;box-shadow:-16px 0 40px rgba(15,23,42,.18)}
@@ -224,14 +262,16 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
   .ring-center{font-size:19px}
 }
 /* Pantallas angostas: cada fila se muestra como tarjeta, sin scroll lateral */
-@media (max-width:900px){
+@media (max-width:1100px){
   .table-scroll{border:none;max-height:70vh}
   .table-scroll table,.table-scroll tbody,.table-scroll tr,.table-scroll td{display:block;width:100%}
   .table-scroll thead{display:none}
   .table-scroll tr{border:1px solid var(--border);border-radius:14px;margin-bottom:10px;padding:4px 2px;background:#fff}
-  .table-scroll td{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:none;padding:6px 12px;text-align:right}
-  .table-scroll td::before{content:attr(data-label);font-weight:700;color:var(--text-muted);text-align:left;flex-shrink:0}
-  .table-scroll td[colspan]{justify-content:center}
+  /* etiqueta a la izquierda; el contenido (valor y sus líneas de detalle) a la derecha */
+  .table-scroll td{display:grid;grid-template-columns:minmax(96px,38%) minmax(0,1fr);column-gap:12px;row-gap:2px;align-items:center;border-top:none;padding:6px 12px;text-align:right}
+  .table-scroll td::before{content:attr(data-label);grid-column:1;grid-row:1 / span 4;font-weight:700;color:var(--text-muted);text-align:left}
+  .table-scroll td > *{grid-column:2;justify-self:end;margin-top:0}
+  .table-scroll td[colspan]{display:block;text-align:center}
   .table-scroll td[colspan]::before{content:none}
   .auto-grid{grid-template-columns:1fr}
 }
@@ -247,21 +287,22 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
      HEADER
      ============================================================ -->
 <header class="bg-white border-b sticky top-0 z-30" style="border-color:var(--border)">
-  <div class="max-w-[1920px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-    <div class="flex items-center gap-4 min-w-0">
-      <div class="flex items-center gap-3 pr-4" style="border-right:1px solid var(--border)">
-        <img src="alqueria.png" alt="Grupo Alquería" class="brand-logo">
-        <img src="Eficacia_logo.png" alt="Eficacia SAS" class="brand-logo">
-      </div>
-      <div class="min-w-0">
-        <h1 id="vista-titulo" class="text-base font-extrabold tracking-tight font-display truncate">Material POP</h1>
-        <p id="vista-subtitulo" class="text-xs font-medium muted truncate">Llegada, salida y saldo del material en CEDI</p>
-      </div>
+  <div class="header-inner max-w-[1920px] mx-auto px-4 sm:px-6 py-3">
+    <div class="header-marca">
+      <img src="alqueria.png" alt="Grupo Alquería" class="brand-logo">
+      <img src="Eficacia_logo.png" alt="Eficacia SAS" class="brand-logo">
     </div>
-    <div class="flex items-center gap-2 sm:gap-3">
+    <div class="header-titulo min-w-0">
+      <h1 id="vista-titulo" class="text-base font-extrabold tracking-tight font-display truncate">Material POP</h1>
+      <p id="vista-subtitulo" class="text-xs font-medium muted truncate">Llegada, salida y saldo del material en CEDI</p>
+    </div>
+    <div class="header-acciones">
       <span id="connection-status" class="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold" style="background:var(--amber-bg);color:var(--amber)">Conectando…</span>
       <span id="updated-label" class="text-xs hidden md:inline font-medium muted"></span>
-      <button onclick="cargarTodo()" class="px-4 py-2 text-white text-xs font-bold rounded-xl hover:opacity-90" style="background:var(--alqueria-red)">Actualizar</button>
+      <button onclick="cargarTodo()" class="btn-actualizar" aria-label="Actualizar datos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        <span>Actualizar</span>
+      </button>
       <button class="mobile-menu-btn" type="button" aria-label="Abrir menú" onclick="toggleMobileNav(true)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
@@ -293,6 +334,26 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 11l2 2 4-4"/></svg>
           <span>Seguimiento de Campo<small>Llaves y comisiones</small></span>
         </button>
+      </div>
+      <!-- Acceso con login a la liquidación en dinero -->
+      <div class="auth-bloque">
+        <button id="btn-login" type="button" onclick="abrirLogin()" class="vista-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <span>Iniciar sesión</span>
+        </button>
+        <div id="auth-activo" class="hidden">
+          <p class="sidebar-label">Liquidación</p>
+          <button id="nav-liquidacion" onclick="setVista('liquidacion')" class="vista-nav-btn hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/></svg>
+            <span>Comisiones<small>Valores a pagar</small></span>
+          </button>
+          <div class="sesion-info">
+            <p class="text-[10.5px] font-semibold muted">Sesión iniciada</p>
+            <p id="sesion-email" class="text-xs font-bold truncate"></p>
+            <p id="sesion-aviso" class="text-[10.5px] font-semibold mt-1 hidden" style="color:var(--alqueria-red)"></p>
+            <button type="button" onclick="cerrarSesion()" class="sesion-salir">Cerrar sesión</button>
+          </div>
+        </div>
       </div>
     </nav>
   </aside>
@@ -381,7 +442,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
                 </div>
                 <button type="button" class="lb-orden" data-lb="pop-lb-saldo" onclick="toggleOrdenLb('pop-lb-saldo')">↓ Mayor a menor</button>
               </div>
-              <div id="pop-retrasada" class="mb-2"></div>
+              <div id="pop-mora" class="mb-2"></div>
               <div id="pop-lb-saldo"></div>
             </div>
           </div>
@@ -427,14 +488,12 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
               <thead>
                 <tr>
                   <th data-sort="label">Artículo</th>
-                  <th data-sort="campanas">Campañas</th>
                   <th class="num" data-sort="asignado">Asignado</th>
                   <th class="num" data-sort="llega">Llegado</th>
                   <th class="num" data-sort="salida">Salido</th>
                   <th class="num" data-sort="falta">Falta por salir</th>
                   <th class="num" data-sort="saldo">Saldo CEDI</th>
                   <th class="num" data-sort="pct">Cumplimiento</th>
-                  <th class="num" data-sort="proy">Proyectado</th>
                   <th class="num" data-sort="gap">GAP</th>
                 </tr>
               </thead>
@@ -459,10 +518,10 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
             <table>
               <thead>
                 <tr>
-                  <th>Campaña</th><th>Material POP</th><th>Producto foco</th><th>Mes ejecución</th><th>Canal</th><th>Región</th>
+                  <th>Material POP</th><th>Región</th>
                   <th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salida</th><th class="num">Saldo</th>
-                  <th class="num">Cumpl.</th><th>Ingreso CEDI</th><th>Última salida</th>
-                  <th>Alerta recepción</th><th>Estado ejecución</th><th>Días final.</th>
+                  <th class="num">Cumpl.</th><th>Fechas CEDI</th>
+                  <th>Alerta recepción</th><th>Estado ejecución</th>
                 </tr>
               </thead>
               <tbody id="pop-tabla"></tbody>
@@ -601,10 +660,9 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
           <table>
             <thead>
               <tr>
-                <th>Mes</th><th>Cargo</th><th>Nombre</th>
-                <th class="num">Llave 1 Captura</th><th class="num">Llave 2 Cobertura</th>
+                <th>Nombre</th><th>Llaves</th>
                 <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
-                <th>Llaves</th><th class="num">Comisión alcanzada</th><th>Comentario</th>
+                <th class="num">Comisión alcanzada</th><th>Comentario</th>
               </tr>
             </thead>
             <tbody id="campo-tabla-personas"></tbody>
@@ -628,8 +686,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
           <table>
             <thead>
               <tr>
-                <th>Mes</th><th>Regional</th><th>Ruta</th><th>Líder</th><th>Supervisor</th>
-                <th class="num">Captura</th><th class="num">Cobertura</th><th>Llaves</th>
+                <th>Ruta</th><th>Líder / Supervisor</th><th>Llaves</th>
                 <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
                 <th class="num">Comisión alcanzada</th><th>Observaciones</th>
               </tr>
@@ -643,9 +700,159 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
       </div>
     </div>
 
+    <!-- ==========================================================
+         VISTA 3 · LIQUIDACIÓN (solo con login)
+         ========================================================== -->
+    <div id="vista-liquidacion" class="hidden space-y-6">
+
+      <div class="card filter-bar">
+        <label class="filter"><span>Mes</span><select id="liq-f-mes"></select></label>
+        <label class="filter"><span>Regional</span><select id="liq-f-regional"></select></label>
+        <label class="filter"><span>Líder</span><select id="liq-f-lider"></select></label>
+        <label class="filter"><span>Supervisor</span><select id="liq-f-supervisor"></select></label>
+        <label class="filter"><span>Ruta</span><select id="liq-f-ruta"></select></label>
+        <button class="btn-clear" onclick="limpiarFiltrosLiq()">Limpiar ✕</button>
+      </div>
+
+      <!-- Contenido que se recarga con animación al cambiar Regional, Líder, Supervisor o Ruta -->
+      <div id="liq-contenido" class="relative space-y-6">
+
+        <div id="liq-cargando" class="foco-cargando hidden">
+          <div class="foco-spinner"></div>
+          <p id="liq-cargando-texto" class="text-sm font-bold"></p>
+        </div>
+
+      <div id="liq-aviso" class="hidden"></div>
+
+      <!-- Encabezado propio de la selección -->
+      <section id="liq-foco" class="hidden"></section>
+
+      <section>
+        <h3 class="section-title">Cumplimiento y pago de las rutas</h3>
+        <div id="liq-anillos" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+      </section>
+
+      <section>
+        <h3 class="section-title">Resumen de pago</h3>
+        <div id="liq-resumen" class="grid grid-cols-1 xl:grid-cols-2 gap-4"></div>
+      </section>
+
+      <section id="liq-niveles">
+        <h3 id="liq-niveles-titulo" class="section-title">A pagar por nivel</h3>
+        <div class="auto-grid">
+          <div id="card-liq-regional" class="card p-5">
+            <div class="lb-cabecera">
+              <div>
+                <h4 class="text-sm font-bold font-display">Por Regional</h4>
+                <p class="text-[11px] muted">Pagado frente a la bolsa de comisión de sus rutas.</p>
+              </div>
+              <button type="button" class="lb-orden" data-lb="liq-lb-regional" onclick="toggleOrdenLb('liq-lb-regional')">↓ Mayor a menor</button>
+            </div>
+            <div id="liq-lb-regional"></div>
+          </div>
+          <div id="card-liq-lider" class="card p-5">
+            <div class="lb-cabecera">
+              <div>
+                <h4 class="text-sm font-bold font-display">Por Líder</h4>
+                <p class="text-[11px] muted">Comisión de las rutas a cargo de cada líder.</p>
+              </div>
+              <button type="button" class="lb-orden" data-lb="liq-lb-lider" onclick="toggleOrdenLb('liq-lb-lider')">↓ Mayor a menor</button>
+            </div>
+            <div id="liq-lb-lider"></div>
+          </div>
+          <div id="card-liq-supervisor" class="card p-5">
+            <div class="lb-cabecera">
+              <div>
+                <h4 class="text-sm font-bold font-display">Por Supervisor</h4>
+                <p class="text-[11px] muted">Comisión de las rutas a cargo de cada supervisor.</p>
+              </div>
+              <button type="button" class="lb-orden" data-lb="liq-lb-supervisor" onclick="toggleOrdenLb('liq-lb-supervisor')">↓ Mayor a menor</button>
+            </div>
+            <div id="liq-lb-supervisor"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="liq-rutas" class="card p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold tracking-tight font-display">Liquidación por Ruta</h3>
+            <p class="text-xs mt-0.5 font-medium muted">Lo que gana cada mercaderista por componente y cuánto ganaría subiendo al siguiente tramo.</p>
+          </div>
+          <div class="flex items-center gap-2.5 w-full sm:w-auto">
+            <input id="liq-busqueda" type="text" placeholder="Buscar ruta, supervisor, líder…" class="search-input sm:w-72">
+            <button onclick="exportarLiqRutas()" class="btn-export">⬇ Exportar</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Ruta</th><th>Líder / Supervisor</th><th>Llaves</th>
+                <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
+                <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Dif. vs Excel</th>
+              </tr>
+            </thead>
+            <tbody id="liq-tabla-rutas"></tbody>
+          </table>
+        </div>
+        <p id="liq-rutas-count" class="text-xs mt-3 font-semibold muted"></p>
+      </section>
+
+      <section class="card p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold tracking-tight font-display">Liquidación de Líderes y Supervisores</h3>
+            <p class="text-xs mt-0.5 font-medium muted">Comisión propia de cada líder y supervisor.</p>
+          </div>
+          <button onclick="exportarLiqPersonas()" class="btn-export">⬇ Exportar</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Llaves</th>
+                <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
+                <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Dif. vs Excel</th>
+              </tr>
+            </thead>
+            <tbody id="liq-tabla-personas"></tbody>
+          </table>
+        </div>
+        <p id="liq-personas-count" class="text-xs mt-3 font-semibold muted"></p>
+      </section>
+
+      </div>
+    </div>
+
   </div>
 </div>
 </main>
+
+<!-- ============================================================
+     VENTANA DE INICIO DE SESIÓN
+     ============================================================ -->
+<div id="login-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="login-titulo">
+  <div class="modal-fondo" onclick="cerrarLogin()"></div>
+  <form class="modal-caja" onsubmit="iniciarSesion(event)">
+    <div class="flex items-start justify-between gap-3 mb-1">
+      <h3 id="login-titulo" class="text-lg font-extrabold font-display">Iniciar sesión</h3>
+      <button type="button" onclick="cerrarLogin()" class="muted text-lg leading-none" aria-label="Cerrar">✕</button>
+    </div>
+    <p class="text-xs muted mb-5">Acceso restringido a la liquidación de comisiones.</p>
+    <label class="filter" style="max-width:none">
+      <span>Correo</span>
+      <input id="login-email" type="email" required autocomplete="username" class="search-input">
+    </label>
+    <label class="filter mt-3" style="max-width:none">
+      <span>Contraseña</span>
+      <input id="login-pass" type="password" required autocomplete="current-password" class="search-input">
+    </label>
+    <p id="login-error" class="text-xs font-semibold mt-3 hidden" style="color:var(--alqueria-red)"></p>
+    <button id="login-boton" type="submit" class="w-full mt-5 px-4 py-2.5 text-white text-sm font-bold rounded-xl hover:opacity-90" style="background:var(--eficacia-blue)">Entrar</button>
+  </form>
+</div>
+
 
 <script>
 /* ============================================================
@@ -823,10 +1030,10 @@ function calcAlertaRecepcion(row){
     const ingreso = parseDateOnly(row.FECHA_INGRESO);
     if(!ingreso) return { text:'Recibido', ...TONOS.verde };
     const diff = daysBetween(esperada, ingreso);
-    return diff > 0 ? { text:`Recibido con ${diff}d retraso`, ...TONOS.rojo } : { text:'Recibido a tiempo', ...TONOS.verde };
+    return diff > 0 ? { text:`Recibido con ${diff}d de mora`, ...TONOS.rojo } : { text:'Recibido a tiempo', ...TONOS.verde };
   }
   const diff = daysBetween(esperada, new Date());
-  if(diff > 0) return { text:`${diff}d de retraso`, ...TONOS.rojo };
+  if(diff > 0) return { text:`${diff}d en mora`, ...TONOS.rojo };
   if(diff === 0) return { text:'Vence hoy', ...TONOS.ambar };
   return { text:`Faltan ${-diff}d`, ...TONOS.azul };
 }
@@ -1248,6 +1455,12 @@ async function cargarTodo(){
 
   renderPop();
   renderCampo();
+
+  // Con sesión de administrador también se recarga la liquidación
+  if(SESION.admin){
+    await cargarLiquidacion();
+    renderLiquidacion();
+  }
 }
 
 
@@ -1481,14 +1694,14 @@ function alertasPop(rows){
   const bajoProy = agruparPop(rows, dimension).filter(g => g.pct !== null && g.pct < g.proy).map(g => g.label);
 
   const pred = {
-    retraso: r => calcAlertaRecepcion(r).text.includes('retraso'),
+    mora: r => calcAlertaRecepcion(r).text.includes('mora'),
     bajas: r => (Number(r.CANTIDAD_ASIGNADA) || 0) > 0 && pctSalida([r]) < SEMAFORO_POP[1],
     bajoProy: r => bajoProy.includes(dimension(r) || 'Sin dato')
   };
   return {
     lista: [
-      { id:'retraso', icono:ICONOS.reloj, valor:formatNumber(rows.filter(pred.retraso).length), titulo:'Recepciones con retraso',
-        desc:'Material que llegó o sigue sin llegar después de la fecha pactada.', tono:TONOS.rojo },
+      { id:'mora', icono:ICONOS.reloj, valor:formatNumber(rows.filter(pred.mora).length), titulo:'Recepciones en mora',
+        desc:'Material recibido o pendiente por fuera de la fecha pactada.', tono:TONOS.rojo },
       { id:'bajas', icono:ICONOS.bajada, valor:formatNumber(rows.filter(pred.bajas).length), titulo:`Artículos con salida bajo ${SEMAFORO_POP[1]}%`,
         desc:'Material asignado que casi no ha salido del CEDI.', tono:TONOS.ambar },
       { id:'bajoProy', icono:ICONOS.bandera, valor:formatNumber(bajoProy.length),
@@ -1562,11 +1775,11 @@ function renderSeguimientoPop(rows){
       .map(g => ({ label:g.label, value:g.saldo, extra:`de ${formatNumber(g.llega)} und recibidas` })),
     { color:'var(--alqueria-red)' });
 
-  const retrasada = [...porRegional].sort((a, b) => a.gap - b.gap)[0];
-  document.getElementById('pop-retrasada').innerHTML = retrasada ? `
+  const enMora = [...porRegional].sort((a, b) => a.gap - b.gap)[0];
+  document.getElementById('pop-mora').innerHTML = enMora ? `
     <div class="rounded-xl px-3.5 py-2.5 text-xs font-semibold" style="background:var(--alqueria-red-bg);color:var(--alqueria-red)">
-      Región más retrasada: <strong>${esc(retrasada.label)}</strong> con ${fmtPct(retrasada.pct)} de salida
-      (${retrasada.gap >= 0 ? '+' : ''}${retrasada.gap.toFixed(1)} pts frente a su proyectado de ${fmtPct(retrasada.proy)}).
+      Regional con mayor mora en despacho: <strong>${esc(enMora.label)}</strong> con ${fmtPct(enMora.pct)} de salida
+      (${enMora.gap >= 0 ? '+' : ''}${enMora.gap.toFixed(1)} pts frente a su proyectado de ${fmtPct(enMora.proy)}).
     </div>` : '';
 }
 
@@ -1594,17 +1807,16 @@ function gapBadge(gap){
 function renderTablaArticulos(rows){
   const filas = filasArticulos(rows || filtrarPop());
   pintarTabla('pop-tabla-articulos', filas.length ? filas.map(g => `<tr>
-    <td class="font-bold">${esc(g.label)}${g.codigos.length ? `<span class="celda-sub">${esc(g.codigos.join(', '))}</span>` : ''}</td>
-    <td class="muted" title="${esc(g.campanasLista.join(', '))}">${g.campanas <= 2 ? esc(g.campanasLista.join(', ')) : `${g.campanas} campañas`}</td>
+    <td><span class="font-bold">${esc(g.label)}</span>${g.codigos.length ? `<span class="celda-sub">${esc(g.codigos.join(', '))}</span>` : ''}
+      <span class="celda-sub" title="${esc(g.campanasLista.join(', '))}">${g.campanas <= 2 ? esc(g.campanasLista.join(', ')) : `${g.campanas} campañas`}</span></td>
     <td class="num font-semibold">${formatNumber(g.asignado)}</td>
     <td class="num font-semibold">${formatNumber(g.llega)}</td>
     <td class="num font-semibold">${formatNumber(g.salida)}</td>
     <td class="num font-semibold">${formatNumber(g.falta)}</td>
     <td class="num font-semibold">${formatNumber(g.saldo)}</td>
     <td class="num">${pctBadge(g.pct, SEMAFORO_POP)}</td>
-    <td class="num muted">${fmtPct(g.proy)}</td>
-    <td class="num">${gapBadge(g.gap)}</td>
-  </tr>`).join('') : emptyRow(10));
+    <td class="num">${gapBadge(g.gap)}<span class="celda-sub">Proy. ${fmtPct(g.proy)}</span></td>
+  </tr>`).join('') : emptyRow(8));
 
   document.querySelectorAll('#tabla-articulos th[data-sort]').forEach(th => {
     const flecha = th.querySelector('.sort-flecha');
@@ -1687,25 +1899,25 @@ function renderTablaPop(rows, predicados){
   pintarTabla('pop-tabla', filas.length ? filas.map(r => {
     const alerta = calcAlertaRecepcion(r);
     const estado = calcEstadoEjecucion(r);
+    const dias = calcDiasFinalizado(r);
     return `<tr>
-      <td class="font-bold">${esc(r.CAMPAÑA)}</td>
-      <td class="font-medium">${esc(r.POP || r.Articulo)}</td>
-      <td class="muted">${esc(r.PRODUCTO_FOCO)}</td>
-      <td class="muted">${r._mes ? mesLabel(r._mes) : '—'}</td>
-      <td class="muted">${esc(r.CANAL)}</td>
-      <td class="muted">${esc(r.REGIONAL)}</td>
+      <td><span class="font-bold">${esc(r.POP || r.Articulo)}</span>
+        <span class="celda-sub">${esc(r.CAMPAÑA)}</span>
+        ${r.PRODUCTO_FOCO ? `<span class="celda-sub">Foco: ${esc(r.PRODUCTO_FOCO)}</span>` : ''}</td>
+      <td><span class="font-semibold">${esc(r.REGIONAL)}</span>
+        <span class="celda-sub">${esc(r.CANAL)} · ${r._mes ? mesLabel(r._mes) : 'Sin mes'}</span></td>
       <td class="num font-semibold">${formatNumber(r.CANTIDAD_ASIGNADA)}</td>
       <td class="num font-semibold">${formatNumber(r.CANTIDAD_LLEGA)}</td>
       <td class="num font-semibold">${formatNumber(r.CANTIDAD_SALIDA)}</td>
       <td class="num font-semibold">${formatNumber(r.SALDO)}</td>
       <td class="num">${pctBadge(pctSalida([r]), SEMAFORO_POP)}</td>
-      <td class="muted nw">${formatDate(r.FECHA_INGRESO)}</td>
-      <td class="muted nw">${formatDate(r.FECHA_ULTIMA_SALIDA)}</td>
+      <td class="nw"><span class="celda-sub" style="margin:0">Ingreso ${formatDate(r.FECHA_INGRESO)}</span>
+        <span class="celda-sub">Salida ${formatDate(r.FECHA_ULTIMA_SALIDA)}</span></td>
       <td><span class="badge" style="color:${alerta.fg};background:${alerta.bg}">${esc(alerta.text)}</span></td>
-      <td><span class="badge" style="color:${estado.fg};background:${estado.bg}">${esc(estado.text)}</span></td>
-      <td class="tabular muted nw">${calcDiasFinalizado(r)}</td>
+      <td><span class="badge" style="color:${estado.fg};background:${estado.bg}">${esc(estado.text)}</span>
+        ${dias !== '—' ? `<span class="celda-sub">Hace ${dias}</span>` : ''}</td>
     </tr>`;
-  }).join('') : emptyRow(16));
+  }).join('') : emptyRow(10));
 
   document.getElementById('pop-tabla-count').textContent = `Mostrando ${formatNumber(filas.length)} de ${formatNumber(DATA.pop.length)} registros`;
   document.getElementById('pop-detalle-filtro').innerHTML = filtrosPop.alerta
@@ -2126,18 +2338,14 @@ function renderTablaPersonas(personas){
   const filas = filasTablaPersonas(personas).sort((a, b) =>
     String(a.cargo || '').localeCompare(String(b.cargo || ''), 'es') || String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es'));
   pintarTabla('campo-tabla-personas', filas.length ? filas.map(r => `<tr>
-    <td class="muted nw">${esc(r.mes)}</td>
-    <td class="whitespace-nowrap font-semibold">${esc(r.cargo)}</td>
-    <td class="whitespace-nowrap font-bold">${esc(r.nombre)}</td>
-    <td class="num">${pctBadge(r.pct_llave_captura, [COMISION.llaveMinima, COMISION.llaveMinima])}</td>
-    <td class="num">${pctBadge(r.pct_llave_cobertura, [COMISION.llaveMinima, COMISION.llaveMinima])}</td>
+    <td><span class="font-bold">${esc(r.nombre)}</span><span class="celda-sub">${esc(r.cargo)} · ${esc(r.mes)}</span></td>
+    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">Captura ${fmtPct(r.pct_llave_captura)} · Cobertura ${fmtPct(r.pct_llave_cobertura)}</span></td>
     <td class="num">${pctBadge(r.pct_tienda_perfecta, SEMAFORO_CAMPO)}</td>
     <td class="num">${pctBadge(r.pct_ventas, SEMAFORO_CAMPO)}</td>
     <td class="num">${pctBadge(r.pct_fc_dv, SEMAFORO_CAMPO)}</td>
-    <td>${llavesBadge(r.llavesOk)}</td>
     <td class="num">${pctBadge(r.pctComision, SEMAFORO_CAMPO)}</td>
-    <td class="max-w-[220px] truncate muted" title="${esc(r.comentario)}">${esc(r.comentario || '—')}</td>
-  </tr>`).join('') : emptyRow(11));
+    <td class="muted">${esc(r.comentario || '—')}</td>
+  </tr>`).join('') : emptyRow(7));
   document.getElementById('campo-personas-count').textContent = `Mostrando ${formatNumber(filas.length)} personas`;
   document.getElementById('campo-personas-filtro').innerHTML = filtrosCampo.alerta === 'personas'
     ? `<span style="color:var(--alqueria-red)">Solo personas sin llaves.</span> <button class="underline font-bold" onclick="toggleAlertaCampo('personas')">Quitar</button>`
@@ -2156,20 +2364,15 @@ function renderTablaRutas(rutas, predicados){
   if(predicados) ultimosPredicadosCampo = predicados;
   const filas = filasTablaRutas(rutas || filtrarCampo(DATA.rutas));
   pintarTabla('campo-tabla-rutas', filas.length ? filas.map(r => `<tr>
-    <td class="muted nw">${esc(r.mes)}</td>
-    <td class="whitespace-nowrap muted">${esc(r.regional)}</td>
-    <td class="whitespace-nowrap font-bold">${esc(r.ruta)}</td>
-    <td class="whitespace-nowrap">${esc(r.lider)}</td>
-    <td class="whitespace-nowrap">${esc(r.supervisor)}</td>
-    <td class="num">${pctBadge(r.pct_captura, [COMISION.llaveMinima, COMISION.llaveMinima])}</td>
-    <td class="num">${pctBadge(r.pct_cobertura, [COMISION.llaveMinima, COMISION.llaveMinima])}</td>
-    <td>${llavesBadge(r.llavesOk)}</td>
+    <td><span class="font-bold">${esc(r.ruta)}</span><span class="celda-sub">${esc(r.regional)} · ${esc(r.mes)}</span></td>
+    <td>${esc(r.lider)}<span class="celda-sub">${esc(r.supervisor)}</span></td>
+    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">Captura ${fmtPct(r.pct_captura)} · Cobertura ${fmtPct(r.pct_cobertura)}</span></td>
     <td class="num">${pctBadge(r.pct_tienda_perfecta, SEMAFORO_CAMPO)}</td>
     <td class="num">${pctBadge(r.pct_ventas, SEMAFORO_CAMPO)}</td>
     <td class="num">${pctBadge(r.pct_fc_dv, SEMAFORO_CAMPO)}</td>
     <td class="num">${pctBadge(r.pctComision, SEMAFORO_CAMPO)}</td>
-    <td class="max-w-[220px] truncate muted" title="${esc(r.observaciones)}">${esc(r.observaciones || '—')}</td>
-  </tr>`).join('') : emptyRow(13));
+    <td class="muted">${esc(r.observaciones || '—')}</td>
+  </tr>`).join('') : emptyRow(8));
   document.getElementById('campo-rutas-count').textContent = `Mostrando ${formatNumber(filas.length)} rutas`;
   const alertaRutas = filtrosCampo.alerta && filtrosCampo.alerta !== 'personas';
   document.getElementById('campo-detalle-filtro').innerHTML = alertaRutas
@@ -2195,7 +2398,521 @@ function limpiarFiltrosCampo(){
 
 
 /* ============================================================
-   11. EXPORTAR A EXCEL
+   11. LOGIN Y VISTA · LIQUIDACIÓN (valores en dinero)
+   ============================================================ */
+// Base de comisión por cargo (se usa solo si el Excel no trae la base)
+const COMISION_BASES = { mercaderista: 250000, lider: 400000, supervisor: 300000 };
+const TABLAS_DINERO = { rutas: 'campo_comision_rutas', lideres: 'campo_comision_lideres' };
+const ESCALONES = [80, 81, 91, 96, 97, 98, 99, 100];
+
+const SESION = { usuario: null, admin: false };
+const filtrosLiq = { mes: '', regional: '', lider: '', supervisor: '', ruta: '', busqueda: '' };
+
+const fmtCOP = v => (v === null || v === undefined || isNaN(v)) ? '—'
+  : new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 }).format(v);
+
+// ---------- Sesión ----------
+function abrirLogin(){
+  document.getElementById('login-error').classList.add('hidden');
+  document.getElementById('login-modal').classList.remove('hidden');
+  toggleMobileNav(false);
+  setTimeout(() => document.getElementById('login-email').focus(), 50);
+}
+function cerrarLogin(){
+  document.getElementById('login-modal').classList.add('hidden');
+  document.getElementById('login-pass').value = '';
+}
+async function iniciarSesion(e){
+  e.preventDefault();
+  const boton = document.getElementById('login-boton');
+  const error = document.getElementById('login-error');
+  boton.disabled = true; boton.textContent = 'Verificando…';
+  error.classList.add('hidden');
+
+  const { error: err } = await supabaseClient.auth.signInWithPassword({
+    email: document.getElementById('login-email').value.trim(),
+    password: document.getElementById('login-pass').value
+  });
+
+  boton.disabled = false; boton.textContent = 'Entrar';
+  if(err){
+    error.textContent = /invalid/i.test(err.message) ? 'Correo o contraseña incorrectos.' : err.message;
+    error.classList.remove('hidden');
+    return;
+  }
+  cerrarLogin();
+}
+async function cerrarSesion(){
+  await supabaseClient.auth.signOut();
+}
+
+// Se ejecuta al abrir la página y cada vez que se inicia o cierra sesión
+async function aplicarSesion(session){
+  SESION.usuario = session ? session.user : null;
+  SESION.admin = false;
+  DATA.dineroRutas = [];
+  DATA.dineroLideres = [];
+
+  if(SESION.usuario){
+    const { data, error } = await supabaseClient.rpc('es_admin_liquidacion');
+    SESION.admin = !error && data === true;
+    if(SESION.admin) await cargarLiquidacion();
+  }
+  pintarEstadoSesion();
+  if(!SESION.admin && vistaActual === 'liquidacion') setVista('pop');
+  if(SESION.admin) renderLiquidacion();
+}
+function pintarEstadoSesion(){
+  const conSesion = !!SESION.usuario;
+  document.getElementById('btn-login').classList.toggle('hidden', conSesion);
+  document.getElementById('auth-activo').classList.toggle('hidden', !conSesion);
+  document.getElementById('nav-liquidacion').classList.toggle('hidden', !SESION.admin);
+  document.getElementById('sesion-email').textContent = SESION.usuario ? SESION.usuario.email : '';
+  const aviso = document.getElementById('sesion-aviso');
+  aviso.classList.toggle('hidden', !conSesion || SESION.admin);
+  aviso.textContent = 'Este usuario no tiene permiso para ver la liquidación.';
+}
+async function cargarLiquidacion(){
+  try{
+    const [rutas, lideres] = await Promise.all([leerTablaCompleta(TABLAS_DINERO.rutas), leerTablaCompleta(TABLAS_DINERO.lideres)]);
+    DATA.dineroRutas = rutas;
+    DATA.dineroLideres = lideres;
+  }catch(e){
+    mostrarErrores([{ titulo:'Liquidación (Supabase)', mensaje: e.message + '\nVerifica que ejecutaste supabase_liquidacion.sql.' }]);
+  }
+}
+function iniciarAuth(){
+  supabaseClient.auth.getSession().then(({ data }) => aplicarSesion(data.session));
+  supabaseClient.auth.onAuthStateChange((evento, session) => {
+    if(evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') aplicarSesion(session);
+  });
+}
+
+// ---------- Cálculo de la liquidación ----------
+function tipoCargo(cargo){
+  const c = normKey(cargo);
+  if(c.includes('LIDER')) return 'lider';
+  if(c.includes('SUPER')) return 'supervisor';
+  return 'mercaderista';
+}
+// Une cada fila de porcentajes con su fila de dinero (misma fila del Excel)
+function unirDinero(filas, dinero, claveAlterna){
+  const porFila = {}, porClave = {};
+  dinero.forEach(d => {
+    if(d.fila_excel !== null && d.fila_excel !== undefined) porFila[`${d.mes_orden}|${d.fila_excel}`] = d;
+    porClave[`${d.mes_orden}|${claveAlterna(d)}`] = d;
+  });
+  return filas.map(r => ({ r, d: porFila[`${r.mes_orden}|${r.fila_excel}`] || porClave[`${r.mes_orden}|${claveAlterna(r)}`] || {} }));
+}
+
+function liquidar(r, d, cargo){
+  const n = v => { const x = num(v); return x === null ? null : x; };
+  const baseTotal = n(d.valor_comision) ?? ((n(d.base_tp) ?? 0) + (n(d.base_ventas) ?? 0) + (n(d.base_fc_dv) ?? 0) || COMISION_BASES[cargo]);
+  const base = {
+    tp: n(d.base_tp) ?? baseTotal * COMISION.pesoTP,
+    ventas: n(d.base_ventas) ?? baseTotal * COMISION.pesoVentas,
+    fcdv: n(d.base_fc_dv) ?? baseTotal * COMISION.pesoFcDv
+  };
+  const pct = { tp: r.pct_tienda_perfecta, ventas: r.pct_ventas, fcdv: r.pct_fc_dv };
+  const llaves = r.llavesOk;
+
+  const calc = {
+    tp: llaves ? base.tp * factorTiendaPerfecta(pct.tp) : 0,
+    ventas: llaves ? base.ventas * factorEscalonado(pct.ventas) : 0,
+    fcdv: llaves ? base.fcdv * factorEscalonado(pct.fcdv) : 0
+  };
+  const totalCalc = calc.tp + calc.ventas + calc.fcdv;
+  const pagado = {
+    tp: n(d.liquidado_tp) ?? calc.tp,
+    ventas: n(d.liquidado_ventas) ?? calc.ventas,
+    fcdv: n(d.liquidado_fc_dv) ?? calc.fcdv
+  };
+  const pagar = n(d.valor_pagar) ?? totalCalc;
+
+  // Siguiente tramo de cada componente y cuánto sumaría
+  const tramos = [];
+  if(!llaves){
+    const potencial = base.tp * factorTiendaPerfecta(pct.tp) + base.ventas * factorEscalonado(pct.ventas) + base.fcdv * factorEscalonado(pct.fcdv);
+    tramos.push({ texto:'Abrir llaves (captura y cobertura ≥ 60%)', ganancia:potencial });
+  } else {
+    if(pct.tp !== null && pct.tp < 80){
+      const meta = pct.tp < 60 ? 60 : 80;
+      tramos.push({ texto:`TP a ${meta}%`, ganancia: base.tp * (factorTiendaPerfecta(meta) - factorTiendaPerfecta(pct.tp)) });
+    }
+    [['Ventas', 'ventas'], ['FC & DV', 'fcdv']].forEach(([nombre, k]) => {
+      const actual = Math.round(pct[k] ?? 0);
+      const meta = ESCALONES.find(e => e > actual);
+      if(meta) tramos.push({ texto:`${nombre} a ${meta}%`, ganancia: base[k] * (factorEscalonado(meta) - factorEscalonado(pct[k])) });
+    });
+  }
+  tramos.sort((a, b) => b.ganancia - a.ganancia);
+
+  return {
+    ...r, cargoTipo: cargo, baseTotal, base, pagado, pagar, totalCalc,
+    diferencia: n(d.valor_pagar) !== null ? n(d.valor_pagar) - totalCalc : null,
+    perdidoLlaves: llaves ? 0 : baseTotal,
+    tramos: tramos.filter(t => t.ganancia > 0)
+  };
+}
+
+function datosLiqRutas(){
+  return unirDinero(DATA.rutas, DATA.dineroRutas || [], x => claveRuta(x.ruta)).map(({ r, d }) => liquidar(r, d, 'mercaderista'));
+}
+function datosLiqPersonas(){
+  return unirDinero(DATA.lideres, DATA.dineroLideres || [], x => `${normKey(x.cargo)}|${normKey(x.nombre)}`)
+    .map(({ r, d }) => liquidar(
+      { ...r, pct_captura:r.pct_llave_captura, pct_cobertura:r.pct_llave_cobertura },
+      d, tipoCargo(r.cargo)));
+}
+
+// ---------- Filtros ----------
+const FILTROS_LIQ = [
+  { key:'mes', id:'liq-f-mes', campo:r => r.mes_orden, label:v => mesLabel(v), todos:'Todos', orden:'desc' },
+  { key:'regional', id:'liq-f-regional', campo:r => r.regional, todos:'Todas' },
+  { key:'lider', id:'liq-f-lider', campo:r => r.lider, todos:'Todos' },
+  { key:'supervisor', id:'liq-f-supervisor', campo:r => r.supervisor, todos:'Todos' },
+  { key:'ruta', id:'liq-f-ruta', campo:r => r.ruta, todos:'Todas' }
+];
+function filtrarLiq(rows, excepto){
+  return rows.filter(r => FILTROS_LIQ.every(f =>
+    f.key === excepto || !filtrosLiq[f.key] || normKey(f.campo(r)) === normKey(filtrosLiq[f.key])));
+}
+function filtrarLiqPersonas(personas, rutasFiltradas){
+  let filas = personas.filter(r => !filtrosLiq.mes || String(r.mes_orden) === filtrosLiq.mes);
+  if(filtrosLiq.regional || filtrosLiq.lider || filtrosLiq.supervisor || filtrosLiq.ruta){
+    const nombres = new Set();
+    rutasFiltradas.forEach(r => [r.lider, r.supervisor, r.lider_alqueria].forEach(n => n && nombres.add(normKey(n))));
+    filas = filas.filter(r => nombres.has(normKey(r.nombre)));
+  }
+  return filas;
+}
+function renderFiltrosLiq(rutas){
+  if(!filtrosLiq.mes && rutas.length) filtrosLiq.mes = String(Math.max(...rutas.map(r => Number(r.mes_orden) || 0)));
+  FILTROS_LIQ.forEach(f => {
+    const valores = unicos(filtrarLiq(rutas, f.key), f.campo).map(String);
+    valores.sort(f.orden === 'desc' ? (a, b) => Number(b) - Number(a) : (a, b) => a.localeCompare(b, 'es'));
+    filtrosLiq[f.key] = llenarSelect(f.id, valores.map(v => ({ value:v, label:f.label ? f.label(v) : v })), filtrosLiq[f.key], f.todos);
+  });
+}
+
+// ---------- Render ----------
+function resumenPago(filas){
+  const bolsa = suma(filas, r => r.baseTotal);
+  const pagar = suma(filas, r => r.pagar);
+  const perdidoLlaves = suma(filas, r => r.perdidoLlaves);
+  return {
+    n: filas.length,
+    comisionan: filas.filter(r => r.llavesOk && r.pagar > 0).length,
+    bolsa, pagar, perdidoLlaves,
+    perdidoTramos: Math.max(0, bolsa - pagar - perdidoLlaves),
+    potencial: suma(filas, r => r.tramos[0] ? r.tramos[0].ganancia : 0),
+    componentes: ['tp', 'ventas', 'fcdv'].map(k => ({ k, base: suma(filas, r => r.base[k]), pagado: suma(filas, r => r.pagado[k]) }))
+  };
+}
+function tarjetaResumen(titulo, s){
+  const pct = s.bolsa > 0 ? s.pagar / s.bolsa * 100 : null;
+  const t = tono(pct, SEMAFORO_CAMPO);
+  const nombres = { tp:'Tienda Perfecta', ventas:'Ventas', fcdv:'Devoluciones y FC' };
+  const stat = (label, valor, color) => `<div class="foco-stat"><p>${label}</p><p style="font-size:17px${color ? `;color:${color}` : ''}">${valor}</p></div>`;
+  return `<div class="card p-5">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <h4 class="text-sm font-bold font-display">${titulo}</h4>
+        <p class="text-[11px] muted">${formatNumber(s.comisionan)} de ${formatNumber(s.n)} comisionan</p>
+      </div>
+      <span class="badge" style="color:${t.fg};background:${t.bg}">${fmtPct(pct)} de la bolsa</span>
+    </div>
+    <div class="foco-stats">
+      ${stat('A pagar', fmtCOP(s.pagar), 'var(--green)')}
+      ${stat('Bolsa total', fmtCOP(s.bolsa))}
+      ${stat('Perdido por llaves', fmtCOP(s.perdidoLlaves), s.perdidoLlaves > 0 ? 'var(--alqueria-red)' : '')}
+      ${stat('Perdido por tramos', fmtCOP(s.perdidoTramos), s.perdidoTramos > 0 ? 'var(--amber)' : '')}
+      ${stat('Si suben un tramo', '+' + fmtCOP(s.potencial), 'var(--eficacia-blue)')}
+    </div>
+    <div class="mt-4">
+      ${s.componentes.map(c => {
+        const p = c.base > 0 ? c.pagado / c.base * 100 : 0;
+        return `<div class="leaderboard-item">
+          <div class="min-w-0 flex-1">
+            <div class="lb-linea"><p class="leaderboard-nombre">${nombres[c.k]}</p><p class="leaderboard-detalle">${fmtCOP(c.pagado)} de ${fmtCOP(c.base)}</p></div>
+            <div class="leaderboard-track"><div class="leaderboard-fill" style="width:${Math.min(100, p)}%;background:${tono(p, SEMAFORO_CAMPO).fg}"></div></div>
+          </div>
+          <span class="leaderboard-value" style="color:${tono(p, SEMAFORO_CAMPO).fg}">${fmtPct(p)}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function celdaComponente(r, k, pct){
+  return `<td class="num"><span class="font-bold">${fmtCOP(r.pagado[k])}</span>
+    <span class="celda-sub">${fmtPct(pct)} · de ${fmtCOP(r.base[k])}</span></td>`;
+}
+function celdaTramos(r){
+  if(!r.tramos.length) return `<td><span class="badge" style="color:var(--green);background:var(--green-bg)">Tope alcanzado</span></td>`;
+  return `<td>${r.tramos.slice(0, 2).map(t =>
+    `<span class="block text-[11px] font-semibold">${esc(t.texto)} <span style="color:var(--green)">+${fmtCOP(t.ganancia)}</span></span>`).join('')}</td>`;
+}
+function celdaDiferencia(r){
+  if(r.diferencia === null) return `<td class="num muted">—</td>`;
+  if(Math.abs(r.diferencia) < 1) return `<td class="num"><span class="badge" style="color:var(--green);background:var(--green-bg)">Cuadra</span></td>`;
+  return `<td class="num"><span class="badge" style="color:var(--amber);background:var(--amber-bg)" title="Excel paga ${fmtCOP(r.pagar)} · reglas calculan ${fmtCOP(r.totalCalc)}">${r.diferencia > 0 ? '+' : ''}${fmtCOP(r.diferencia)}</span></td>`;
+}
+
+function filasLiqRutas(rutas){
+  const q = filtrosLiq.busqueda;
+  let filas = rutas;
+  if(q) filas = filas.filter(r => [r.ruta, r.regional, r.lider, r.supervisor].some(v => String(v || '').toLowerCase().includes(q)));
+  return filas.sort((a, b) => b.pagar - a.pagar);
+}
+
+// ---------- Vista propia de Regional / Líder / Supervisor / Ruta ----------
+const DIMENSIONES_FOCO_LIQ = [
+  { key:'regional', tipo:'Regional' },
+  { key:'lider', tipo:'Líder' },
+  { key:'supervisor', tipo:'Supervisor' },
+  { key:'ruta', tipo:'Ruta' }
+];
+function seleccionFocoLiq(){
+  return DIMENSIONES_FOCO_LIQ.filter(d => filtrosLiq[d.key]).map(d => ({ tipo:d.tipo, valor:filtrosLiq[d.key] }));
+}
+function aplicarColorLiq(){
+  const s = seleccionFocoLiq();
+  aplicarColorVista('vista-liquidacion', s.length ? s[s.length - 1].valor : '');
+}
+function recargarLiqConAnimacion(){
+  aplicarColorLiq();
+  recargarConAnimacion({
+    contenido:'liq-contenido', carga:'liq-cargando', texto:'liq-cargando-texto', vista:'vista-liquidacion',
+    nombre: seleccionFocoLiq().map(s => s.valor).join(' · '),
+    render: renderLiquidacion
+  });
+}
+function cambiarFiltroLiq(key, valor){
+  filtrosLiq[key] = valor;
+  if(DIMENSIONES_FOCO_LIQ.some(d => d.key === key)) recargarLiqConAnimacion();
+  else renderLiquidacion();
+}
+function salirFocoLiq(){
+  Object.assign(filtrosLiq, { regional:'', lider:'', supervisor:'', ruta:'' });
+  recargarLiqConAnimacion();
+}
+
+function renderFocoLiq(rutas, personas){
+  const box = document.getElementById('liq-foco');
+  const { regional, lider, supervisor, ruta } = filtrosLiq;
+  const seleccion = seleccionFocoLiq();
+  const enFoco = seleccion.length > 0;
+
+  document.getElementById('card-liq-regional').classList.toggle('hidden', !!regional);
+  document.getElementById('card-liq-lider').classList.toggle('hidden', !!lider);
+  document.getElementById('card-liq-supervisor').classList.toggle('hidden', !!supervisor);
+  document.getElementById('liq-niveles').classList.toggle('hidden', !!ruta || (!!regional && !!lider && !!supervisor));
+  document.getElementById('liq-niveles-titulo').textContent =
+    enFoco ? `A pagar dentro de ${seleccion.map(s => s.valor).join(' · ')}` : 'A pagar por nivel';
+
+  box.classList.toggle('hidden', !enFoco);
+  if(!enFoco){ box.innerHTML = ''; return; }
+
+  const s = resumenPago(rutas);
+  const pctBolsa = s.bolsa > 0 ? s.pagar / s.bolsa * 100 : null;
+  const stat = (label, valor, color, sub) =>
+    `<div class="foco-stat"><p>${label}</p><p style="font-size:18px${color ? `;color:${color}` : ''}">${valor}${sub ? `<small>${sub}</small>` : ''}</p></div>`;
+
+  // Contexto del encabezado
+  const contar = (fn, uno, varios) => { const n = unicos(rutas, fn).length; return `${n} ${n === 1 ? uno : varios}`; };
+  const r0 = rutas[0] || {};
+  const resumen = ruta
+    ? [!regional && r0.regional ? `Regional ${r0.regional}` : null,
+       !lider && r0.lider ? `Líder ${r0.lider}` : null,
+       !supervisor && r0.supervisor ? `Supervisor ${r0.supervisor}` : null].filter(Boolean)
+    : [!regional ? contar(r => r.regional, 'regional', 'regionales') : null,
+       !lider ? contar(r => r.lider, 'líder', 'líderes') : null,
+       !supervisor ? contar(r => r.supervisor, 'supervisor', 'supervisores') : null,
+       contar(r => r.ruta, 'ruta', 'rutas')].filter(Boolean);
+  if(filtrosLiq.mes) resumen.push(mesLabel(filtrosLiq.mes));
+
+  let stats, extra = '';
+  if(ruta && rutas.length === 1){
+    const r = rutas[0];
+    stats = [
+      stat('Comisionó', fmtCOP(r.pagar), r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)', `de ${fmtCOP(r.baseTotal)}`),
+      stat('Llaves', r.llavesOk ? 'Abiertas' : 'Cerradas', r.llavesOk ? 'var(--green)' : 'var(--alqueria-red)'),
+      stat('Tienda Perfecta', fmtCOP(r.pagado.tp), null, fmtPct(r.pct_tienda_perfecta)),
+      stat('Ventas', fmtCOP(r.pagado.ventas), null, fmtPct(r.pct_ventas)),
+      stat('FC & DV', fmtCOP(r.pagado.fcdv), null, fmtPct(r.pct_fc_dv)),
+      stat('Dejó de ganar', fmtCOP(Math.max(0, r.baseTotal - r.pagar)), r.baseTotal - r.pagar > 0 ? 'var(--amber)' : '')
+    ].join('');
+    extra = r.tramos.length
+      ? `<p class="text-xs font-semibold mt-4 pt-3" style="border-top:1px solid var(--border)">Para ganar más: ${r.tramos.map(t =>
+          `${esc(t.texto)} <span style="color:var(--green)">+${fmtCOP(t.ganancia)}</span>`).join(' · ')}</p>`
+      : `<p class="text-xs font-semibold mt-4 pt-3" style="border-top:1px solid var(--border);color:var(--green)">Llegó al tope de todos los componentes.</p>`;
+  } else {
+    stats = [
+      stat('A pagar', fmtCOP(s.pagar), 'var(--green)', `de ${fmtCOP(s.bolsa)}`),
+      stat('De la bolsa', fmtPct(pctBolsa), tono(pctBolsa, SEMAFORO_CAMPO).fg),
+      stat('Rutas que comisionan', formatNumber(s.comisionan), null, `de ${formatNumber(s.n)}`),
+      stat('Perdido por llaves', fmtCOP(s.perdidoLlaves), s.perdidoLlaves > 0 ? 'var(--alqueria-red)' : ''),
+      stat('Perdido por tramos', fmtCOP(s.perdidoTramos), s.perdidoTramos > 0 ? 'var(--amber)' : ''),
+      stat('Si suben un tramo', '+' + fmtCOP(s.potencial), 'var(--eficacia-blue)')
+    ].join('');
+  }
+
+  // Comisión propia del líder o supervisor elegido
+  const propia = [lider, supervisor].filter(Boolean).map(nombre => personas.find(p => normKey(p.nombre) === normKey(nombre))).filter(Boolean);
+  if(propia.length && !ruta){
+    extra = `<div class="mt-4 pt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs font-semibold" style="border-top:1px solid var(--border)">${propia.map(p =>
+      `<span>Comisión propia de ${esc(p.nombre)} (${esc(p.cargo)}): <strong style="color:${p.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${fmtCOP(p.pagar)}</strong> de ${fmtCOP(p.baseTotal)}</span>`).join('')}</div>`;
+  }
+
+  box.innerHTML = `<div class="foco-hero">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-0">
+        <p class="foco-tipo">${seleccion.map(x => x.tipo).join(' · ')}</p>
+        <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight font-display mt-1">${esc(seleccion.map(x => x.valor).join(' · '))}</h2>
+        <p class="text-xs font-medium muted mt-0.5">${esc(resumen.join(' · '))}</p>
+      </div>
+      <button class="foco-salir" onclick="salirFocoLiq()">Ver todas ✕</button>
+    </div>
+    <div class="foco-stats">${stats}</div>
+    ${extra}
+  </div>`;
+}
+
+// Anillos de cumplimiento con su valor en dinero
+function renderAnillosLiq(rutas){
+  const prom = get => promedio(rutas, get);
+  const s = resumenPago(rutas);
+  const comp = k => s.componentes.find(c => c.k === k);
+  const pctBolsa = s.bolsa > 0 ? s.pagar / s.bolsa * 100 : null;
+  const unaRuta = rutas.length === 1;
+  const notaDinero = k => `<strong>${fmtCOP(comp(k).pagado)}</strong> de ${fmtCOP(comp(k).base)}`;
+  const pie = unaRuta ? '' : `<br>Promedio de ${formatNumber(rutas.length)} rutas`;
+
+  const captura = prom(r => r.pct_captura), cobertura = prom(r => r.pct_cobertura);
+  const tp = prom(r => r.pct_tienda_perfecta), ventas = prom(r => r.pct_ventas), fcdv = prom(r => r.pct_fc_dv);
+  const conLlaves = rutas.filter(r => r.llavesOk).length;
+
+  document.getElementById('liq-anillos').innerHTML = [
+    ringCard({ titulo:'Llave 1 · Captura', sub:'Mínimo 60% para comisionar', badge:'LLAVE 1', badgeTono:TONOS.azul,
+      pct:captura, color:tono(captura, [COMISION.llaveMinima, COMISION.llaveMinima]).hex,
+      nota: unaRuta ? (rutas[0].llavesOk ? 'Llaves abiertas' : 'Llaves cerradas: no comisiona') : `${formatNumber(conLlaves)} de ${formatNumber(rutas.length)} rutas con llaves abiertas` }),
+    ringCard({ titulo:'Llave 2 · Cobertura', sub:'Mínimo 60% para comisionar', badge:'LLAVE 2', badgeTono:TONOS.azul,
+      pct:cobertura, color:tono(cobertura, [COMISION.llaveMinima, COMISION.llaveMinima]).hex,
+      nota: unaRuta ? '' : `Perdido por llaves: <strong>${fmtCOP(s.perdidoLlaves)}</strong>` }),
+    ringCard({ titulo:'Tienda Perfecta', sub:'60% de la comisión', badge:'TP', badgeTono:TONOS.verde,
+      pct:tp, color:tono(tp, SEMAFORO_CAMPO).hex, nota: notaDinero('tp') + pie }),
+    ringCard({ titulo:'Ventas', sub:'20% de la comisión', badge:'VENTAS', badgeTono:TONOS.morado,
+      pct:ventas, color:tono(ventas, SEMAFORO_CAMPO).hex, nota: notaDinero('ventas') + pie }),
+    ringCard({ titulo:'Devoluciones y Fechas Cortas', sub:'20% de la comisión', badge:'FC & DV', badgeTono:TONOS.ambar,
+      pct:fcdv, color:tono(fcdv, SEMAFORO_CAMPO).hex, nota: notaDinero('fcdv') + pie }),
+    ringCard({ titulo:'Comisión pagada', sub:'Porcentaje de la bolsa que se paga', badge:'$', badgeTono:TONOS.verde,
+      pct:pctBolsa, color:tono(pctBolsa, SEMAFORO_CAMPO).hex,
+      nota:`<strong>${fmtCOP(s.pagar)}</strong> de ${fmtCOP(s.bolsa)}`,
+      delta: s.potencial > 0 ? { texto:`+${fmtCOP(s.potencial)} si ${unaRuta ? 'sube' : 'suben'} un tramo`, color:'var(--eficacia-blue)' } : null })
+  ].join('');
+}
+
+function renderLiquidacion(){
+  if(!SESION.admin) return;
+  const todas = datosLiqRutas();
+  renderFiltrosLiq(todas);
+  aplicarColorLiq();
+  const rutas = filtrarLiq(todas);
+  const personas = filtrarLiqPersonas(datosLiqPersonas(), rutas);
+
+  renderFocoLiq(rutas, personas);
+  renderAnillosLiq(rutas);
+
+  const aviso = document.getElementById('liq-aviso');
+  const sinDinero = !(DATA.dineroRutas || []).length;
+  aviso.classList.toggle('hidden', !sinDinero);
+  aviso.innerHTML = sinDinero ? `<div class="rounded-xl px-4 py-3 text-xs font-semibold" style="background:var(--amber-bg);color:#92400E">
+    Aún no hay valores en dinero cargados. Ejecuta sincronizar_supabase.py con la versión nueva para subirlos; mientras tanto los valores se estiman con las bases por cargo.</div>` : '';
+
+  document.getElementById('liq-resumen').innerHTML =
+    tarjetaResumen('Mercaderistas (rutas)', resumenPago(rutas)) +
+    tarjetaResumen('Líderes y Supervisores', resumenPago(personas));
+
+  // Rankings: barra clara = bolsa, sólida = pagado
+  const porNivel = keyFn => {
+    const g = {};
+    rutas.forEach(r => {
+      const k = keyFn(r);
+      if(!k) return;
+      g[k] = g[k] || { bolsa:0, pagar:0, n:0 };
+      g[k].bolsa += r.baseTotal; g[k].pagar += r.pagar; g[k].n++;
+    });
+    return Object.entries(g).map(([label, v]) => {
+      const p = v.bolsa > 0 ? v.pagar / v.bolsa * 100 : 0;
+      const t = tono(p, SEMAFORO_CAMPO);
+      return { label, value:v.bolsa, hecho:v.pagar, colorHecho:t.hex, colorBadge:'var(--text)',
+        badge:fmtCOP(v.pagar), extra:`${fmtPct(p)} de ${fmtCOP(v.bolsa)} · ${v.n} ${v.n === 1 ? 'ruta' : 'rutas'}` };
+    });
+  };
+  renderLeaderboard('liq-lb-regional', porNivel(r => r.regional));
+  renderLeaderboard('liq-lb-lider', porNivel(r => r.lider));
+  renderLeaderboard('liq-lb-supervisor', porNivel(r => r.supervisor));
+
+  const filas = filasLiqRutas(rutas);
+  pintarTabla('liq-tabla-rutas', filas.length ? filas.map(r => `<tr>
+    <td class="font-bold">${esc(r.ruta)}<span class="celda-sub">${esc(r.regional)} · ${esc(r.mes)}</span></td>
+    <td>${esc(r.lider)}<span class="celda-sub">${esc(r.supervisor)}</span></td>
+    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">${fmtPct(r.pct_captura)} · ${fmtPct(r.pct_cobertura)}</span></td>
+    ${celdaComponente(r, 'tp', r.pct_tienda_perfecta)}
+    ${celdaComponente(r, 'ventas', r.pct_ventas)}
+    ${celdaComponente(r, 'fcdv', r.pct_fc_dv)}
+    <td class="num"><span class="font-extrabold" style="color:${r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${fmtCOP(r.pagar)}</span><span class="celda-sub">de ${fmtCOP(r.baseTotal)}</span></td>
+    ${celdaTramos(r)}
+    ${celdaDiferencia(r)}
+  </tr>`).join('') : emptyRow(9));
+  document.getElementById('liq-rutas-count').textContent = `${formatNumber(filas.length)} rutas · total a pagar ${fmtCOP(suma(filas, r => r.pagar))}`;
+
+  const ps = [...personas].sort((a, b) => String(a.cargo).localeCompare(String(b.cargo), 'es') || b.pagar - a.pagar);
+  pintarTabla('liq-tabla-personas', ps.length ? ps.map(r => `<tr>
+    <td class="font-bold">${esc(r.nombre)}<span class="celda-sub">${esc(r.cargo)} · ${esc(r.mes)}</span></td>
+    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">${fmtPct(r.pct_captura)} · ${fmtPct(r.pct_cobertura)}</span></td>
+    ${celdaComponente(r, 'tp', r.pct_tienda_perfecta)}
+    ${celdaComponente(r, 'ventas', r.pct_ventas)}
+    ${celdaComponente(r, 'fcdv', r.pct_fc_dv)}
+    <td class="num"><span class="font-extrabold" style="color:${r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${fmtCOP(r.pagar)}</span><span class="celda-sub">de ${fmtCOP(r.baseTotal)}</span></td>
+    ${celdaTramos(r)}
+    ${celdaDiferencia(r)}
+  </tr>`).join('') : emptyRow(8));
+  document.getElementById('liq-personas-count').textContent = `${formatNumber(ps.length)} personas · total a pagar ${fmtCOP(suma(ps, r => r.pagar))}`;
+}
+
+function limpiarFiltrosLiq(){
+  const habiaFoco = seleccionFocoLiq().length > 0;
+  Object.assign(filtrosLiq, { mes:'', regional:'', lider:'', supervisor:'', ruta:'', busqueda:'' });
+  document.getElementById('liq-busqueda').value = '';
+  if(habiaFoco) recargarLiqConAnimacion(); else renderLiquidacion();
+}
+
+function exportarLiqRutas(){
+  const filas = filasLiqRutas(filtrarLiq(datosLiqRutas()));
+  exportarXLSX('liquidacion_rutas',
+    ['Mes','Regional','Ruta','Líder','Supervisor','Llaves','% Captura','% Cobertura','% TP','$ TP','% Ventas','$ Ventas','% FC & DV','$ FC & DV','Bolsa','A pagar','Calculado por reglas','Diferencia','Siguiente tramo','Ganancia siguiente tramo'],
+    filas.map(r => [r.mes, r.regional, r.ruta, r.lider, r.supervisor, r.llavesOk ? 'Abiertas' : 'Cerradas',
+      pctNum(r.pct_captura), pctNum(r.pct_cobertura), pctNum(r.pct_tienda_perfecta), Math.round(r.pagado.tp),
+      pctNum(r.pct_ventas), Math.round(r.pagado.ventas), pctNum(r.pct_fc_dv), Math.round(r.pagado.fcdv),
+      Math.round(r.baseTotal), Math.round(r.pagar), Math.round(r.totalCalc), r.diferencia === null ? '' : Math.round(r.diferencia),
+      r.tramos[0] ? r.tramos[0].texto : 'Tope alcanzado', r.tramos[0] ? Math.round(r.tramos[0].ganancia) : 0]));
+}
+function exportarLiqPersonas(){
+  const filas = filtrarLiqPersonas(datosLiqPersonas(), filtrarLiq(datosLiqRutas()));
+  exportarXLSX('liquidacion_lideres_supervisores',
+    ['Mes','Cargo','Nombre','Llaves','% Captura','% Cobertura','% TP','$ TP','% Ventas','$ Ventas','% FC & DV','$ FC & DV','Bolsa','A pagar','Calculado por reglas','Diferencia','Siguiente tramo','Ganancia siguiente tramo'],
+    filas.map(r => [r.mes, r.cargo, r.nombre, r.llavesOk ? 'Abiertas' : 'Cerradas',
+      pctNum(r.pct_captura), pctNum(r.pct_cobertura), pctNum(r.pct_tienda_perfecta), Math.round(r.pagado.tp),
+      pctNum(r.pct_ventas), Math.round(r.pagado.ventas), pctNum(r.pct_fc_dv), Math.round(r.pagado.fcdv),
+      Math.round(r.baseTotal), Math.round(r.pagar), Math.round(r.totalCalc), r.diferencia === null ? '' : Math.round(r.diferencia),
+      r.tramos[0] ? r.tramos[0].texto : 'Tope alcanzado', r.tramos[0] ? Math.round(r.tramos[0].ganancia) : 0]));
+}
+
+
+/* ============================================================
+   12. EXPORTAR A EXCEL
    ============================================================ */
 function exportarXLSX(nombre, encabezados, filas){
   if(!filas.length){ alert('No hay filas para exportar con los filtros actuales.'); return; }
@@ -2249,11 +2966,12 @@ function exportarPersonas(){
 
 
 /* ============================================================
-   12. NAVEGACIÓN E INICIO
+   13. NAVEGACIÓN E INICIO
    ============================================================ */
 const VISTAS = {
   pop:   { titulo:'Material POP', sub:'Llegada, salida y saldo del material en CEDI' },
-  campo: { titulo:'Seguimiento de Campo', sub:'Llaves y cumplimiento de mercaderistas, líderes y supervisores' }
+  campo: { titulo:'Seguimiento de Campo', sub:'Llaves y cumplimiento de mercaderistas, líderes y supervisores' },
+  liquidacion: { titulo:'Liquidación de comisiones', sub:'Valores a pagar por ruta, líder y supervisor' }
 };
 
 function setVista(vista){
@@ -2273,6 +2991,12 @@ function toggleMobileNav(abrir){
 }
 
 function conectarEventos(){
+  FILTROS_LIQ.forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroLiq(f.key, e.target.value)));
+  document.getElementById('liq-busqueda').addEventListener('input', e => {
+    filtrosLiq.busqueda = e.target.value.trim().toLowerCase(); renderLiquidacion();
+  });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') cerrarLogin(); });
+
   FILTROS_POP.forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroPop(f.key, e.target.value)));
   document.querySelectorAll('#tabla-articulos th[data-sort]').forEach(th => th.addEventListener('click', () => ordenarArticulos(th.dataset.sort)));
   document.getElementById('pop-art-busqueda').addEventListener('input', () => renderTablaArticulos());
@@ -2291,6 +3015,7 @@ function conectarEventos(){
 
 conectarEventos();
 cargarTodo();
+iniciarAuth();
 </script>
 </body>
 </html>
