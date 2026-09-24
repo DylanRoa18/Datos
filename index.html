@@ -66,6 +66,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 
 /* Botones */
 .btn-export{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text);white-space:nowrap}
+.btn-export .btn-icono{width:15px;height:15px;flex-shrink:0}
 .btn-export:hover{background:var(--surface-soft);border-color:#CBD5E1}
 .search-input{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:8px 14px;width:100%}
 
@@ -455,7 +456,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
               <h3 class="text-base font-bold tracking-tight font-display">Despacho del artículo por Regional</h3>
               <p class="text-xs mt-0.5 font-medium muted">Cuánto se asignó, llegó y salió en cada regional, y a dónde falta despachar.</p>
             </div>
-            <button onclick="exportarDespacho()" class="btn-export">⬇ Exportar</button>
+            <button onclick="exportarDespacho()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
           </div>
           <div id="pop-despacho-resumen" class="mb-4"></div>
           <div class="table-scroll">
@@ -480,7 +481,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
             </div>
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
               <input id="pop-art-busqueda" type="text" placeholder="Buscar artículo…" class="search-input sm:w-64">
-              <button onclick="exportarArticulos()" class="btn-export">⬇ Exportar</button>
+              <button onclick="exportarArticulos()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
             </div>
           </div>
           <div class="table-scroll">
@@ -511,7 +512,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
             </div>
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
               <input id="pop-busqueda" type="text" placeholder="Buscar artículo, campaña, región…" class="search-input sm:w-72">
-              <button onclick="exportarPop()" class="btn-export">⬇ Exportar</button>
+              <button onclick="exportarPop()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
             </div>
           </div>
           <div class="table-scroll">
@@ -654,7 +655,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
             <h3 class="text-base font-bold tracking-tight font-display">Líderes y Supervisores</h3>
             <p id="campo-personas-filtro" class="text-xs mt-0.5 font-medium muted">Llaves y cumplimiento de cada persona en el mes.</p>
           </div>
-          <button onclick="exportarPersonas()" class="btn-export">⬇ Exportar</button>
+          <button onclick="exportarPersonas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
         </div>
         <div class="table-scroll">
           <table>
@@ -679,7 +680,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
           </div>
           <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <input id="campo-busqueda" type="text" placeholder="Buscar ruta, supervisor, líder…" class="search-input sm:w-72">
-            <button onclick="exportarRutas()" class="btn-export">⬇ Exportar</button>
+            <button onclick="exportarRutas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
           </div>
         </div>
         <div class="table-scroll">
@@ -781,7 +782,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
           </div>
           <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <input id="liq-busqueda" type="text" placeholder="Buscar ruta, supervisor, líder…" class="search-input sm:w-72">
-            <button onclick="exportarLiqRutas()" class="btn-export">⬇ Exportar</button>
+            <button onclick="exportarLiqRutas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
           </div>
         </div>
         <div class="table-scroll">
@@ -805,7 +806,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
             <h3 class="text-base font-bold tracking-tight font-display">Liquidación de Líderes y Supervisores</h3>
             <p class="text-xs mt-0.5 font-medium muted">Comisión propia de cada líder y supervisor.</p>
           </div>
-          <button onclick="exportarLiqPersonas()" class="btn-export">⬇ Exportar</button>
+          <button onclick="exportarLiqPersonas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
         </div>
         <div class="table-scroll">
           <table>
