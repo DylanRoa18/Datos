@@ -39,7 +39,7 @@
 }
 *{box-sizing:border-box}
 /* Componentes con display propio que también se ocultan con .hidden */
-.foco-cargando.hidden,.modal.hidden,.lb-orden.hidden,.vista-nav-btn.hidden,.lb-popover.hidden{display:none}
+.foco-cargando.hidden,.modal.hidden,.lb-orden.hidden,.vista-nav-btn.hidden,.detalle-modal.hidden{display:none}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,.font-display{font-family:'Plus Jakarta Sans',sans-serif}
 .tabular{font-variant-numeric:tabular-nums}
@@ -237,12 +237,32 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 /* Ventana de detalle de un ranking (pasar el mouse o tocar) */
 .lb-interactivo{cursor:pointer;border-radius:10px;margin:0 -6px;padding-left:6px!important;padding-right:6px!important;transition:background .15s ease}
 .lb-interactivo:hover,.lb-interactivo.is-abierto{background:var(--surface-soft)}
-.lb-popover{position:fixed;z-index:70;width:min(380px,92vw);max-height:min(420px,70vh);overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 18px 45px -10px rgba(15,23,42,.28);padding:14px 16px}
-.lb-popover table{width:100%;font-size:11.5px;border-collapse:collapse}
-.lb-popover th{font-size:10.5px;font-weight:700;color:var(--text-muted);text-align:left;padding:6px 4px;border-bottom:1px solid var(--border);position:sticky;top:-14px;background:#fff}
-.lb-popover td{padding:6px 4px;border-bottom:1px solid var(--border);vertical-align:top}
-.lb-popover th.num,.lb-popover td.num{text-align:right;white-space:nowrap}
-.lb-popover tr:last-child td{border-bottom:none}
+.detalle-modal{position:fixed;inset:0;z-index:75;display:flex;align-items:center;justify-content:center;padding:16px}
+.detalle-fondo{position:absolute;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fundido .25s ease both}
+.detalle-caja{position:relative;width:min(960px,96vw);max-height:94vh;overflow-y:auto;background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 30px 70px -15px rgba(15,23,42,.45)}
+.detalle-caja.zoom{animation:zoomEntrada .32s cubic-bezier(.2,.9,.25,1) both}
+.detalle-cerrar{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:#fff;color:var(--text-muted)}
+.detalle-cerrar:hover{color:var(--text);border-color:#CBD5E1}
+.detalle-cerrar svg{width:16px;height:16px}
+.detalle-tablas{display:grid;grid-template-columns:1fr;column-gap:28px}
+@media (min-width:860px){.detalle-tablas.dos{grid-template-columns:1fr 1fr}}
+.detalle-tablas table{width:100%;font-size:11.5px;border-collapse:collapse}
+.detalle-tablas th{font-size:10.5px;font-weight:700;color:var(--text-muted);text-align:left;padding:7px 5px;border-bottom:1px solid var(--border)}
+.detalle-tablas td{padding:6px 5px;border-bottom:1px solid var(--border);vertical-align:top}
+.detalle-tablas th.num,.detalle-tablas td.num{text-align:right;white-space:nowrap}
+.detalle-tablas tr:last-child td{border-bottom:none}
+/* Celular: nombre del artículo arriba y sus 4 cifras en una fila debajo */
+@media (max-width:640px){
+  .detalle-caja{padding:18px 16px;border-radius:18px}
+  .detalle-caja .foco-stats{grid-template-columns:repeat(3,1fr)}
+  .detalle-tablas thead{display:none}
+  .detalle-tablas tr{display:grid;grid-template-columns:repeat(4,1fr);padding:7px 0;border-bottom:1px solid var(--border)}
+  .detalle-tablas td{border:none!important;padding:1px 3px}
+  .detalle-tablas td:first-child{grid-column:1 / -1;margin-bottom:3px}
+  .detalle-tablas td.num::before{content:attr(data-l);display:block;font-size:9.5px;font-weight:600;color:var(--text-muted)}
+}
+@keyframes fundido{from{opacity:0}to{opacity:1}}
+@keyframes zoomEntrada{from{opacity:0;transform:scale(.25)}to{opacity:1;transform:none}}
 
 /* Login y sesión */
 .auth-bloque{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
@@ -423,7 +443,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
               <div class="lb-cabecera">
                 <div>
                   <h4 class="text-sm font-bold font-display">Ejecución de salida CEDI por Regional</h4>
-                  <p class="text-[11px] muted">Porcentaje despachado frente a lo asignado. Pasa el mouse o toca una regional para ver sus artículos.</p>
+                  <p class="text-[11px] muted">Porcentaje despachado frente a lo asignado. Haz clic en una regional para ver sus artículos.</p>
                 </div>
                 <button type="button" class="lb-orden" data-lb="pop-lb-regional" onclick="toggleOrdenLb('pop-lb-regional')">↓ Mayor a menor</button>
               </div>
@@ -834,7 +854,15 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 </main>
 
 <!-- Ventana pequeña con el detalle de un ranking -->
-<div id="lb-popover" class="lb-popover hidden" role="dialog" aria-live="polite"></div>
+<div id="lb-detalle" class="detalle-modal hidden">
+  <div class="detalle-fondo" onclick="cerrarDetalleLb()"></div>
+  <div id="lb-detalle-caja" class="detalle-caja" role="dialog" aria-modal="true">
+    <button type="button" class="detalle-cerrar" onclick="cerrarDetalleLb()" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div id="lb-detalle-contenido"></div>
+  </div>
+</div>
 
 <!-- ============================================================
      VENTANA DE INICIO DE SESIÓN
@@ -1262,71 +1290,48 @@ function pintarLeaderboard(id){
 }
 
 // ---------- Ventana de detalle ----------
-// En computador se abre al pasar el mouse; en celular (o con clic) queda fija
-// hasta tocar fuera, presionar Esc o desplazarse.
-const DETALLE_LB = { abierto:null, fijo:false };
-function abrirDetalleLb(el, fijo){
+// Se abre solo con clic: el fondo se oscurece y la ventana crece desde
+// el elemento tocado (efecto zoom). Se cierra con la X, el fondo o Esc.
+let detalleOrigen = null;
+function abrirDetalleLb(el){
   const ranking = RANKINGS[el.dataset.lbId];
   const item = ranking && ranking.visibles[Number(el.dataset.lbI)];
   if(!item || typeof item.detalle !== 'function') return;
 
-  const pop = document.getElementById('lb-popover');
-  pop.innerHTML = item.detalle();
-  pop.classList.remove('hidden');
-  if(DETALLE_LB.abierto && DETALLE_LB.abierto !== el) DETALLE_LB.abierto.classList.remove('is-abierto');
-  el.classList.add('is-abierto');
-  DETALLE_LB.abierto = el;
-  DETALLE_LB.fijo = fijo;
+  const modal = document.getElementById('lb-detalle');
+  const caja = document.getElementById('lb-detalle-caja');
+  document.getElementById('lb-detalle-contenido').innerHTML = item.detalle();
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  caja.scrollTop = 0;
 
-  // Debajo del elemento; si no cabe, encima. Siempre dentro de la pantalla.
-  const r = el.getBoundingClientRect();
-  const w = pop.offsetWidth, h = pop.offsetHeight, margen = 8;
-  let left = Math.min(Math.max(margen, r.left), window.innerWidth - w - margen);
-  let top = r.bottom + 6;
-  if(top + h > window.innerHeight - margen) top = Math.max(margen, r.top - h - 6);
-  pop.style.left = `${left}px`;
-  pop.style.top = `${top}px`;
+  // El zoom nace en el centro del elemento que se tocó
+  const r = el.getBoundingClientRect(), c = caja.getBoundingClientRect();
+  caja.style.transformOrigin = `${r.left + r.width / 2 - c.left}px ${r.top + r.height / 2 - c.top}px`;
+  caja.classList.remove('zoom');
+  void caja.offsetWidth;
+  caja.classList.add('zoom');
+
+  detalleOrigen = el;
+  caja.querySelector('.detalle-cerrar').focus({ preventScroll:true });
 }
 function cerrarDetalleLb(){
-  document.getElementById('lb-popover').classList.add('hidden');
-  if(DETALLE_LB.abierto) DETALLE_LB.abierto.classList.remove('is-abierto');
-  DETALLE_LB.abierto = null;
-  DETALLE_LB.fijo = false;
+  const modal = document.getElementById('lb-detalle');
+  if(modal.classList.contains('hidden')) return;
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+  if(detalleOrigen) detalleOrigen.focus({ preventScroll:true });
+  detalleOrigen = null;
 }
 function conectarDetalleLb(){
-  const conMouse = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-  const pop = document.getElementById('lb-popover');
-
   document.addEventListener('click', e => {
     const el = e.target.closest('.lb-interactivo');
-    if(el){
-      if(DETALLE_LB.abierto === el && DETALLE_LB.fijo) cerrarDetalleLb();
-      else abrirDetalleLb(el, true);
-      return;
-    }
-    if(!e.target.closest('#lb-popover')) cerrarDetalleLb();
+    if(el) abrirDetalleLb(el);
   });
   document.addEventListener('keydown', e => {
     if(e.key === 'Escape') cerrarDetalleLb();
-    if(e.key === 'Enter' && e.target.classList && e.target.classList.contains('lb-interactivo')) abrirDetalleLb(e.target, true);
+    if(e.key === 'Enter' && e.target.classList && e.target.classList.contains('lb-interactivo')) abrirDetalleLb(e.target);
   });
-  window.addEventListener('scroll', () => { if(DETALLE_LB.abierto) cerrarDetalleLb(); }, { passive:true });
-
-  if(conMouse){
-    let temporizador;
-    document.addEventListener('mouseover', e => {
-      const el = e.target.closest('.lb-interactivo');
-      if(el && !DETALLE_LB.fijo){ clearTimeout(temporizador); abrirDetalleLb(el, false); }
-    });
-    document.addEventListener('mouseout', e => {
-      const el = e.target.closest('.lb-interactivo');
-      if(!el || DETALLE_LB.fijo) return;
-      if(e.relatedTarget && (el.contains(e.relatedTarget) || pop.contains(e.relatedTarget))) return;
-      temporizador = setTimeout(() => { if(!DETALLE_LB.fijo) cerrarDetalleLb(); }, 150);
-    });
-    pop.addEventListener('mouseleave', () => { if(!DETALLE_LB.fijo) cerrarDetalleLb(); });
-    pop.addEventListener('mouseenter', () => clearTimeout(temporizador));
-  }
 }
 
 function toggleOrdenLb(id){
@@ -1867,26 +1872,38 @@ function renderAnillosPop(t){
 function detalleComposicionPop(g){
   return () => {
     const articulos = agruparPop(g.filas, r => r.POP || r.Articulo)
-      .filter(a => a.asignado > 0 || a.salida > 0)
-      .sort((a, b) => b.asignado - a.asignado);
-    const max = 15;
-    return `<div class="flex items-start justify-between gap-3 mb-2">
-        <div class="min-w-0">
-          <p class="text-sm font-extrabold font-display">${esc(g.label)}</p>
-          <p class="text-[11px] muted">${formatNumber(g.salida)} salidas de ${formatNumber(g.asignado)} und asignadas · ${articulos.length} ${articulos.length === 1 ? 'artículo' : 'artículos'}</p>
-        </div>
-        ${pctBadge(g.pct, SEMAFORO_POP)}
+      .filter(a => a.asignado > 0 || a.llega > 0 || a.salida > 0)
+      .sort((a, b) => b.asignado - a.asignado || b.llega - a.llega);
+
+    const tabla = lista => `<table>
+      <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num">%</th></tr></thead>
+      <tbody>${lista.map(a => `<tr>
+        <td class="font-semibold">${esc(a.label)}</td>
+        <td class="num" data-l="Asignado">${formatNumber(a.asignado)}</td>
+        <td class="num" data-l="Llegó">${formatNumber(a.llega)}</td>
+        <td class="num" data-l="Salido">${formatNumber(a.salida)}</td>
+        <td class="num" data-l="%" style="color:${tono(a.pct, SEMAFORO_POP).fg};font-weight:700">${fmtPct(a.pct)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+
+    // Con muchos artículos se reparten en dos columnas para verlos todos sin desplazarse
+    const dos = articulos.length > 10;
+    const mitad = Math.ceil(articulos.length / 2);
+    const cuerpo = dos ? tabla(articulos.slice(0, mitad)) + tabla(articulos.slice(mitad)) : tabla(articulos);
+    const t = tono(g.pct, SEMAFORO_POP);
+
+    return `<div class="pr-10 mb-4">
+        <p class="text-[10.5px] font-extrabold uppercase tracking-wider" style="color:var(--eficacia-blue)">${esc(g.tipo)}</p>
+        <h3 class="text-xl font-extrabold font-display tracking-tight">${esc(g.label)}</h3>
       </div>
-      <table>
-        <thead><tr><th>Artículo</th><th class="num">Salido</th><th class="num">Asignado</th><th class="num">%</th></tr></thead>
-        <tbody>${articulos.slice(0, max).map(a => `<tr>
-          <td class="font-semibold">${esc(a.label)}</td>
-          <td class="num">${formatNumber(a.salida)}</td>
-          <td class="num">${formatNumber(a.asignado)}</td>
-          <td class="num" style="color:${tono(a.pct, SEMAFORO_POP).fg};font-weight:700">${fmtPct(a.pct)}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-      ${articulos.length > max ? `<p class="text-[11px] muted mt-2">y ${articulos.length - max} artículos más. Filtra por esta ${esc(g.tipo)} para ver todo.</p>` : ''}`;
+      <div class="foco-stats" style="margin-top:0;margin-bottom:14px">
+        <div class="foco-stat"><p>Asignado</p><p>${formatNumber(g.asignado)}<small>und</small></p></div>
+        <div class="foco-stat"><p>Llegó</p><p>${formatNumber(g.llega)}<small>und</small></p></div>
+        <div class="foco-stat"><p>Salido</p><p>${formatNumber(g.salida)}<small>und</small></p></div>
+        <div class="foco-stat"><p>Cumplimiento</p><p style="color:${t.fg}">${fmtPct(g.pct)}</p></div>
+        <div class="foco-stat"><p>Artículos</p><p>${formatNumber(articulos.length)}</p></div>
+      </div>
+      <div class="detalle-tablas${dos ? ' dos' : ''}">${cuerpo}</div>`;
   };
 }
 
