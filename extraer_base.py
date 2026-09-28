@@ -104,6 +104,7 @@ HOJAS = {
         "hoja": "Indicadores",
         "tabla": "campo_indicadores",
         "clave": "RUTA",
+        "opcionales": ["OBJ VISITAS", "VISITAS", "% VISITAS", "SUPERVISOR"],
         "columnas": [
             ("MES", "mes", "mes"),
             ("SUPERVISOR", "supervisor", "texto"),
@@ -322,13 +323,24 @@ def columna_a_porcentaje(serie):
 # MES
 # ============================================================
 
+MESES_ABREV = {
+    "ENE": 1, "FEB": 2, "MAR": 3, "ABR": 4, "MAY": 5, "JUN": 6, "JUL": 7,
+    "AGO": 8, "SEP": 9, "SEPT": 9, "SET": 9, "OCT": 10, "NOV": 11, "DIC": 12,
+}
+
+
 def mes_desde_nombre_archivo(archivo):
-    """Busca 'Agosto' (u otro mes) en el nombre del archivo."""
+    """Busca el mes en el nombre del archivo: 'Agosto', 'SEPTIEMBRE' o 'Sept'."""
     nombre = normalizar(archivo.stem)
+    anio = re.search(r"(20\d{2})", nombre)
+    anio = int(anio.group(1)) if anio else ANIO_POR_DEFECTO
     for texto_mes, numero in MESES.items():
         if texto_mes in nombre:
-            anio = re.search(r"(20\d{2})", nombre)
-            return (int(anio.group(1)) if anio else ANIO_POR_DEFECTO), numero
+            return anio, numero
+    # Abreviaturas solo como palabra completa (para no confundir "MAR" con "MARTINEZ")
+    for palabra in re.split(r"[^A-Z]+", nombre):
+        if palabra in MESES_ABREV:
+            return anio, MESES_ABREV[palabra]
     return None
 
 
@@ -497,7 +509,10 @@ def preparar_hoja(datos, config, mes_respaldo):
 
     if renombradas:
         avisos.append("Encabezados leídos con otro nombre: " + "; ".join(renombradas))
-    faltantes = [f for f in faltantes if f not in COLUMNAS_OPCIONALES]
+    opcionales = COLUMNAS_OPCIONALES | set(config.get("opcionales", []))
+    if mes_respaldo:
+        opcionales = opcionales | {"MES"}
+    faltantes = [f for f in faltantes if f not in opcionales]
     if faltantes:
         disponibles = [c for c in datos.columns if c not in usadas and c != "__FILA_EXCEL"
                        and not str(c).startswith("CATEGORIA EFEC")]
@@ -557,6 +572,184 @@ def preparar_hoja(datos, config, mes_respaldo):
 # FUNCIÓN PRINCIPAL (la usa sincronizar_supabase.py)
 # ============================================================
 
+# ============================================================
+# ARCHIVOS DE SEGUIMIENTO (sin hojas de liquidación)
+# ============================================================
+# Si el Excel no trae "Liquidacion por Rutas", se arma todo desde la hoja
+# Indicadores: las llaves son % CAPTURA y % COBERTURA, y los componentes
+# TIENDA PERFECTA, VENTA y FC & DEV. No hay valores en dinero.
+
+CONFIG_SEGUIMIENTO = {
+    "hoja": "Indicadores",
+    "clave": "RUTA",
+    "opcionales": ["MES", "REGIONAL", "LIDER", "SUPERVISOR"],
+    "columnas": [
+        ("MES", "mes", "mes"),
+        ("REGIONAL", "regional", "texto"),
+        ("LIDER", "lider", "texto"),
+        ("SUPERVISOR", "supervisor", "texto"),
+        ("RUTA", "ruta", "texto"),
+        ("% CAPTURA", "pct_captura", "pct"),
+        ("% COBERTURA", "pct_cobertura", "pct"),
+        ("TIENDA PERFECTA", "pct_tienda_perfecta", "pct"),
+        ("VENTA", "pct_ventas", "pct"),
+        ("FC & DEV", "pct_fc_dv", "pct"),
+    ],
+}
+
+# Mínimo de las llaves en archivos de seguimiento. Con None se toma del
+# propio libro ("LLAVE DEL 70%" / "Categoria Efec 70%"); si no, 60%.
+# Para fijarlo a mano escribe el número, ej.: UMBRAL_LLAVE_SEGUIMIENTO = 60
+UMBRAL_LLAVE_SEGUIMIENTO = None
+
+# Qué llaves deben cumplirse para comisionar en el seguimiento.
+# Ambas: ["pct_captura", "pct_cobertura"]   Solo cobertura: ["pct_cobertura"]
+LLAVES_SEGUIMIENTO = ["pct_captura", "pct_cobertura"]
+
+
+def clave_ruta(valor):
+    return re.sub(r"[^A-Z0-9]", "", normalizar(valor))
+
+
+def detectar_umbral_libro(archivo, nombres_hojas):
+    """Busca en el libro 'Categoria Efec 70%' o 'LLAVE DEL 70%'."""
+    for hoja in nombres_hojas:
+        try:
+            crudo = pd.read_excel(archivo, sheet_name=hoja, header=None, nrows=12, dtype=object)
+        except Exception:
+            continue
+        for valor in crudo.values.flatten():
+            texto = normalizar(valor)
+            m = re.search(r"CATEGORIA EFEC (\d+)%|LLAVE DEL (\d+)%", texto)
+            if m:
+                return int(m.group(1) or m.group(2)), hoja
+    return None, None
+
+
+def mapa_rutas_libro(archivo, nombres_hojas, excluir):
+    """
+    Regional, líder y supervisor de cada ruta, tomados de otra hoja del
+    mismo libro que tenga RUTA y REGIONAL. Se prefieren las hojas cuyo
+    nombre no menciona un mes (así no se usa una copia de otro mes).
+    """
+    def menciona_mes(nombre):
+        n = normalizar(nombre)
+        return any(m in n for m in MESES) or any(p in MESES_ABREV for p in re.split(r"[^A-Z]+", n))
+
+    candidatas = [h for h in nombres_hojas if h != excluir]
+    candidatas.sort(key=menciona_mes)
+    for hoja in candidatas:
+        try:
+            datos = leer_hoja(archivo, hoja, "RUTA")
+        except Exception:
+            continue
+        if "REGIONAL" not in datos.columns:
+            continue
+        mapa = {}
+        for _, fila in datos.iterrows():
+            k = clave_ruta(fila.get("RUTA"))
+            if k and k not in mapa:
+                mapa[k] = {
+                    "regional": limpiar_texto(fila.get("REGIONAL")),
+                    "lider": limpiar_texto(fila.get("LIDER")),
+                    "supervisor": limpiar_texto(fila.get("SUPERVISOR")),
+                }
+        if mapa:
+            return mapa, hoja
+    return {}, None
+
+
+def cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log):
+    resultado = {}
+    hoja = buscar_hoja(nombres_hojas, "Indicadores")
+    if hoja is None:
+        log("❌ Tampoco hay hoja Indicadores: no se puede cargar este archivo.")
+        return resultado
+
+    datos = leer_hoja(archivo, hoja, "RUTA")
+
+    # 1) Tabla de indicadores (igual que siempre)
+    log("\n" + "=" * 70)
+    log(f" HOJA: {hoja}  ->  campo_indicadores")
+    log("=" * 70)
+    indicadores, avisos = preparar_hoja(datos, HOJAS["INDICADORES"], mes_respaldo)
+    for aviso in avisos:
+        log(aviso if aviso.startswith("ℹ️") else f"⚠️  {aviso}")
+    log(f"✅ Registros: {len(indicadores):,}")
+
+    # 2) Rutas y llaves desde Indicadores
+    log("\n" + "=" * 70)
+    log(f" HOJA: {hoja}  ->  campo_liquidacion_rutas (seguimiento)")
+    log("=" * 70)
+    rutas, avisos = preparar_hoja(datos, CONFIG_SEGUIMIENTO, mes_respaldo)
+    for aviso in avisos:
+        log(aviso if aviso.startswith("ℹ️") else f"⚠️  {aviso}")
+
+    umbral, hoja_umbral = (UMBRAL_LLAVE_SEGUIMIENTO, "configuración") if UMBRAL_LLAVE_SEGUIMIENTO else detectar_umbral_libro(archivo, nombres_hojas)
+    umbral = umbral or 60
+    log(f"ℹ️  Llaves: {' y '.join('% CAPTURA' if l == 'pct_captura' else '% COBERTURA' for l in LLAVES_SEGUIMIENTO)}, mínimo {umbral}%"
+        + (f" (tomado de la hoja \"{hoja_umbral}\")" if hoja_umbral else " (valor estándar)"))
+
+    mapa, hoja_mapa = mapa_rutas_libro(archivo, nombres_hojas, hoja)
+    if mapa:
+        for campo in ("regional", "lider", "supervisor"):
+            rutas[campo] = [
+                actual if actual else (mapa.get(clave_ruta(ruta), {}).get(campo))
+                for actual, ruta in zip(rutas[campo], rutas["ruta"])
+            ]
+        rutas["regional"] = rutas["regional"].apply(
+            lambda v: re.sub(r"^REGIONAL\s+", "", v, flags=re.I) if isinstance(v, str) else v)
+        log(f"ℹ️  Regional, líder y supervisor completados desde la hoja \"{hoja_mapa}\"")
+    elif rutas["regional"].isna().all():
+        log("⚠️  El libro no trae Regional: el dashboard la tomará de los meses anteriores.")
+
+    cap = pd.to_numeric(rutas["pct_captura"], errors="coerce")
+    cob = pd.to_numeric(rutas["pct_cobertura"], errors="coerce")
+    rutas["pct_promedio_llaves"] = ((cap + cob) / 2).round(2)
+    cumple = pd.Series(True, index=rutas.index)
+    for llave in LLAVES_SEGUIMIENTO:
+        cumple &= pd.to_numeric(rutas[llave], errors="coerce").fillna(-1) >= umbral
+    rutas["corresponde_comision"] = cumple.map({True: "SI", False: "NO"})
+    nombres_llaves = " y ".join("% CAPTURA" if l == "pct_captura" else "% COBERTURA" for l in LLAVES_SEGUIMIENTO)
+    rutas["umbral_llave"] = umbral
+    rutas["lider_alqueria"] = None
+    rutas["observaciones"] = None
+    rutas["pct_comision"] = None
+    rutas["fuente"] = "indicadores"
+    rutas = rutas.astype(object).where(pd.notna(rutas), None)
+    abiertas = (rutas["corresponde_comision"] == "SI").sum()
+    log(f"✅ Rutas: {len(rutas):,}   Con llaves abiertas ({nombres_llaves} ≥ {umbral}%): {abiertas:,}")
+    if len(rutas) and abiertas == 0:
+        log("⚠️  Ninguna ruta abre llaves con esta regla. Revisa UMBRAL_LLAVE_SEGUIMIENTO / LLAVES_SEGUIMIENTO.")
+
+    # 3) Líderes y supervisores: promedio de sus rutas
+    personas = []
+    for cargo, campo in (("LIDER", "lider"), ("SUPERVISOR", "supervisor")):
+        for (mes_orden, nombre), grupo in rutas.groupby(["mes_orden", campo], dropna=True):
+            p = {c: pd.to_numeric(grupo[c], errors="coerce").mean() for c in
+                 ("pct_captura", "pct_cobertura", "pct_tienda_perfecta", "pct_ventas", "pct_fc_dv")}
+            personas.append({
+                "fila_excel": None, "mes": grupo["mes"].iloc[0], "mes_orden": int(mes_orden),
+                "cargo": cargo, "nombre": nombre,
+                "pct_llave_captura": round(p["pct_captura"], 2), "pct_llave_cobertura": round(p["pct_cobertura"], 2),
+                "pct_promedio_llaves": round((p["pct_captura"] + p["pct_cobertura"]) / 2, 2),
+                "pct_tienda_perfecta": round(p["pct_tienda_perfecta"], 2), "pct_ventas": round(p["pct_ventas"], 2),
+                "pct_fc_dv": round(p["pct_fc_dv"], 2),
+                "cumple_llaves": "SI" if all(p[l] >= umbral for l in LLAVES_SEGUIMIENTO) else "NO",
+                "comentario": f"Promedio de {len(grupo)} rutas (seguimiento)",
+                "pct_comision": None, "fuente": "indicadores",
+            })
+    lideres = pd.DataFrame(personas)
+    if len(lideres):
+        lideres = lideres.astype(object).where(pd.notna(lideres), None)
+    log(f"✅ Líderes y supervisores (promedio de sus rutas): {len(lideres):,}")
+
+    resultado["INDICADORES"] = indicadores
+    resultado["RUTAS"] = rutas
+    resultado["LIDERES"] = lideres
+    return resultado
+
+
 def separar_dinero(df, config):
     """Divide una hoja en (tabla pública solo con %, tabla protegida con dinero)."""
     dinero = config["dinero"]
@@ -591,6 +784,11 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
     nombres_hojas = pd.ExcelFile(archivo).sheet_names
     resultado = {}
 
+    # Sin "Liquidacion por Rutas" -> archivo de seguimiento: todo sale de Indicadores
+    if buscar_hoja(nombres_hojas, HOJAS["RUTAS"]["hoja"]) is None:
+        log("ℹ️  Archivo de SEGUIMIENTO (no trae \"Liquidacion por Rutas\"): se usa la hoja Indicadores.")
+        return archivo, cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log)
+
     for clave, config in HOJAS.items():
         log("\n" + "=" * 70)
         log(f" HOJA: {config['hoja']}  ->  {config['tabla']}")
@@ -613,6 +811,9 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
 
         meses = sorted(df["mes"].dropna().unique().tolist()) if len(df) else []
         log(f"✅ Registros: {len(df):,}   Meses: {', '.join(meses) or '—'}")
+
+        if clave in ("RUTAS", "LIDERES"):
+            df["fuente"] = "liquidacion"
 
         if "dinero" in config:
             # Porcentaje de la comisión que se paga según el Excel (no es dinero)

@@ -921,6 +921,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
    2. ESTADO
    ============================================================ */
 const DATA = { pop: [], rutas: [], indicadores: [], lideres: [] };
+const MESES_SEGUIMIENTO = new Set();   // meses aún en seguimiento (sin liquidación oficial)
+const etiquetaMes = v => mesLabel(v) + (MESES_SEGUIMIENTO.has(Number(v)) ? ' · seguimiento' : '');
 
 const filtrosPop = { mes: '', campana: '', regional: '', canal: '', articulo: '', busqueda: '', alerta: '' };
 const filtrosCampo = { mes: '', regional: '', lider: '', supervisor: '', ruta: '', busqueda: '', alerta: '', metrica: 'comision' };
@@ -1478,6 +1480,21 @@ function prepararCampo({ rutas, indicadores, lideres }){
   });
   const umbralPorMes = {};
   rutasOk.forEach(r => { if(r.umbral_llave) umbralPorMes[r.mes_orden] = r.umbral_llave; });
+
+  // Meses cargados desde un archivo de seguimiento (solo hoja Indicadores)
+  MESES_SEGUIMIENTO.clear();
+  rutasOk.forEach(r => { if(r.fuente === 'indicadores') MESES_SEGUIMIENTO.add(Number(r.mes_orden)); });
+
+  // Si una ruta llega sin regional, líder o supervisor, se toman del mes más reciente que sí los tenga
+  const ultimoConocido = {};
+  [...rutasOk].sort((a, b) => a.mes_orden - b.mes_orden).forEach(r => {
+    const k = claveRuta(r.ruta);
+    ultimoConocido[k] = { ...ultimoConocido[k], ...Object.fromEntries(['regional', 'lider', 'supervisor'].filter(c => r[c]).map(c => [c, r[c]])) };
+  });
+  rutasOk.forEach(r => {
+    const ref = ultimoConocido[claveRuta(r.ruta)] || {};
+    ['regional', 'lider', 'supervisor'].forEach(c => { if(!r[c] && ref[c]) r[c] = ref[c]; });
+  });
 
   // Indicadores no trae regional ni líder: se toman de la liquidación por ruta.
   // El supervisor también se toma de la liquidación, para que los nombres
@@ -2143,7 +2160,7 @@ function limpiarFiltrosPop(){
    10. VISTA · SEGUIMIENTO DE CAMPO
    ============================================================ */
 const FILTROS_CAMPO = [
-  { key:'mes', id:'campo-f-mes', campo:r => r.mes_orden, label:v => mesLabel(v), todos:'Todos', orden:'desc' },
+  { key:'mes', id:'campo-f-mes', campo:r => r.mes_orden, label:v => etiquetaMes(v), todos:'Todos', orden:'desc' },
   { key:'regional', id:'campo-f-regional', campo:r => r.regional, todos:'Todas' },
   { key:'lider', id:'campo-f-lider', campo:r => r.lider, todos:'Todos' },
   { key:'supervisor', id:'campo-f-supervisor', campo:r => r.supervisor, todos:'Todos' },
@@ -2207,6 +2224,12 @@ function renderFiltrosCampo(){
 
 // Avance de campo = cumplimiento ponderado igual que la comisión:
 // 60% Tienda Perfecta + 20% Ventas + 20% FC & DV (promedio de las rutas).
+function avisoSeguimiento(mes){
+  if(!mes || !MESES_SEGUIMIENTO.has(Number(mes))) return '';
+  return `<div class="rounded-xl px-4 py-2.5 mb-4 text-xs font-semibold" style="background:var(--eficacia-blue-bg);color:var(--eficacia-blue)">
+    ${esc(mesLabel(mes))} está en <strong>seguimiento</strong>: datos parciales tomados de la hoja Indicadores, aún sin liquidación oficial.</div>`;
+}
+
 function renderProyeccion(proy, rutas){
   const box = document.getElementById('campo-proyeccion');
   const texto = proy.estado === 'cerrado'
@@ -2243,7 +2266,7 @@ function renderProyeccion(proy, rutas){
     </div>`;
   }).join('');
 
-  box.innerHTML = `
+  box.innerHTML = `${avisoSeguimiento(filtrosCampo.mes)}
     <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
       <div>
         <h4 class="text-sm font-bold font-display">Avance vs proyectado</h4>
@@ -2468,7 +2491,8 @@ function renderIndicadores(rows){
     { label:'Agotados', get:r => num(r.pct_agotados), detalle:rutasEnMeta(r => r.pct_agotados) }
   ];
 
-  box.innerHTML = metricas.map(m => {
+  // Los indicadores que el Excel de ese mes no trae (ej. Visitas en seguimiento) no se muestran
+  box.innerHTML = metricas.filter(m => promedio(rows, m.get) !== null).map(m => {
     const v = promedio(rows, m.get);
     const t = tono(v, SEMAFORO_CAMPO);
     return `<div class="leaderboard-item">
@@ -2729,6 +2753,7 @@ function liquidar(r, d, cargo){
 
   return {
     ...r, cargoTipo: cargo, baseTotal, base, pagado, pagar, totalCalc, sumaComponentes, coincideReglas,
+    tieneDinero: n(d.valor_pagar) !== null || n(d.valor_comision) !== null,
     diferencia: n(d.valor_pagar) !== null && tieneComponentes ? n(d.valor_pagar) - sumaComponentes : null,
     perdidoLlaves: llaves ? 0 : baseTotal,
     tramos: tramos.filter(t => t.ganancia > 0)
@@ -2767,7 +2792,7 @@ function datosLiqPersonas(){
 
 // ---------- Filtros ----------
 const FILTROS_LIQ = [
-  { key:'mes', id:'liq-f-mes', campo:r => r.mes_orden, label:v => mesLabel(v), todos:'Todos', orden:'desc' },
+  { key:'mes', id:'liq-f-mes', campo:r => r.mes_orden, label:v => etiquetaMes(v), todos:'Todos', orden:'desc' },
   { key:'regional', id:'liq-f-regional', campo:r => r.regional, todos:'Todas' },
   { key:'lider', id:'liq-f-lider', campo:r => r.lider, todos:'Todos' },
   { key:'supervisor', id:'liq-f-supervisor', campo:r => r.supervisor, todos:'Todos' },
@@ -3029,10 +3054,13 @@ function renderLiquidacion(){
   renderAnillosLiq(rutas);
 
   const aviso = document.getElementById('liq-aviso');
-  const sinDinero = !(DATA.dineroRutas || []).length;
+  const sinDinero = rutas.length > 0 && rutas.every(r => !r.tieneDinero);
+  const enSeguimiento = filtrosLiq.mes && MESES_SEGUIMIENTO.has(Number(filtrosLiq.mes));
   aviso.classList.toggle('hidden', !sinDinero);
-  aviso.innerHTML = sinDinero ? `<div class="rounded-xl px-4 py-3 text-xs font-semibold" style="background:var(--amber-bg);color:#92400E">
-    Aún no hay valores en dinero cargados. Ejecuta sincronizar_supabase.py con la versión nueva para subirlos; mientras tanto los valores se estiman con las bases por cargo.</div>` : '';
+  aviso.innerHTML = !sinDinero ? '' : `<div class="rounded-xl px-4 py-3 text-xs font-semibold" style="background:var(--amber-bg);color:#92400E">
+    ${enSeguimiento
+      ? `${esc(mesLabel(filtrosLiq.mes))} está en seguimiento y aún no tiene liquidación oficial: los valores son una <strong>estimación</strong> con las reglas estándar y las llaves del mes.`
+      : 'Estos datos no tienen valores en dinero cargados: los montos son una estimación con las reglas estándar y las bases por cargo.'}</div>`;
 
   document.getElementById('liq-resumen').innerHTML =
     tarjetaResumen('Mercaderistas (rutas)', resumenPago(rutas)) +
