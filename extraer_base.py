@@ -104,7 +104,7 @@ HOJAS = {
         "hoja": "Indicadores",
         "tabla": "campo_indicadores",
         "clave": "RUTA",
-        "opcionales": ["OBJ VISITAS", "VISITAS", "% VISITAS", "SUPERVISOR"],
+        "opcionales": ["OBJ VISITAS", "VISITAS", "% VISITAS", "SUPERVISOR", "FECHAS CORTAS", "DEVOLUCIONES"],
         "columnas": [
             ("MES", "mes", "mes"),
             ("SUPERVISOR", "supervisor", "texto"),
@@ -124,6 +124,9 @@ HOJAS = {
             ("DEVOLUCIONES %", "pct_devoluciones", "pct"),
             ("PDV DEVOLUCIONES", "pdv_devoluciones", "numero"),
             ("% OBJETIVO DEVOLUCIONES", "pct_objetivo_devoluciones", "pct"),
+            # Cumplimientos que forman "FC & DEV" (promedio de ambos)
+            ("FECHAS CORTAS", "pct_cumpl_fechas_cortas", "pct"),
+            ("DEVOLUCIONES", "pct_cumpl_devoluciones", "pct"),
         ],
     },
 
@@ -208,7 +211,111 @@ TABLAS = [
     ("RUTAS_DINERO", "campo_comision_rutas"),
     ("LIDERES", "campo_liquidacion_lideres"),
     ("LIDERES_DINERO", "campo_comision_lideres"),
+    ("REGLAS", "campo_reglas_mes"),
 ]
+
+
+# ============================================================
+# REGLAS DE COMISIÓN POR MES
+# ============================================================
+# Las reglas cambian de un mes a otro. Aquí se definen UNA sola vez y se
+# suben a Supabase (tabla campo_reglas_mes); el dashboard las usa para:
+#   - mostrar la condición de cada indicador ("Comisiona con promedio ≥ 60%")
+#   - decidir llaves y estimar la comisión en meses de SEGUIMIENTO
+#   - simular el "siguiente tramo"
+# Cuando llega la liquidación oficial, el dashboard muestra lo que dice el
+# Excel (Corresponde Comision, $ Liquidar, Valor a pagar).
+#
+# Para un mes nuevo agrega una línea en REGLAS_MES con lo que cambie.
+# Lo que no pongas se toma de REGLAS_POR_DEFECTO.
+
+# Tramos: se paga "factor" del componente si el cumplimiento (redondeado)
+# es igual o mayor a "desde". Se evalúan de arriba hacia abajo.
+TRAMOS_TP_ESTANDAR = [
+    {"desde": 80, "factor": 1.0},
+    {"desde": 60, "factor": 0.6},
+]
+TRAMOS_ESCALONADO_ESTANDAR = [
+    {"desde": 100, "factor": 1.0},
+    {"desde": 99, "factor": 0.99},
+    {"desde": 98, "factor": 0.98},
+    {"desde": 97, "factor": 0.97},
+    {"desde": 96, "factor": 0.96},
+    {"desde": 91, "factor": 0.9},
+    {"desde": 81, "factor": 0.8},
+    {"desde": 80, "factor": 0.7},
+]
+
+REGLAS_POR_DEFECTO = {
+    # Apertura de llaves. modo: "promedio" (promedio de captura y cobertura),
+    # "ambas" (cada una por separado) o "cobertura" (solo cobertura).
+    "llaves": {"modo": "promedio", "minimo": 60},
+    # Nivel de comisión según el promedio de llaves: con 80% o más se
+    # comisiona completo ($250.000 mercaderista); de 60% a 79%, el 60% ($150.000).
+    "niveles": [
+        {"desde": 80, "factor": 1.0},
+        {"desde": 60, "factor": 0.6},
+    ],
+    "pesos": {"tp": 0.6, "ventas": 0.2, "fcdv": 0.2},
+    "tp": TRAMOS_TP_ESTANDAR,
+    "ventas": TRAMOS_ESCALONADO_ESTANDAR,
+    "fcdv": TRAMOS_ESCALONADO_ESTANDAR,
+    "nota": "",
+}
+
+REGLAS_MES = {
+    "2026-07": {
+        "llaves": {"modo": "cobertura", "minimo": 70},
+        "niveles": [],
+        "nota": "Julio se liquidó con reglas especiales en los componentes; se muestra lo pagado según el Excel.",
+    },
+    "2026-08": {},
+    "2026-09": {},
+}
+
+
+def reglas_de_mes(mes_orden):
+    """Reglas completas de un mes (las del mes encima de las de defecto)."""
+    clave = f"{int(mes_orden) // 100}-{int(mes_orden) % 100:02d}"
+    reglas = {**REGLAS_POR_DEFECTO, **REGLAS_MES.get(clave, {})}
+    reglas["llaves"] = {**REGLAS_POR_DEFECTO["llaves"], **REGLAS_MES.get(clave, {}).get("llaves", {})}
+    return reglas
+
+
+def cumple_llaves(captura, cobertura, reglas):
+    """True si abre llaves según el modo del mes."""
+    minimo = reglas["llaves"]["minimo"]
+    modo = reglas["llaves"]["modo"]
+    captura = -1 if captura is None or pd.isna(captura) else captura
+    cobertura = -1 if cobertura is None or pd.isna(cobertura) else cobertura
+    if modo == "cobertura":
+        return cobertura >= minimo
+    if modo == "ambas":
+        return captura >= minimo and cobertura >= minimo
+    return (captura + cobertura) / 2 >= minimo
+
+
+def describir_llaves(reglas):
+    m, modo = reglas["llaves"]["minimo"], reglas["llaves"]["modo"]
+    if modo == "cobertura":
+        return f"% COBERTURA ≥ {m}%"
+    if modo == "ambas":
+        return f"% CAPTURA y % COBERTURA ≥ {m}% cada una"
+    return f"promedio de % CAPTURA y % COBERTURA ≥ {m}%"
+
+
+def construir_reglas(bases):
+    """Una fila por mes cargado, con sus reglas en formato JSON."""
+    meses = set()
+    for clave in ("RUTAS", "LIDERES"):
+        if clave in bases and len(bases[clave]):
+            meses |= {int(m) for m in bases[clave]["mes_orden"].dropna().unique()}
+    filas = [{
+        "mes_orden": m,
+        "mes": f"{NOMBRES_MES[m % 100]} {m // 100}",
+        "reglas": reglas_de_mes(m),
+    } for m in sorted(meses)]
+    return pd.DataFrame(filas)
 
 
 # Columnas que no todos los meses traen: si faltan no se avisa
@@ -597,14 +704,7 @@ CONFIG_SEGUIMIENTO = {
     ],
 }
 
-# Mínimo de las llaves en archivos de seguimiento. Con None se toma del
-# propio libro ("LLAVE DEL 70%" / "Categoria Efec 70%"); si no, 60%.
-# Para fijarlo a mano escribe el número, ej.: UMBRAL_LLAVE_SEGUIMIENTO = 60
-UMBRAL_LLAVE_SEGUIMIENTO = None
-
-# Qué llaves deben cumplirse para comisionar en el seguimiento.
-# Ambas: ["pct_captura", "pct_cobertura"]   Solo cobertura: ["pct_cobertura"]
-LLAVES_SEGUIMIENTO = ["pct_captura", "pct_cobertura"]
+# Las llaves del seguimiento se evalúan con las REGLAS_MES del mes.
 
 
 def clave_ruta(valor):
@@ -685,10 +785,10 @@ def cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log):
     for aviso in avisos:
         log(aviso if aviso.startswith("ℹ️") else f"⚠️  {aviso}")
 
-    umbral, hoja_umbral = (UMBRAL_LLAVE_SEGUIMIENTO, "configuración") if UMBRAL_LLAVE_SEGUIMIENTO else detectar_umbral_libro(archivo, nombres_hojas)
-    umbral = umbral or 60
-    log(f"ℹ️  Llaves: {' y '.join('% CAPTURA' if l == 'pct_captura' else '% COBERTURA' for l in LLAVES_SEGUIMIENTO)}, mínimo {umbral}%"
-        + (f" (tomado de la hoja \"{hoja_umbral}\")" if hoja_umbral else " (valor estándar)"))
+    mes_orden = int(rutas["mes_orden"].iloc[0]) if len(rutas) else None
+    reglas = reglas_de_mes(mes_orden) if mes_orden else REGLAS_POR_DEFECTO
+    umbral = reglas["llaves"]["minimo"]
+    log(f"ℹ️  Regla de llaves del mes: comisiona con {describir_llaves(reglas)} (REGLAS_MES)")
 
     mapa, hoja_mapa = mapa_rutas_libro(archivo, nombres_hojas, hoja)
     if mapa:
@@ -706,11 +806,7 @@ def cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log):
     cap = pd.to_numeric(rutas["pct_captura"], errors="coerce")
     cob = pd.to_numeric(rutas["pct_cobertura"], errors="coerce")
     rutas["pct_promedio_llaves"] = ((cap + cob) / 2).round(2)
-    cumple = pd.Series(True, index=rutas.index)
-    for llave in LLAVES_SEGUIMIENTO:
-        cumple &= pd.to_numeric(rutas[llave], errors="coerce").fillna(-1) >= umbral
-    rutas["corresponde_comision"] = cumple.map({True: "SI", False: "NO"})
-    nombres_llaves = " y ".join("% CAPTURA" if l == "pct_captura" else "% COBERTURA" for l in LLAVES_SEGUIMIENTO)
+    rutas["corresponde_comision"] = ["SI" if cumple_llaves(a, b, reglas) else "NO" for a, b in zip(cap, cob)]
     rutas["umbral_llave"] = umbral
     rutas["lider_alqueria"] = None
     rutas["observaciones"] = None
@@ -718,9 +814,9 @@ def cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log):
     rutas["fuente"] = "indicadores"
     rutas = rutas.astype(object).where(pd.notna(rutas), None)
     abiertas = (rutas["corresponde_comision"] == "SI").sum()
-    log(f"✅ Rutas: {len(rutas):,}   Con llaves abiertas ({nombres_llaves} ≥ {umbral}%): {abiertas:,}")
+    log(f"✅ Rutas: {len(rutas):,}   Con llaves abiertas: {abiertas:,}")
     if len(rutas) and abiertas == 0:
-        log("⚠️  Ninguna ruta abre llaves con esta regla. Revisa UMBRAL_LLAVE_SEGUIMIENTO / LLAVES_SEGUIMIENTO.")
+        log("⚠️  Ninguna ruta abre llaves con esta regla. Revisa REGLAS_MES para este mes.")
 
     # 3) Líderes y supervisores: promedio de sus rutas
     personas = []
@@ -735,7 +831,7 @@ def cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log):
                 "pct_promedio_llaves": round((p["pct_captura"] + p["pct_cobertura"]) / 2, 2),
                 "pct_tienda_perfecta": round(p["pct_tienda_perfecta"], 2), "pct_ventas": round(p["pct_ventas"], 2),
                 "pct_fc_dv": round(p["pct_fc_dv"], 2),
-                "cumple_llaves": "SI" if all(p[l] >= umbral for l in LLAVES_SEGUIMIENTO) else "NO",
+                "cumple_llaves": "SI" if cumple_llaves(p["pct_captura"], p["pct_cobertura"], reglas) else "NO",
                 "comentario": f"Promedio de {len(grupo)} rutas (seguimiento)",
                 "pct_comision": None, "fuente": "indicadores",
             })
@@ -872,6 +968,9 @@ def cargar_todas(mostrar=True):
             else:
                 union[clave] = df
 
+    union["REGLAS"] = construir_reglas(union)
+    for _, fila in union["REGLAS"].iterrows():
+        log(f"📐 Reglas {fila['mes']}: comisiona con {describir_llaves(fila['reglas'])}")
     return archivos, union
 
 

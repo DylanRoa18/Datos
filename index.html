@@ -11,7 +11,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
@@ -77,18 +77,18 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .alert-icon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .alert-icon svg{width:19px;height:19px}
 
-/* Proyectado vs avance (Seguimiento de Campo) */
+/* Avance vs ideal (Seguimiento de Campo) */
 .vs-layout{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
-.vs-fila{display:grid;grid-template-columns:150px 1fr 64px 76px;align-items:center;gap:12px;padding:7px 0}
+.vs-fila{display:grid;grid-template-columns:150px 1fr 64px 76px 76px;align-items:center;gap:12px;padding:7px 0}
 .vs-track{position:relative;height:10px;border-radius:9999px;background:var(--track)}
 .vs-fill{height:100%;border-radius:9999px;transition:width .4s ease}
 .vs-marca{position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;background:#6366F1;transform:translateX(-1.5px)}
-.vs-escala{display:grid;grid-template-columns:150px 1fr 64px 76px;gap:12px;font-size:10.5px;font-weight:700;color:var(--text-muted);padding-bottom:4px;border-bottom:1px solid var(--border)}
+.vs-escala{display:grid;grid-template-columns:150px 1fr 64px 76px 76px;gap:12px;font-size:10.5px;font-weight:700;color:var(--text-muted);padding-bottom:4px;border-bottom:1px solid var(--border)}
 @media (max-width:760px){
   .vs-layout{grid-template-columns:1fr}
-  .vs-fila,.vs-escala{grid-template-columns:1fr 60px 70px}
+  .vs-fila,.vs-escala{grid-template-columns:1fr 58px 64px 68px}
   .vs-fila > :first-child,.vs-escala > :first-child{grid-column:1 / -1}
-  .vs-escala > :nth-child(2){display:none}
+  .vs-escala > :nth-child(2){visibility:hidden;white-space:nowrap;overflow:hidden}
 }
 
 /* Anillos de porcentaje */
@@ -164,13 +164,13 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 /* Rejilla que reparte las tarjetas según cuántas estén visibles */
 .auto-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr))}
 
-/* Anillo doble: proyectado (externo) vs avance (interno) */
+/* Anillo doble: ideal (externo) vs avance (interno) */
 .ring-leyenda{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:11px;font-weight:700;margin-bottom:4px}
 .ring-leyenda i{display:inline-block;width:9px;height:9px;border-radius:9999px;margin-right:5px;vertical-align:middle}
 .ring-center.apilado{flex-direction:column;line-height:1}
 .ring-wrap.doble{width:150px;height:150px}
 .ring-wrap.doble .ring-center{font-size:21px}
-.ring-center small{display:block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;color:var(--text-muted);margin-top:4px}
+.ring-center small{display:block;font-family:'Inter',sans-serif;font-size:9.5px;font-weight:700;color:var(--text-muted);margin-top:4px;max-width:84px;text-align:center;line-height:1.2}
 
 /* Vista propia de Regional / Campaña */
 .foco-hero{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--foco);border-radius:18px;padding:18px 22px}
@@ -263,6 +263,21 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 }
 @keyframes fundido{from{opacity:0}to{opacity:1}}
 @keyframes zoomEntrada{from{opacity:0;transform:scale(.25)}to{opacity:1;transform:none}}
+
+/* Segmentos de Seguimiento de Campo: anillos + su desglose */
+.segmento{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px 20px}
+.segmento-cabecera{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 16px;margin-bottom:12px}
+.segmento-anillos{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.segmento-desglose{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)}
+.segmento-desglose > p{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px}
+.regla-chip{display:flex;align-items:flex-start;gap:6px;font-size:11px;font-weight:600;line-height:1.45;color:#1E3A8A;background:var(--eficacia-blue-bg);border:1px solid #DBEAFE;border-radius:10px;padding:6px 10px;margin-top:6px}
+.regla-chip svg{width:14px;height:14px;flex-shrink:0;margin-top:1px}
+.vs-proy{position:absolute;top:-5px;bottom:-5px;width:9px;height:9px;border-radius:9999px;border:2px solid #D97706;background:#fff;transform:translate(-4.5px,0);top:50%;margin-top:-4.5px}
+
+/* Firma */
+.firma{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);text-align:center;line-height:1.25}
+.firma small{display:block;font-size:10px;font-weight:600;letter-spacing:.04em;color:#475569;margin-bottom:2px}
+.firma span{font-family:'Dancing Script',cursive;font-size:19px;font-weight:700;color:#0B1F4B}
 
 /* Login y sesión */
 .auth-bloque{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
@@ -389,6 +404,10 @@ section,[id^="vista-"]{scroll-margin-top:96px}
             <button type="button" onclick="cerrarSesion()" class="sesion-salir">Cerrar sesión</button>
           </div>
         </div>
+      </div>
+      <div class="firma">
+        <small>© Desarrollado por</small>
+        <span>Dylan Alejandro Rodriguez Roa</span>
       </div>
     </nav>
   </aside>
@@ -620,14 +639,8 @@ section,[id^="vista-"]{scroll-margin-top:96px}
       </section>
 
       <section>
-        <h3 class="section-title">Llaves y cumplimiento</h3>
-        <div id="campo-anillos" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
-      </section>
-
-      <section class="card p-5">
-        <h4 class="text-sm font-bold font-display">Indicadores de ejecución en tienda</h4>
-        <p class="text-[11px] mb-3 muted">Promedio de las rutas filtradas, hoja Indicadores.</p>
-        <div id="campo-indicadores" class="grid grid-cols-1 md:grid-cols-2 gap-x-8"></div>
+        <h3 class="section-title">Llaves y cumplimiento por segmento</h3>
+        <div id="campo-segmentos" class="space-y-4"></div>
       </section>
 
       <section id="campo-seguimiento">
@@ -750,6 +763,8 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 
       <!-- Encabezado propio de la selección -->
       <section id="liq-foco" class="hidden"></section>
+
+      <section id="liq-reglas"></section>
 
       <section>
         <h3 class="section-title">Cumplimiento y pago de las rutas</h3>
@@ -901,10 +916,11 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4P2yuQ2CgH-T-mV-D1rNsg_aCYtxEAJ';
 const TABLAS_CAMPO = {
   rutas: 'campo_liquidacion_rutas',
   indicadores: 'campo_indicadores',
-  lideres: 'campo_liquidacion_lideres'
+  lideres: 'campo_liquidacion_lideres',
+  reglas: 'campo_reglas_mes'
 };
 
-// Avance proyectado: cada día hábil equivale a 4.4% (lunes a viernes).
+// Ideal: cada día hábil equivale a 4.4% (lunes a viernes).
 const PROYECCION = { pctPorDia: 4.4, diasLaborales: [1, 2, 3, 4, 5] };
 
 // Reglas de comisión (iguales para mercaderistas, líderes y supervisores)
@@ -920,7 +936,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 /* ============================================================
    2. ESTADO
    ============================================================ */
-const DATA = { pop: [], rutas: [], indicadores: [], lideres: [] };
+const DATA = { pop: [], rutas: [], indicadores: [], lideres: [], reglas: {} };
 const MESES_SEGUIMIENTO = new Set();   // meses aún en seguimiento (sin liquidación oficial)
 const etiquetaMes = v => mesLabel(v) + (MESES_SEGUIMIENTO.has(Number(v)) ? ' · seguimiento' : '');
 
@@ -1140,48 +1156,119 @@ function calcProyectado(mesOrden){
 
 
 /* ============================================================
-   6. COMISIÓN (réplica de las fórmulas del Excel, en %)
+   6. REGLAS DE COMISIÓN POR MES
    ============================================================ */
-// Tienda Perfecta: >=80% paga 100%; 60-79% paga 60%; <60% no paga.
-function factorTiendaPerfecta(p){
-  if(p === null) return 0;
-  if(p >= 80) return 1;
-  if(p >= 60) return 0.6;
-  return 0;
+// Las reglas cambian cada mes. Se definen en extraer_base.py (REGLAS_MES)
+// y llegan desde Supabase (tabla campo_reglas_mes). Si un mes no las trae,
+// se usan estas por defecto (las mismas que en el script).
+const TRAMOS_TP_ESTANDAR = [{ desde:80, factor:1 }, { desde:60, factor:0.6 }];
+const TRAMOS_ESCALONADO_ESTANDAR = [
+  { desde:100, factor:1 }, { desde:99, factor:0.99 }, { desde:98, factor:0.98 }, { desde:97, factor:0.97 },
+  { desde:96, factor:0.96 }, { desde:91, factor:0.9 }, { desde:81, factor:0.8 }, { desde:80, factor:0.7 }
+];
+const REGLAS_DEFECTO = {
+  llaves: { modo:'promedio', minimo:60 },
+  niveles: [{ desde:80, factor:1 }, { desde:60, factor:0.6 }],
+  pesos: { tp:0.6, ventas:0.2, fcdv:0.2 },
+  tp: TRAMOS_TP_ESTANDAR, ventas: TRAMOS_ESCALONADO_ESTANDAR, fcdv: TRAMOS_ESCALONADO_ESTANDAR,
+  nota: ''
+};
+
+function reglasDe(mes){
+  const r = (DATA.reglas || {})[Number(mes)] || {};
+  return { ...REGLAS_DEFECTO, ...r, llaves:{ ...REGLAS_DEFECTO.llaves, ...(r.llaves || {}) } };
 }
-// Ventas y FC & DV: 80%→70% · 81-90%→80% · 91-95%→90% · 96-99%→el mismo % · >=100%→100%
-function factorEscalonado(p){
-  if(p === null) return 0;
+// Reglas que aplican a lo que se está viendo: el mes filtrado o el más reciente
+function reglasVista(mes, rows){
+  if(mes) return reglasDe(mes);
+  const meses = (rows || []).map(r => Number(r.mes_orden)).filter(Boolean);
+  return reglasDe(meses.length ? Math.max(...meses) : null);
+}
+
+function promedioLlaves(captura, cobertura){
+  return captura === null || captura === undefined || cobertura === null || cobertura === undefined ? null : (captura + cobertura) / 2;
+}
+function abreLlaves(captura, cobertura, reglas){
+  const { modo, minimo } = reglas.llaves;
+  if(modo === 'cobertura') return cobertura !== null && cobertura >= minimo;
+  if(modo === 'ambas') return captura !== null && cobertura !== null && captura >= minimo && cobertura >= minimo;
+  const p = promedioLlaves(captura, cobertura);
+  return p !== null && p >= minimo;
+}
+// Factor del tramo alcanzado (cumplimiento redondeado)
+function factorTramos(p, tramos){
+  if(p === null || p === undefined || isNaN(p)) return 0;
   const r = Math.round(p);
-  if(r >= 100) return 1;
-  if(r >= 96) return r / 100;
-  if(r >= 91) return 0.9;
-  if(r >= 81) return 0.8;
-  if(r === 80) return 0.7;
-  return 0;
+  const t = [...(tramos || [])].sort((a, b) => b.desde - a.desde).find(x => r >= x.desde);
+  return t ? t.factor : 0;
 }
-// Las reglas pueden cambiar de un mes a otro (ej. Julio: llaves al 70%).
-// Por eso, cuando el Excel ya trae el resultado, se usa ese:
+// Nivel de comisión según el promedio de llaves (1 = completa)
+function factorNivel(promedio, reglas){
+  if(!reglas.niveles || !reglas.niveles.length) return 1;
+  const t = [...reglas.niveles].sort((a, b) => b.desde - a.desde).find(x => promedio !== null && promedio >= x.desde);
+  return t ? t.factor : Math.min(...reglas.niveles.map(x => x.factor));
+}
+// Fracción de la comisión completa que se gana con las reglas del mes
+function comisionPorReglas(p, reglas){
+  const w = reglas.pesos || REGLAS_DEFECTO.pesos;
+  return factorNivel(promedioLlaves(p.captura, p.cobertura), reglas) *
+    (w.tp * factorTramos(p.tp, reglas.tp) + w.ventas * factorTramos(p.ventas, reglas.ventas) + w.fcdv * factorTramos(p.fcdv, reglas.fcdv));
+}
+
+// Cuando el Excel ya trae el resultado, se usa ese:
 //   - "Corresponde Comision" / "Cumple Llaves" (SI/NO) para las llaves
 //   - % de comisión pagada = Valor a pagar / Valor comisión
-// Las fórmulas solo se usan si el Excel no trae esos datos.
+// Las reglas del mes solo se usan si el Excel no trae esos datos.
 function calcComision(captura, cobertura, tp, ventas, fcdv, excel = {}){
-  const umbral = num(excel.umbral) || COMISION.llaveMinima;
+  const reglas = excel.reglas || REGLAS_DEFECTO;
   const siNo = normKey(excel.cumple);
-  const llavesOk = siNo === 'SI' ? true : siNo === 'NO' ? false
-    : captura !== null && cobertura !== null && captura >= umbral && cobertura >= umbral;
+  const llavesOk = siNo === 'SI' ? true : siNo === 'NO' ? false : abreLlaves(captura, cobertura, reglas);
   const pctExcel = num(excel.pctComision);
   const pct = pctExcel !== null ? pctExcel
-    : llavesOk ? (COMISION.pesoTP * factorTiendaPerfecta(tp) + COMISION.pesoVentas * factorEscalonado(ventas) + COMISION.pesoFcDv * factorEscalonado(fcdv)) * 100
-    : 0;
-  return { llavesOk, pctComision: pct, umbralLlave: umbral };
+    : llavesOk ? comisionPorReglas({ captura, cobertura, tp, ventas, fcdv }, reglas) * 100 : 0;
+  return { llavesOk, pctComision: pct, umbralLlave: reglas.llaves.minimo, promLlaves: promedioLlaves(captura, cobertura) };
 }
-// Umbral de llaves más común en un grupo de filas (60% si no viene)
-function umbralLlaves(rows){
-  const cuenta = {};
-  rows.forEach(r => { const u = r.umbralLlave || COMISION.llaveMinima; cuenta[u] = (cuenta[u] || 0) + 1; });
-  const orden = Object.entries(cuenta).sort((a, b) => b[1] - a[1]);
-  return orden.length ? Number(orden[0][0]) : COMISION.llaveMinima;
+
+// ---------- Textos de las reglas ----------
+function textoLlaves(reglas){
+  const { modo, minimo } = reglas.llaves;
+  if(modo === 'cobertura') return `Comisiona con Cobertura igual o mayor a ${minimo}%`;
+  if(modo === 'ambas') return `Comisiona con Captura y Cobertura iguales o mayores a ${minimo}% cada una`;
+  return `Comisiona con promedio de llaves (Captura y Cobertura) igual o mayor a ${minimo}%`;
+}
+function textoNiveles(reglas, base){
+  if(!reglas.niveles || !reglas.niveles.length) return '';
+  const orden = [...reglas.niveles].sort((a, b) => b.desde - a.desde);
+  return orden.map((n, i) => {
+    const rango = i === 0 ? `${n.desde}% a 100%` : `${n.desde}% a ${orden[i - 1].desde - 1}%`;
+    const valor = base ? `hasta ${fmtCOP(base * n.factor)}` : (n.factor >= 1 ? 'comisión completa' : `${Math.round(n.factor * 100)}% de la comisión`);
+    return `${rango}: ${valor}`;
+  }).join(' · ');
+}
+function textoTramos(tramos){
+  const orden = [...(tramos || [])].sort((a, b) => b.desde - a.desde);
+  if(!orden.length) return '';
+  const partes = [];
+  for(let i = 0; i < orden.length; i++){
+    const t = orden[i];
+    const hasta = i === 0 ? null : orden[i - 1].desde - 1;
+    // 96%, 97%, 98%, 99% que pagan su mismo % se agrupan
+    const igual = x => Math.round(x.factor * 100) === x.desde && x.desde < 100;
+    if(igual(t) && i + 1 < orden.length && igual(orden[i + 1])){
+      let j = i;
+      while(j + 1 < orden.length && igual(orden[j + 1])) j++;
+      partes.push(`${orden[j].desde}% a ${t.desde}%: paga el mismo %`);
+      i = j;
+      continue;
+    }
+    const rango = hasta === null ? `${t.desde}% o más` : (hasta === t.desde ? `${t.desde}%` : `${t.desde}% a ${hasta}%`);
+    partes.push(`${rango}: paga ${Math.round(t.factor * 100)}%`);
+  }
+  partes.push(`menos de ${orden[orden.length - 1].desde}%: no paga`);
+  return partes.join(' · ');
+}
+function chipRegla(texto){
+  return texto ? `<p class="regla-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg><span>${esc(texto)}</span></p>` : '';
 }
 
 
@@ -1199,7 +1286,7 @@ function ringSVG(pct, color){
   </svg>`;
 }
 
-// Dos anillos: externo (proyectado) e interno (avance real)
+// Dos anillos: externo (ideal) e interno (avance real)
 function doubleRingSVG(pctExterno, colorExterno, pctInterno, colorInterno){
   const arco = (r, pct, color) => {
     const c = 2 * Math.PI * r;
@@ -1454,11 +1541,18 @@ async function leerTablaCompleta(tabla){
   return filas;
 }
 async function cargarCampo(){
-  const [rutas, indicadores, lideres] = await Promise.all([
+  const [rutas, indicadores, lideres, reglas] = await Promise.all([
     leerTablaCompleta(TABLAS_CAMPO.rutas),
     leerTablaCompleta(TABLAS_CAMPO.indicadores),
-    leerTablaCompleta(TABLAS_CAMPO.lideres)
+    leerTablaCompleta(TABLAS_CAMPO.lideres),
+    // Si la tabla de reglas aún no existe, se usan las reglas por defecto
+    leerTablaCompleta(TABLAS_CAMPO.reglas).catch(() => [])
   ]);
+  DATA.reglas = {};
+  reglas.forEach(r => {
+    const valor = typeof r.reglas === 'string' ? JSON.parse(r.reglas) : r.reglas;
+    if(valor) DATA.reglas[Number(r.mes_orden)] = valor;
+  });
   return { rutas, indicadores, lideres };
 }
 
@@ -1476,7 +1570,7 @@ function prepararCampo({ rutas, indicadores, lideres }){
     const tp = num(r.pct_tienda_perfecta), ventas = num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
     return { ...r, pct_captura:captura, pct_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv,
       ...calcComision(captura, cobertura, tp, ventas, fcdv,
-        { umbral:r.umbral_llave, cumple:r.corresponde_comision, pctComision:r.pct_comision }) };
+        { reglas:reglasDe(r.mes_orden), cumple:r.corresponde_comision, pctComision:r.pct_comision }) };
   });
   const umbralPorMes = {};
   rutasOk.forEach(r => { if(r.umbral_llave) umbralPorMes[r.mes_orden] = r.umbral_llave; });
@@ -1521,7 +1615,7 @@ function prepararCampo({ rutas, indicadores, lideres }){
     const tp = num(r.pct_tienda_perfecta), ventas = num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
     return { ...r, pct_llave_captura:captura, pct_llave_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv,
       ...calcComision(captura, cobertura, tp, ventas, fcdv,
-        { umbral:umbralPorMes[r.mes_orden], cumple:r.cumple_llaves, pctComision:r.pct_comision }) };
+        { reglas:reglasDe(r.mes_orden), cumple:r.cumple_llaves, pctComision:r.pct_comision }) };
   });
 
   return { rutas: rutasOk, indicadores: indicadoresOk, lideres: lideresOk };
@@ -1827,8 +1921,8 @@ function alertasPop(rows){
       { id:'bajas', icono:ICONOS.bajada, valor:formatNumber(rows.filter(pred.bajas).length), titulo:`Artículos con salida bajo ${SEMAFORO_POP[1]}%`,
         desc:'Material asignado que casi no ha salido del CEDI.', tono:TONOS.ambar },
       { id:'bajoProy', icono:ICONOS.bandera, valor:formatNumber(bajoProy.length),
-        titulo: porCampana ? 'Campañas bajo lo proyectado' : 'Regionales bajo lo proyectado',
-        desc:'Su salida va por debajo de lo que se debe llevar hoy.', tono:TONOS.azul },
+        titulo: porCampana ? 'Campañas bajo el ideal' : 'Regionales bajo el ideal',
+        desc:'Su salida va por debajo de lo que se debería llevar hoy.', tono:TONOS.azul },
       { id:'sobre', icono:ICONOS.caja, valor:formatNumber(rows.filter(esSobreEntrega).length), titulo:'Llegó más de lo asignado',
         desc:'Material que llegó al CEDI por encima de la cantidad asignada.', tono:TONOS.morado }
     ],
@@ -1876,12 +1970,12 @@ function renderAnillosPop(t){
       nota:`<strong>${formatNumber(t.saldo)}</strong> de ${formatNumber(t.llega)} und recibidas`,
       delta:{ texto:`Ya despachado de lo recibido: ${formatNumber(Math.max(t.llega - t.saldo, 0))} und`, color:'var(--text-muted)' } }),
 
-    ringCard({ titulo:'Avance vs proyectado', sub:'Anillo externo: proyectado · interno: avance', badge:'GAP', badgeTono:TONOS.morado,
+    ringCard({ titulo:'Avance vs ideal', sub:'Anillo externo: ideal · interno: avance', badge:'GAP', badgeTono:TONOS.morado,
       svg: doubleRingSVG(t.proy, '#6366F1', t.pct, colorAvance),
-      centroHtml: t.gap === null ? '—' :
-        `<span style="color:${t.gap >= 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${t.gap >= 0 ? '+' : ''}${t.gap.toFixed(1)}</span><small>pts GAP</small>`,
-      leyenda:`<span><i style="background:${colorAvance}"></i>Avance ${fmtPct(t.pct)}</span><span><i style="background:#6366F1"></i>Proyectado ${fmtPct(t.proy)}</span>`,
-      nota:`<strong>${formatNumber(t.salida)}</strong> und salidas vs ${formatNumber(debioSalir)} und que se debían llevar` })
+      centroHtml: t.pct === null ? '—' : `<span style="color:${colorAvance}">${fmtPct(t.pct)}</span><small>cumplimiento</small>`,
+      leyenda:`<span><i style="background:${colorAvance}"></i>Avance ${fmtPct(t.pct)}</span><span><i style="background:#6366F1"></i>Ideal ${fmtPct(t.proy)}</span>`,
+      nota:`<strong style="color:${colorAvance}">GAP ${t.gap === null ? '—' : `${t.gap >= 0 ? '+' : ''}${t.gap.toFixed(1)} pts`}</strong> · ${formatNumber(t.salida)} und salidas vs ${formatNumber(debioSalir)} ideales`,
+      delta:{ texto:`Proyección al cierre: ${fmtPct(t.pct === null ? null : (t.proy > 0 && t.proy < 100 ? t.pct * 100 / t.proy : t.pct))}`, color:'#B45309' } })
   ].join('');
 }
 
@@ -1944,7 +2038,7 @@ function renderSeguimientoPop(rows){
   document.getElementById('pop-mora').innerHTML = enMora ? `
     <div class="rounded-xl px-3.5 py-2.5 text-xs font-semibold" style="background:var(--alqueria-red-bg);color:var(--alqueria-red)">
       Regional con mayor mora en despacho: <strong>${esc(enMora.label)}</strong> con ${fmtPct(enMora.pct)} de salida
-      (${enMora.gap >= 0 ? '+' : ''}${enMora.gap.toFixed(1)} pts frente a su proyectado de ${fmtPct(enMora.proy)}).
+      (${enMora.gap >= 0 ? '+' : ''}${enMora.gap.toFixed(1)} pts frente a su ideal de ${fmtPct(enMora.proy)}).
     </div>` : '';
 }
 
@@ -1980,7 +2074,7 @@ function renderTablaArticulos(rows){
     <td class="num font-semibold">${formatNumber(g.falta)}</td>
     <td class="num font-semibold">${formatNumber(g.saldo)}</td>
     <td class="num">${pctBadge(g.pct, SEMAFORO_POP)}</td>
-    <td class="num">${gapBadge(g.gap)}<span class="celda-sub">Proy. ${fmtPct(g.proy)}</span></td>
+    <td class="num">${gapBadge(g.gap)}<span class="celda-sub">Ideal ${fmtPct(g.proy)}</span></td>
   </tr>`).join('') : emptyRow(8));
 
   document.querySelectorAll('#tabla-articulos th[data-sort]').forEach(th => {
@@ -2230,38 +2324,54 @@ function avisoSeguimiento(mes){
     ${esc(mesLabel(mes))} está en <strong>seguimiento</strong>: datos parciales tomados de la hoja Indicadores, aún sin liquidación oficial.</div>`;
 }
 
-function renderProyeccion(proy, rutas){
-  const box = document.getElementById('campo-proyeccion');
-  const texto = proy.estado === 'cerrado'
-    ? `${mesLabel(proy.orden)} ya cerró: se debía llegar al 100%.`
-    : proy.estado === 'futuro'
-      ? `${mesLabel(proy.orden)} aún no inicia.`
-      : `Día hábil ${proy.dias} de ${proy.total}. Cada día hábil suma ${PROYECCION.pctPorDia}%.`;
+// Ideal = lo que se debería llevar hoy si todo va perfecto (4.4% por día hábil).
+// Proyección al cierre = cómo terminaría el mes si sigue al ritmo actual:
+//   avance ÷ ideal de hoy × 100 (en un mes cerrado es igual al avance).
+function proyeccionCierre(avance, ideal){
+  if(avance === null || avance === undefined || isNaN(avance)) return null;
+  if(ideal.estado !== 'en curso' || ideal.pct <= 0) return avance;
+  return avance * 100 / ideal.pct;
+}
 
+function renderProyeccion(ideal, rutas){
+  const box = document.getElementById('campo-proyeccion');
+  const texto = ideal.estado === 'cerrado'
+    ? `${mesLabel(ideal.orden)} ya cerró: el ideal era llegar al 100%.`
+    : ideal.estado === 'futuro'
+      ? `${mesLabel(ideal.orden)} aún no inicia.`
+      : `Día hábil ${ideal.dias} de ${ideal.total}. Cada día hábil suma ${PROYECCION.pctPorDia}% al ideal.`;
+
+  const reglas = reglasVista(filtrosCampo.mes, rutas);
+  const w = reglas.pesos || REGLAS_DEFECTO.pesos;
   const metricas = [
+    { label:'Llave 1 · Captura', get:r => r.pct_captura },
+    { label:'Llave 2 · Cobertura', get:r => r.pct_cobertura },
     { label:'Tienda Perfecta', get:r => r.pct_tienda_perfecta },
     { label:'Ventas', get:r => r.pct_ventas },
-    { label:'Devoluciones y FC', get:r => r.pct_fc_dv },
-    { label:'Llave 1 · Captura', get:r => r.pct_captura },
-    { label:'Llave 2 · Cobertura', get:r => r.pct_cobertura }
+    { label:'Devoluciones y FC', get:r => r.pct_fc_dv }
   ].map(m => ({ ...m, valor:promedio(rutas, m.get) }));
 
-  const [tp, ventas, fcdv] = metricas.map(m => m.valor);
+  const tp = metricas[2].valor, ventas = metricas[3].valor, fcdv = metricas[4].valor;
   const avance = tp === null && ventas === null && fcdv === null ? null
-    : COMISION.pesoTP * (tp || 0) + COMISION.pesoVentas * (ventas || 0) + COMISION.pesoFcDv * (fcdv || 0);
-  const gap = avance !== null ? avance - proy.pct : null;
+    : w.tp * (tp || 0) + w.ventas * (ventas || 0) + w.fcdv * (fcdv || 0);
+  const gap = avance !== null ? avance - ideal.pct : null;
+  const cierre = proyeccionCierre(avance, ideal);
   const colorGap = g => g === null ? '#94A3B8' : g >= 0 ? '#059669' : g >= -10 ? '#D97706' : '#DA291C';
+  const colorAvance = colorGap(gap);
 
   const filas = metricas.map(m => {
-    const g = m.valor !== null ? m.valor - proy.pct : null;
+    const g = m.valor !== null ? m.valor - ideal.pct : null;
     const c = colorGap(g);
+    const pc = proyeccionCierre(m.valor, ideal);
     return `<div class="vs-fila">
       <p class="text-xs font-bold">${esc(m.label)}</p>
       <div class="vs-track">
         <div class="vs-fill" style="width:${Math.min(100, m.valor || 0)}%;background:${c}"></div>
-        <div class="vs-marca" style="left:${Math.min(100, proy.pct)}%" title="Proyectado ${fmtPct(proy.pct)}"></div>
+        <div class="vs-marca" style="left:${Math.min(100, ideal.pct)}%" title="Ideal ${fmtPct(ideal.pct)}"></div>
+        ${pc !== null && ideal.estado === 'en curso' ? `<div class="vs-proy" style="left:${Math.min(100, pc)}%" title="Proyección al cierre ${fmtPct(pc)}"></div>` : ''}
       </div>
       <span class="text-xs font-extrabold num" style="color:${c}">${fmtPct(m.valor)}</span>
+      <span class="text-xs font-bold num" style="color:#B45309">${fmtPct(pc)}</span>
       <span class="num">${gapBadge(g)}</span>
     </div>`;
   }).join('');
@@ -2269,32 +2379,35 @@ function renderProyeccion(proy, rutas){
   box.innerHTML = `${avisoSeguimiento(filtrosCampo.mes)}
     <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
       <div>
-        <h4 class="text-sm font-bold font-display">Avance vs proyectado</h4>
+        <h4 class="text-sm font-bold font-display">Avance vs ideal</h4>
         <p class="text-[11px] muted">${esc(texto)} Promedio de ${formatNumber(rutas.length)} rutas.</p>
       </div>
       <div class="ring-leyenda" style="margin:0">
-        <span><i style="background:${colorGap(gap)}"></i>Avance</span>
-        <span><i style="background:#6366F1"></i>Proyectado ${fmtPct(proy.pct)}</span>
+        <span><i style="background:${colorAvance}"></i>Avance</span>
+        <span><i style="background:#6366F1"></i>Ideal ${fmtPct(ideal.pct)}</span>
+        <span><i style="background:#fff;border:2px solid #D97706"></i>Proyección al cierre</span>
       </div>
     </div>
     <div class="vs-layout">
       <div class="text-center">
         <div class="ring-wrap doble" style="margin:0 auto 6px">
-          ${doubleRingSVG(proy.pct, '#6366F1', avance, colorGap(gap))}
-          <div class="ring-center apilado">${gap === null ? '—' :
-            `<span style="color:${colorGap(gap)}">${gap >= 0 ? '+' : ''}${gap.toFixed(1)}</span><small>pts GAP</small>`}</div>
+          ${doubleRingSVG(ideal.pct, '#6366F1', avance, colorAvance)}
+          <div class="ring-center apilado">${avance === null ? '—' :
+            `<span style="color:${colorAvance}">${fmtPct(avance)}</span><small>cumplimiento total</small>`}</div>
         </div>
-        <p class="text-xs font-bold">Avance ${fmtPct(avance)} · Proyectado ${fmtPct(proy.pct)}</p>
-        <p class="text-[10.5px] muted mt-0.5">Ponderado 60% TP · 20% Ventas · 20% FC & DV</p>
+        <p class="text-xs font-bold" style="color:${colorAvance}">GAP ${gap === null ? '—' : `${gap >= 0 ? '+' : ''}${gap.toFixed(1)} pts`} frente al ideal (${fmtPct(ideal.pct)})</p>
+        <p class="text-xs font-bold mt-1" style="color:#B45309">Proyección al cierre: ${fmtPct(cierre)}</p>
+        <p class="text-[10.5px] muted mt-0.5">Ponderado ${Math.round(w.tp * 100)}% TP · ${Math.round(w.ventas * 100)}% Ventas · ${Math.round(w.fcdv * 100)}% FC & DV</p>
       </div>
       <div>
-        <div class="vs-escala"><span>Indicador</span><span>Avance (barra) · proyectado (línea morada)</span><span class="num">Avance</span><span class="num">GAP</span></div>
+        <div class="vs-escala"><span>Indicador</span><span>Avance (barra) · ideal (línea morada) · proyección (círculo)</span><span class="num">Avance</span><span class="num">Cierre</span><span class="num">GAP</span></div>
         ${filas}
       </div>
     </div>`;
 }
 
 function alertasCampo(rutas, personas, proy){
+  const reglas = reglasVista(filtrosCampo.mes, rutas);
   const pred = {
     sinLlaves: r => !r.llavesOk,
     tpBajo: r => r.pct_tienda_perfecta !== null && r.pct_tienda_perfecta < 80,
@@ -2304,13 +2417,13 @@ function alertasCampo(rutas, personas, proy){
   return {
     lista: [
       { id:'sinLlaves', icono:ICONOS.candado, valor:formatNumber(rutas.filter(pred.sinLlaves).length), titulo:'Rutas sin llaves abiertas',
-        desc:`No cumplen las llaves del mes (mínimo ${umbralLlaves(rutas)}%): no comisionan.`, tono:TONOS.rojo },
+        desc:`No cumplen la regla del mes: ${textoLlaves(reglas).replace('Comisiona con ', '').toLowerCase()}.`, tono:TONOS.rojo },
       { id:'tpBajo', icono:ICONOS.tienda, valor:formatNumber(rutas.filter(pred.tpBajo).length), titulo:'Tienda Perfecta bajo 80%',
         desc:'Pierden parte o todo el 60% de la comisión.', tono:TONOS.ambar },
-      { id:'ventasBajo', icono:ICONOS.tendencia, valor:formatNumber(rutas.filter(pred.ventasBajo).length), titulo:'Ventas bajo lo proyectado',
-        desc:`Por debajo del ${fmtPct(proy.pct)} que se debe llevar hoy.`, tono:TONOS.azul },
+      { id:'ventasBajo', icono:ICONOS.tendencia, valor:formatNumber(rutas.filter(pred.ventasBajo).length), titulo:'Ventas bajo el ideal',
+        desc:`Por debajo del ${fmtPct(proy.pct)} que se debería llevar hoy.`, tono:TONOS.azul },
       { id:'personas', icono:ICONOS.persona, valor:formatNumber(personasSinLlaves), titulo:'Líderes y supervisores sin llaves',
-        desc:'No cumplen captura o cobertura del 60%.', tono:TONOS.morado }
+        desc:'No cumplen la regla de llaves del mes.', tono:TONOS.morado }
     ],
     predicados: pred
   };
@@ -2429,83 +2542,140 @@ function renderCampo(){
   const alertas = alertasCampo(rutas, personas, proy);
   renderAlertas('campo-alertas', alertas.lista, filtrosCampo.alerta, 'toggleAlertaCampo');
 
-  // --- Anillos con comparativo vs mes anterior ---
-  const anterior = mesAnterior();
-  const rutasAnt = anterior ? filtrarCampo(DATA.rutas, undefined, String(anterior)) : [];
-  const etiquetaAnt = anterior ? mesLabel(anterior) : null;
-  const pctRutasComisionan = rutas.length ? rutas.filter(r => r.llavesOk).length / rutas.length * 100 : null;
-  const pctRutasComisionanAnt = rutasAnt.length ? rutasAnt.filter(r => r.llavesOk).length / rutasAnt.length * 100 : null;
-
-  const anillo = (titulo, sub, badge, badgeTono, getter, notaFn, usarProyectado) => {
-    const v = promedio(rutas, getter);
-    const vAnt = rutasAnt.length ? promedio(rutasAnt, getter) : null;
-    const umbrales = usarProyectado ? [Math.max(proy.pct, 1), Math.max(proy.pct * 0.85, 1)] : SEMAFORO_CAMPO;
-    const conDato = rutas.filter(r => getter(r) !== null && getter(r) !== undefined).length;
-    return ringCard({ titulo, sub, badge, badgeTono, pct:v, color:tono(v, umbrales).hex,
-      nota: `Promedio de <strong>${formatNumber(conDato)}</strong> de ${formatNumber(rutas.length)} rutas<br>${notaFn(v)}`,
-      delta: deltaVsAnterior(v, vAnt, etiquetaAnt) });
-  };
-
-  document.getElementById('campo-anillos').innerHTML = [
-    anillo('Llave 1 · Captura', 'Captura de información', 'LLAVE 1', TONOS.azul, r => r.pct_captura,
-      v => `Mínimo ${umbralLlaves(rutas)}% para comisionar`, false),
-    anillo('Llave 2 · Cobertura', 'Cobertura de puntos de venta', 'LLAVE 2', TONOS.azul, r => r.pct_cobertura,
-      v => `Mínimo ${umbralLlaves(rutas)}% para comisionar`, false),
-    anillo('Tienda Perfecta', '60% de la comisión', 'TP', TONOS.verde, r => r.pct_tienda_perfecta,
-      v => `Desde 80% paga completo · 60-79% paga 60%`, false),
-    anillo('Ventas', '20% de la comisión', 'VENTAS', TONOS.morado, r => r.pct_ventas,
-      v => `Debe llevar ${fmtPct(proy.pct)} hoy`, true),
-    anillo('Devoluciones y Fechas Cortas', '20% de la comisión', 'FC & DV', TONOS.ambar, r => r.pct_fc_dv,
-      v => `Desde 80% empieza a pagar`, false),
-    ringCard({ titulo:'Rutas que comisionan', sub:'Con ambas llaves abiertas', badge:'RUTAS', badgeTono:TONOS.rojo,
-      pct:pctRutasComisionan, color:tono(pctRutasComisionan, SEMAFORO_CAMPO).hex,
-      nota:`<strong>${formatNumber(rutas.filter(r => r.llavesOk).length)}</strong> de ${formatNumber(rutas.length)} rutas con llaves abiertas`,
-      delta: deltaVsAnterior(pctRutasComisionan, pctRutasComisionanAnt, etiquetaAnt) })
-  ].join('');
-
-  renderIndicadores(indicadores);
+  renderSegmentos(rutas, indicadores);
   renderLeaderboardsCampo(rutas, indicadores);
   renderTablaPersonas(personas);
   renderTablaRutas(rutas, alertas.predicados);
 }
 
-function renderIndicadores(rows){
-  const box = document.getElementById('campo-indicadores');
-  if(!rows.length){ box.innerHTML = `<div class="md:col-span-2">${emptyMsg('Sin indicadores para los filtros seleccionados.')}</div>`; return; }
-
-  const total = rows.length;
-  const rutasEnMeta = get => `${formatNumber(rows.filter(r => num(get(r)) !== null && num(get(r)) >= SEMAFORO_CAMPO[0]).length)} de ${formatNumber(total)} rutas en ${SEMAFORO_CAMPO[0]}% o más`;
-  const pdvDev = suma(rows, r => r.pdv_devoluciones);
-
-  const metricas = [
-    { label:'Visitas', get:r => num(r.pct_visitas),
-      detalle:`${formatNumber(suma(rows, r => r.visitas))} de ${formatNumber(suma(rows, r => r.obj_visitas))} visitas programadas` },
-    { label:'Cobertura de PDV', get:r => num(r.pct_cobertura),
-      detalle:`${formatNumber(suma(rows, r => r.cobertura))} de ${formatNumber(suma(rows, r => r.obj_cobertura))} PDV cubiertos` },
-    { label:'Participación', get:r => num(r.pct_participacion), detalle:rutasEnMeta(r => r.pct_participacion) },
-    { label:'Actividades', get:r => num(r.pct_actividades), detalle:rutasEnMeta(r => r.pct_actividades) },
-    { label:'Planes comerciales', get:r => num(r.pct_planes_comerciales), detalle:rutasEnMeta(r => r.pct_planes_comerciales) },
-    { label:'Fechas cortas', get:r => num(r.pct_fechas_cortas), detalle:rutasEnMeta(r => r.pct_fechas_cortas) },
-    { label:'Devoluciones', get:r => num(r.pct_devoluciones),
-      detalle:`${formatNumber(pdvDev)} PDV con devolución · ${rutasEnMeta(r => r.pct_devoluciones)}` },
-    { label:'Agotados', get:r => num(r.pct_agotados), detalle:rutasEnMeta(r => r.pct_agotados) }
-  ];
-
-  // Los indicadores que el Excel de ese mes no trae (ej. Visitas en seguimiento) no se muestran
-  box.innerHTML = metricas.filter(m => promedio(rows, m.get) !== null).map(m => {
-    const v = promedio(rows, m.get);
-    const t = tono(v, SEMAFORO_CAMPO);
-    return `<div class="leaderboard-item">
-      <div class="min-w-0 flex-1">
-        <div class="lb-linea">
-          <p class="leaderboard-nombre">${esc(m.label)}</p>
-          <p class="leaderboard-detalle">${esc(m.detalle)}</p>
-        </div>
-        <div class="leaderboard-track"><div class="leaderboard-fill" style="width:${Math.min(100, v || 0)}%;background:${t.fg}"></div></div>
+// ---------- Segmentos: Llaves · Tienda Perfecta · Ventas · Devoluciones y FC ----------
+function barraDesglose(label, v, detalle, umbrales = SEMAFORO_CAMPO){
+  if(v === null || v === undefined || isNaN(v)) return '';
+  const t = tono(v, umbrales);
+  return `<div class="leaderboard-item">
+    <div class="min-w-0 flex-1">
+      <div class="lb-linea">
+        <p class="leaderboard-nombre">${esc(label)}</p>
+        ${detalle ? `<p class="leaderboard-detalle">${esc(detalle)}</p>` : ''}
       </div>
-      <span class="leaderboard-value" style="color:${t.fg}">${fmtPct(v)}</span>
-    </div>`;
-  }).join('');
+      <div class="leaderboard-track"><div class="leaderboard-fill" style="width:${Math.min(100, v)}%;background:${t.fg}"></div></div>
+    </div>
+    <span class="leaderboard-value" style="color:${t.fg}">${fmtPct(v)}</span>
+  </div>`;
+}
+function segmento({ titulo, peso, reglas, anillos, desglose, tituloDesglose }){
+  const cuerpo = desglose.filter(Boolean).join('');
+  return `<div class="segmento">
+    <div class="segmento-cabecera">
+      <div class="min-w-0">
+        <h4 class="text-sm font-bold font-display">${esc(titulo)}${peso ? ` <span class="badge" style="background:var(--eficacia-blue-bg);color:var(--eficacia-blue);margin-left:4px">${peso}</span>` : ''}</h4>
+        ${(reglas || []).map(chipRegla).join('')}
+      </div>
+    </div>
+    <div class="segmento-anillos">${anillos.join('')}</div>
+    ${cuerpo ? `<div class="segmento-desglose"><p>${esc(tituloDesglose || 'Desglose')}</p>${cuerpo}</div>` : ''}
+  </div>`;
+}
+
+function renderSegmentos(rutas, indicadores){
+  const box = document.getElementById('campo-segmentos');
+  if(!rutas.length){ box.innerHTML = `<div class="segmento">${emptyMsg('Sin datos para los filtros seleccionados.')}</div>`; return; }
+
+  const reglas = reglasVista(filtrosCampo.mes, rutas);
+  const proy = calcProyectado(filtrosCampo.mes);
+  const anterior = mesAnterior();
+  const rutasAnt = anterior ? filtrarCampo(DATA.rutas, undefined, String(anterior)) : [];
+  const indAnt = anterior ? filtrarCampo(DATA.indicadores, undefined, String(anterior)) : [];
+  const etiquetaAnt = anterior ? mesLabel(anterior) : null;
+  const minimo = reglas.llaves.minimo;
+
+  const anillo = (filas, filasAnt, titulo, sub, badge, badgeTono, getter, nota, umbrales = SEMAFORO_CAMPO) => {
+    const v = promedio(filas, getter);
+    const vAnt = filasAnt.length ? promedio(filasAnt, getter) : null;
+    const conDato = filas.filter(r => getter(r) !== null && getter(r) !== undefined).length;
+    return ringCard({ titulo, sub, badge, badgeTono, pct:v, color:tono(v, umbrales).hex,
+      nota: `Promedio de <strong>${formatNumber(conDato)}</strong> de ${formatNumber(filas.length)} rutas${nota ? `<br>${nota}` : ''}`,
+      delta: deltaVsAnterior(v, vAnt, etiquetaAnt) });
+  };
+  const umbralLlave = [minimo, minimo];
+  const enMeta = get => {
+    const con = indicadores.filter(r => num(get(r)) !== null);
+    return con.length ? `${formatNumber(con.filter(r => num(get(r)) >= SEMAFORO_CAMPO[0]).length)} de ${formatNumber(con.length)} rutas en ${SEMAFORO_CAMPO[0]}% o más` : '';
+  };
+  const promInd = get => promedio(indicadores, r => num(get(r)));
+
+  // --- Llaves
+  const prom = r => promedioLlaves(r.pct_captura, r.pct_cobertura);
+  const niveles = [...(reglas.niveles || [])].sort((a, b) => b.desde - a.desde);
+  const conteoNiveles = niveles.map((n, i) => {
+    const hasta = i === 0 ? Infinity : niveles[i - 1].desde;
+    const c = rutas.filter(r => r.llavesOk && prom(r) !== null && prom(r) >= n.desde && prom(r) < hasta).length;
+    return `${c} en ${i === 0 ? `${n.desde}% o más` : `${n.desde}%–${hasta - 1}%`}`;
+  }).join(' · ');
+  const comisionan = rutas.filter(r => r.llavesOk).length;
+  const pctCom = rutas.length ? comisionan / rutas.length * 100 : null;
+  const pctComAnt = rutasAnt.length ? rutasAnt.filter(r => r.llavesOk).length / rutasAnt.length * 100 : null;
+  const pdvObj = suma(indicadores, r => r.obj_cobertura), pdvCub = suma(indicadores, r => r.cobertura);
+  const visObj = suma(indicadores, r => r.obj_visitas), visHechas = suma(indicadores, r => r.visitas);
+
+  const segLlaves = segmento({
+    titulo:'Llaves de apertura', reglas:[textoLlaves(reglas), textoNiveles(reglas)],
+    anillos:[
+      anillo(rutas, rutasAnt, 'Llave 1 · Captura', 'Captura de información', 'LLAVE 1', TONOS.azul, r => r.pct_captura, '', umbralLlave),
+      anillo(rutas, rutasAnt, 'Llave 2 · Cobertura', 'Cobertura de puntos de venta', 'LLAVE 2', TONOS.azul, r => r.pct_cobertura,
+        pdvObj > 0 ? `${formatNumber(pdvCub)} de ${formatNumber(pdvObj)} PDV cubiertos` : '', umbralLlave),
+      anillo(rutas, rutasAnt, 'Promedio de llaves', 'Captura y Cobertura', 'PROM.', TONOS.morado, prom,
+        niveles.length ? conteoNiveles : '', umbralLlave),
+      ringCard({ titulo:'Rutas que comisionan', sub:'Cumplen la regla de llaves', badge:'RUTAS', badgeTono:TONOS.rojo,
+        pct:pctCom, color:tono(pctCom, SEMAFORO_CAMPO).hex,
+        nota:`<strong>${formatNumber(comisionan)}</strong> de ${formatNumber(rutas.length)} rutas con llaves abiertas`,
+        delta: deltaVsAnterior(pctCom, pctComAnt, etiquetaAnt) })
+    ],
+    desglose:[ visObj > 0 ? barraDesglose('Visitas', visHechas / visObj * 100, `${formatNumber(visHechas)} de ${formatNumber(visObj)} visitas programadas`) : '' ],
+    tituloDesglose:'Complemento de cobertura'
+  });
+
+  // --- Tienda Perfecta
+  const w = reglas.pesos || REGLAS_DEFECTO.pesos;
+  const segTP = segmento({
+    titulo:'Tienda Perfecta', peso:`${Math.round(w.tp * 100)}% de la comisión`, reglas:[textoTramos(reglas.tp)],
+    anillos:[ anillo(rutas, rutasAnt, 'Tienda Perfecta', 'Cumplimiento', 'TP', TONOS.verde, r => r.pct_tienda_perfecta, '') ],
+    desglose:[
+      barraDesglose('Participación', promInd(r => r.pct_participacion), enMeta(r => r.pct_participacion)),
+      barraDesglose('Actividades', promInd(r => r.pct_actividades), enMeta(r => r.pct_actividades)),
+      barraDesglose('Planes comerciales', promInd(r => r.pct_planes_comerciales), enMeta(r => r.pct_planes_comerciales))
+    ],
+    tituloDesglose:'Conformado por'
+  });
+
+  // --- Ventas
+  const segVentas = segmento({
+    titulo:'Ventas', peso:`${Math.round(w.ventas * 100)}% de la comisión`, reglas:[textoTramos(reglas.ventas)],
+    anillos:[ anillo(rutas, rutasAnt, 'Ventas', 'Cumplimiento de cuota', 'VENTAS', TONOS.morado, r => r.pct_ventas,
+      `Ideal hoy ${fmtPct(proy.pct)}`, [Math.max(proy.pct, 1), Math.max(proy.pct * 0.85, 1)]) ],
+    desglose:[]
+  });
+
+  // --- Devoluciones y Fechas Cortas
+  // Se usan los cumplimientos que forman "FC & DEV" (si el mes no los trae, los %)
+  const getDev = r => r.pct_cumpl_devoluciones ?? r.pct_devoluciones;
+  const getFc = r => r.pct_cumpl_fechas_cortas ?? r.pct_fechas_cortas;
+  const dev = promInd(getDev), fc = promInd(getFc);
+  const pdvDev = suma(indicadores, r => r.pdv_devoluciones);
+  const segFcDv = segmento({
+    titulo:'Devoluciones y Fechas Cortas', peso:`${Math.round(w.fcdv * 100)}% de la comisión`, reglas:[textoTramos(reglas.fcdv)],
+    anillos:[ anillo(rutas, rutasAnt, 'Devoluciones y Fechas Cortas', 'Cumplimiento', 'FC & DV', TONOS.ambar, r => r.pct_fc_dv, '') ],
+    desglose:[
+      barraDesglose('Devoluciones', dev, `${pdvDev ? `${formatNumber(pdvDev)} PDV con devolución · ` : ''}${enMeta(getDev)}`),
+      barraDesglose('Fechas cortas', fc, enMeta(getFc)),
+      dev !== null && fc !== null ? barraDesglose('Promedio devoluciones y fechas cortas', (dev + fc) / 2, '') : ''
+    ],
+    tituloDesglose:'Conformado por'
+  });
+
+  box.innerHTML = segLlaves +
+    `<div class="grid grid-cols-1 xl:grid-cols-3 gap-4">${segTP}${segVentas}${segFcDv}</div>` +
+    (reglas.nota ? chipRegla(reglas.nota) : '');
 }
 
 function renderLeaderboardsCampo(rutas, indicadores){
@@ -2597,7 +2767,6 @@ function limpiarFiltrosCampo(){
 // Base de comisión por cargo (se usa solo si el Excel no trae la base)
 const COMISION_BASES = { mercaderista: 250000, lider: 400000, supervisor: 300000 };
 const TABLAS_DINERO = { rutas: 'campo_comision_rutas', lideres: 'campo_comision_lideres' };
-const ESCALONES = [80, 81, 91, 96, 97, 98, 99, 100];
 
 const SESION = { usuario: null, admin: false };
 const filtrosLiq = { mes: '', regional: '', lider: '', supervisor: '', ruta: '', busqueda: '' };
@@ -2701,19 +2870,26 @@ function unirDinero(filas, dinero, claveAlterna){
 
 function liquidar(r, d, cargo){
   const n = v => { const x = num(v); return x === null ? null : x; };
-  const baseTotal = n(d.valor_comision) ?? ((n(d.base_tp) ?? 0) + (n(d.base_ventas) ?? 0) + (n(d.base_fc_dv) ?? 0) || COMISION_BASES[cargo]);
-  const base = {
-    tp: n(d.base_tp) ?? baseTotal * COMISION.pesoTP,
-    ventas: n(d.base_ventas) ?? baseTotal * COMISION.pesoVentas,
-    fcdv: n(d.base_fc_dv) ?? baseTotal * COMISION.pesoFcDv
-  };
+  const reglas = reglasDe(r.mes_orden);
+  const w = reglas.pesos || REGLAS_DEFECTO.pesos;
   const pct = { tp: r.pct_tienda_perfecta, ventas: r.pct_ventas, fcdv: r.pct_fc_dv };
+  const prom = promedioLlaves(r.pct_captura, r.pct_cobertura);
   const llaves = r.llavesOk;
+  const baseCargo = COMISION_BASES[cargo];
+
+  // Bolsa: la del Excel; si no hay, la del cargo según el nivel del promedio de llaves
+  const nivel = llaves ? factorNivel(prom, reglas) : 1;
+  const baseTotal = n(d.valor_comision) ?? (((n(d.base_tp) ?? 0) + (n(d.base_ventas) ?? 0) + (n(d.base_fc_dv) ?? 0)) || baseCargo * nivel);
+  const base = {
+    tp: n(d.base_tp) ?? baseTotal * w.tp,
+    ventas: n(d.base_ventas) ?? baseTotal * w.ventas,
+    fcdv: n(d.base_fc_dv) ?? baseTotal * w.fcdv
+  };
 
   const calc = {
-    tp: llaves ? base.tp * factorTiendaPerfecta(pct.tp) : 0,
-    ventas: llaves ? base.ventas * factorEscalonado(pct.ventas) : 0,
-    fcdv: llaves ? base.fcdv * factorEscalonado(pct.fcdv) : 0
+    tp: llaves ? base.tp * factorTramos(pct.tp, reglas.tp) : 0,
+    ventas: llaves ? base.ventas * factorTramos(pct.ventas, reglas.ventas) : 0,
+    fcdv: llaves ? base.fcdv * factorTramos(pct.fcdv, reglas.fcdv) : 0
   };
   const totalCalc = calc.tp + calc.ventas + calc.fcdv;
   // Con las llaves cerradas no se paga ningún componente, aunque el Excel
@@ -2725,20 +2901,26 @@ function liquidar(r, d, cargo){
   } : { tp:0, ventas:0, fcdv:0 };
   const pagar = n(d.valor_pagar) ?? totalCalc;
 
-  // Siguiente tramo de cada componente y cuánto sumaría
+  // Siguiente tramo según las reglas del mes y cuánto sumaría
+  const siguiente = (tramos, actual) => {
+    const r0 = Math.round(actual ?? 0), f0 = factorTramos(actual, tramos);
+    return [...(tramos || [])].sort((a, b) => a.desde - b.desde).find(t => t.desde > r0 && t.factor > f0) || null;
+  };
   const tramos = [];
   if(!llaves){
-    const potencial = base.tp * factorTiendaPerfecta(pct.tp) + base.ventas * factorEscalonado(pct.ventas) + base.fcdv * factorEscalonado(pct.fcdv);
-    tramos.push({ texto:`Abrir llaves (mínimo ${r.umbralLlave || COMISION.llaveMinima}%)`, ganancia:potencial });
+    const nivelMin = reglas.niveles && reglas.niveles.length ? Math.min(...reglas.niveles.map(x => x.factor)) : 1;
+    const potencial = baseCargo * nivelMin *
+      (w.tp * factorTramos(pct.tp, reglas.tp) + w.ventas * factorTramos(pct.ventas, reglas.ventas) + w.fcdv * factorTramos(pct.fcdv, reglas.fcdv));
+    tramos.push({ texto:`Abrir llaves (${reglas.llaves.modo === 'promedio' ? 'promedio' : 'mínimo'} ${reglas.llaves.minimo}%)`, ganancia:potencial });
   } else {
-    if(pct.tp !== null && pct.tp < 80){
-      const meta = pct.tp < 60 ? 60 : 80;
-      tramos.push({ texto:`TP a ${meta}%`, ganancia: base.tp * (factorTiendaPerfecta(meta) - factorTiendaPerfecta(pct.tp)) });
+    // Subir de nivel en el promedio de llaves (ej. de 60-79% a 80%)
+    const nivelSig = siguiente(reglas.niveles, prom);
+    if(nivelSig && reglas.niveles.length && baseTotal < baseCargo){
+      tramos.push({ texto:`Promedio de llaves a ${nivelSig.desde}%`, ganancia: (baseCargo * nivelSig.factor - baseTotal) * (totalCalc / (baseTotal || 1)) });
     }
-    [['Ventas', 'ventas'], ['FC & DV', 'fcdv']].forEach(([nombre, k]) => {
-      const actual = Math.round(pct[k] ?? 0);
-      const meta = ESCALONES.find(e => e > actual);
-      if(meta) tramos.push({ texto:`${nombre} a ${meta}%`, ganancia: base[k] * (factorEscalonado(meta) - factorEscalonado(pct[k])) });
+    [['TP', 'tp'], ['Ventas', 'ventas'], ['FC & DV', 'fcdv']].forEach(([nombre, k]) => {
+      const meta = siguiente(reglas[k], pct[k]);
+      if(meta) tramos.push({ texto:`${nombre} a ${meta.desde}%`, ganancia: base[k] * (meta.factor - factorTramos(pct[k], reglas[k])) });
     });
   }
   tramos.sort((a, b) => b.ganancia - a.ganancia);
@@ -2746,13 +2928,13 @@ function liquidar(r, d, cargo){
   // Control interno del Excel: ¿Valor a pagar = suma de los tres "$ Liquidar"?
   const tieneComponentes = [d.liquidado_tp, d.liquidado_ventas, d.liquidado_fc_dv].every(v => n(v) !== null);
   const sumaComponentes = pagado.tp + pagado.ventas + pagado.fcdv;
-  // ¿Esta fila se liquidó igual a las reglas estándar? (sirve para saber si el mes las usa)
+  // ¿Esta fila se liquidó igual a las reglas del mes? (sirve para saber si la simulación aplica)
   const coincideReglas = tieneComponentes && llaves
     ? Math.abs(calc.tp - pagado.tp) < 1 && Math.abs(calc.ventas - pagado.ventas) < 1 && Math.abs(calc.fcdv - pagado.fcdv) < 1
     : null;
 
   return {
-    ...r, cargoTipo: cargo, baseTotal, base, pagado, pagar, totalCalc, sumaComponentes, coincideReglas,
+    ...r, cargoTipo: cargo, baseTotal, base, pagado, pagar, totalCalc, sumaComponentes, coincideReglas, promLlaves: prom,
     tieneDinero: n(d.valor_pagar) !== null || n(d.valor_comision) !== null,
     diferencia: n(d.valor_pagar) !== null && tieneComponentes ? n(d.valor_pagar) - sumaComponentes : null,
     perdidoLlaves: llaves ? 0 : baseTotal,
@@ -2760,7 +2942,7 @@ function liquidar(r, d, cargo){
   };
 }
 
-// La simulación de "siguiente tramo" usa las reglas estándar. Solo se muestra
+// La simulación de "siguiente tramo" usa las reglas del mes. Solo se muestra
 // en los meses que realmente se liquidaron con ellas: si menos del 90% de
 // las rutas con llaves abiertas coinciden, ese mes tuvo reglas distintas.
 function mesesConReglasEstandar(rutas){
@@ -3021,13 +3203,29 @@ function renderAnillosLiq(rutas){
   const captura = prom(r => r.pct_captura), cobertura = prom(r => r.pct_cobertura);
   const tp = prom(r => r.pct_tienda_perfecta), ventas = prom(r => r.pct_ventas), fcdv = prom(r => r.pct_fc_dv);
   const conLlaves = rutas.filter(r => r.llavesOk).length;
+  const reglas = reglasVista(filtrosLiq.mes, rutas);
+  const minimo = reglas.llaves.minimo;
+
+  // Reglas del mes con valores en dinero (solo visible con sesión)
+  const w = reglas.pesos || REGLAS_DEFECTO.pesos;
+  const base = COMISION_BASES.mercaderista;
+  document.getElementById('liq-reglas').innerHTML = `<div class="segmento">
+    <h4 class="text-sm font-bold font-display">Reglas de comisión · ${esc(filtrosLiq.mes ? mesLabel(filtrosLiq.mes) : 'mes más reciente')}</h4>
+    <p class="text-[11px] muted">Mercaderista: comisión completa de ${fmtCOP(base)} · Líder ${fmtCOP(COMISION_BASES.lider)} · Supervisor ${fmtCOP(COMISION_BASES.supervisor)}.</p>
+    ${chipRegla(textoLlaves(reglas))}
+    ${chipRegla(textoNiveles(reglas, base) ? `Nivel por promedio de llaves (mercaderista): ${textoNiveles(reglas, base)}` : '')}
+    ${chipRegla(`Tienda Perfecta (${fmtCOP(base * w.tp)}): ${textoTramos(reglas.tp)}`)}
+    ${chipRegla(`Ventas (${fmtCOP(base * w.ventas)}): ${textoTramos(reglas.ventas)}`)}
+    ${chipRegla(`Devoluciones y FC (${fmtCOP(base * w.fcdv)}): ${textoTramos(reglas.fcdv)}`)}
+    ${reglas.nota ? chipRegla(reglas.nota) : ''}
+  </div>`;
 
   document.getElementById('liq-anillos').innerHTML = [
-    ringCard({ titulo:'Llave 1 · Captura', sub:`Mínimo ${umbralLlaves(rutas)}% para comisionar`, badge:'LLAVE 1', badgeTono:TONOS.azul,
-      pct:captura, color:tono(captura, [umbralLlaves(rutas), umbralLlaves(rutas)]).hex,
+    ringCard({ titulo:'Llave 1 · Captura', sub:'Captura de información', badge:'LLAVE 1', badgeTono:TONOS.azul,
+      pct:captura, color:tono(captura, [minimo, minimo]).hex,
       nota: unaRuta ? (rutas[0].llavesOk ? 'Llaves abiertas' : 'Llaves cerradas: no comisiona') : `${formatNumber(conLlaves)} de ${formatNumber(rutas.length)} rutas con llaves abiertas` }),
-    ringCard({ titulo:'Llave 2 · Cobertura', sub:`Mínimo ${umbralLlaves(rutas)}% para comisionar`, badge:'LLAVE 2', badgeTono:TONOS.azul,
-      pct:cobertura, color:tono(cobertura, [umbralLlaves(rutas), umbralLlaves(rutas)]).hex,
+    ringCard({ titulo:'Llave 2 · Cobertura', sub:'Cobertura de puntos de venta', badge:'LLAVE 2', badgeTono:TONOS.azul,
+      pct:cobertura, color:tono(cobertura, [minimo, minimo]).hex,
       nota: unaRuta ? '' : `Perdido por llaves: <strong>${fmtCOP(s.perdidoLlaves)}</strong>` }),
     ringCard({ titulo:'Tienda Perfecta', sub:'60% de la comisión', badge:'TP', badgeTono:TONOS.verde,
       pct:tp, color:tono(tp, SEMAFORO_CAMPO).hex, nota: notaDinero('tp') + pie }),
@@ -3169,7 +3367,7 @@ function exportarPop(){
 function exportarArticulos(){
   const filas = filasArticulos(filtrarPop());
   exportarXLSX('distribucion_por_articulo',
-    ['Artículo','Código','Campañas','Asignado','Llegado','Salido','Falta por salir','Saldo CEDI','Cumplimiento %','Proyectado %','GAP (pts)'],
+    ['Artículo','Código','Campañas','Asignado','Llegado','Salido','Falta por salir','Saldo CEDI','Cumplimiento %','Ideal %','GAP (pts)'],
     filas.map(g => [g.label, g.codigos.join(', '), g.campanasLista.join(', '), g.asignado, g.llega, g.salida, g.falta, g.saldo,
       pctNum(g.pct), pctNum(g.proy), pctNum(g.gap)]));
 }
