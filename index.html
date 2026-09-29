@@ -79,14 +79,14 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 
 /* Avance vs ideal (Seguimiento de Campo) */
 .vs-layout{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
-.vs-fila{display:grid;grid-template-columns:150px 1fr 64px 76px 76px;align-items:center;gap:12px;padding:7px 0}
+.vs-fila{display:grid;grid-template-columns:150px 1fr 64px 76px;align-items:center;gap:12px;padding:7px 0}
 .vs-track{position:relative;height:10px;border-radius:9999px;background:var(--track)}
 .vs-fill{height:100%;border-radius:9999px;transition:width .4s ease}
 .vs-marca{position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;background:#6366F1;transform:translateX(-1.5px)}
-.vs-escala{display:grid;grid-template-columns:150px 1fr 64px 76px 76px;gap:12px;font-size:10.5px;font-weight:700;color:var(--text-muted);padding-bottom:4px;border-bottom:1px solid var(--border)}
+.vs-escala{display:grid;grid-template-columns:150px 1fr 64px 76px;gap:12px;font-size:10.5px;font-weight:700;color:var(--text-muted);padding-bottom:4px;border-bottom:1px solid var(--border)}
 @media (max-width:760px){
   .vs-layout{grid-template-columns:1fr}
-  .vs-fila,.vs-escala{grid-template-columns:1fr 58px 64px 68px}
+  .vs-fila,.vs-escala{grid-template-columns:1fr 60px 70px}
   .vs-fila > :first-child,.vs-escala > :first-child{grid-column:1 / -1}
   .vs-escala > :nth-child(2){visibility:hidden;white-space:nowrap;overflow:hidden}
 }
@@ -283,6 +283,9 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .segmento-desglose > p{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px}
 .regla-chip{display:flex;align-items:flex-start;gap:6px;font-size:11px;font-weight:600;line-height:1.45;color:#1E3A8A;background:var(--eficacia-blue-bg);border:1px solid #DBEAFE;border-radius:10px;padding:6px 10px;margin-top:6px}
 .regla-chip svg{width:14px;height:14px;flex-shrink:0;margin-top:1px}
+.vs-switch{display:inline-flex;padding:3px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border)}
+.vs-switch button{font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:9px;color:var(--text-muted);white-space:nowrap}
+.vs-switch button.is-activo{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(15,23,42,.12)}
 .vs-proy{position:absolute;top:-5px;bottom:-5px;width:9px;height:9px;border-radius:9999px;border:2px solid #D97706;background:#fff;transform:translate(-4.5px,0);top:50%;margin-top:-4.5px}
 
 /* Firma */
@@ -952,7 +955,7 @@ const MESES_SEGUIMIENTO = new Set();   // meses aún en seguimiento (sin liquida
 const etiquetaMes = v => mesLabel(v) + (MESES_SEGUIMIENTO.has(Number(v)) ? ' · seguimiento' : '');
 
 const filtrosPop = { mes: '', campana: '', regional: '', canal: '', articulo: '', busqueda: '', alerta: '' };
-const filtrosCampo = { mes: '', regional: '', lider: '', supervisor: '', ruta: '', busqueda: '', alerta: '', metrica: 'comision' };
+const filtrosCampo = { mes: '', regional: '', lider: '', supervisor: '', ruta: '', busqueda: '', alerta: '', metrica: 'comision', comparar: 'ideal' };
 
 let vistaActual = 'pop';
 
@@ -1312,6 +1315,13 @@ function pillsTramos(tramos, base){
   }
   pills.push(`<span class="seg-pill cero">&lt;${orden[orden.length - 1].desde}% <b>→ ${base ? '$ 0' : '0'}</b></span>`);
   return pills.join('');
+}
+// "80%+ comisión completa · 60–79% al 60%"
+function textoNivelesCorto(reglas){
+  const orden = [...(reglas.niveles || [])].sort((a, b) => b.desde - a.desde);
+  return orden.map((n, i) => i === 0
+    ? `${n.desde}%+ comisión completa`
+    : `${n.desde}–${orden[i - 1].desde - 1}% al ${Math.round(n.factor * 100)}%`).join(' · ');
 }
 function pillsNiveles(reglas, base){
   const orden = [...(reglas.niveles || [])].sort((a, b) => b.desde - a.desde);
@@ -2389,16 +2399,18 @@ function proyeccionCierre(avance, ideal){
   return avance * 100 / ideal.pct;
 }
 
+// Cambia entre "Avance vs Ideal" y "Avance vs Proyectado"
+function cambiarComparacion(modo){
+  filtrosCampo.comparar = modo;
+  renderProyeccion(calcProyectado(filtrosCampo.mes), filtrarCampo(DATA.rutas));
+}
+
 function renderProyeccion(ideal, rutas){
   const box = document.getElementById('campo-proyeccion');
-  const texto = ideal.estado === 'cerrado'
-    ? `${mesLabel(ideal.orden)} ya cerró: el ideal era llegar al 100%.`
-    : ideal.estado === 'futuro'
-      ? `${mesLabel(ideal.orden)} aún no inicia.`
-      : `Día hábil ${ideal.dias} de ${ideal.total}. Cada día hábil suma ${PROYECCION.pctPorDia}% al ideal.`;
-
+  const modo = filtrosCampo.comparar === 'proyeccion' ? 'proyeccion' : 'ideal';
   const reglas = reglasVista(filtrosCampo.mes, rutas);
   const w = reglas.pesos || REGLAS_DEFECTO.pesos;
+
   const metricas = [
     { label:'Llave 1 · Captura', get:r => r.pct_captura },
     { label:'Llave 2 · Cobertura', get:r => r.pct_cobertura },
@@ -2410,53 +2422,67 @@ function renderProyeccion(ideal, rutas){
   const tp = metricas[2].valor, ventas = metricas[3].valor, fcdv = metricas[4].valor;
   const avance = tp === null && ventas === null && fcdv === null ? null
     : w.tp * (tp || 0) + w.ventas * (ventas || 0) + w.fcdv * (fcdv || 0);
-  const gap = avance !== null ? avance - ideal.pct : null;
-  const cierre = proyeccionCierre(avance, ideal);
   const colorGap = g => g === null ? '#94A3B8' : g >= 0 ? '#059669' : g >= -10 ? '#D97706' : '#DA291C';
+
+  // Referencia según el modo: el ideal de hoy o la proyección al cierre
+  const refDe = v => modo === 'ideal' ? ideal.pct : proyeccionCierre(v, ideal);
+  const colorRef = modo === 'ideal' ? '#6366F1' : '#D97706';
+  const nombreRef = modo === 'ideal' ? 'Ideal' : 'Proyectado';
+  const refTotal = refDe(avance);
+  const gap = avance !== null ? avance - ideal.pct : null;
   const colorAvance = colorGap(gap);
 
+  const texto = modo === 'ideal'
+    ? (ideal.estado === 'cerrado' ? `${mesLabel(ideal.orden)} ya cerró: el ideal era llegar al 100%.`
+      : ideal.estado === 'futuro' ? `${mesLabel(ideal.orden)} aún no inicia.`
+      : `Lo que se debería llevar hoy: día hábil ${ideal.dias} de ${ideal.total}, ${PROYECCION.pctPorDia}% por día.`)
+    : (ideal.estado === 'en curso' ? 'Cómo cerraría el mes si sigue al ritmo actual.' : 'Mes cerrado: el proyectado es el resultado final.');
+
   const filas = metricas.map(m => {
+    const ref = refDe(m.valor);
     const g = m.valor !== null ? m.valor - ideal.pct : null;
     const c = colorGap(g);
-    const pc = proyeccionCierre(m.valor, ideal);
+    const columna = modo === 'ideal'
+      ? `<span class="num">${gapBadge(g)}</span>`
+      : `<span class="text-xs font-extrabold num" style="color:${colorRef}">${fmtPct(ref)}</span>`;
     return `<div class="vs-fila">
       <p class="text-xs font-bold">${esc(m.label)}</p>
       <div class="vs-track">
         <div class="vs-fill" style="width:${Math.min(100, m.valor || 0)}%;background:${c}"></div>
-        <div class="vs-marca" style="left:${Math.min(100, ideal.pct)}%" title="Ideal ${fmtPct(ideal.pct)}"></div>
-        ${pc !== null && ideal.estado === 'en curso' ? `<div class="vs-proy" style="left:${Math.min(100, pc)}%" title="Proyección al cierre ${fmtPct(pc)}"></div>` : ''}
+        ${ref !== null ? `<div class="vs-marca" style="left:${Math.min(100, ref)}%;background:${colorRef}" title="${nombreRef} ${fmtPct(ref)}"></div>` : ''}
       </div>
       <span class="text-xs font-extrabold num" style="color:${c}">${fmtPct(m.valor)}</span>
-      <span class="text-xs font-bold num" style="color:#B45309">${fmtPct(pc)}</span>
-      <span class="num">${gapBadge(g)}</span>
+      ${columna}
     </div>`;
   }).join('');
 
   box.innerHTML = `${avisoSeguimiento(filtrosCampo.mes)}
-    <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
       <div>
-        <h4 class="text-sm font-bold font-display">Avance vs ideal</h4>
+        <h4 class="text-sm font-bold font-display">Avance vs ${nombreRef.toLowerCase()}</h4>
         <p class="text-[11px] muted">${esc(texto)} Promedio de ${formatNumber(rutas.length)} rutas.</p>
       </div>
-      <div class="ring-leyenda" style="margin:0">
-        <span><i style="background:${colorAvance}"></i>Avance</span>
-        <span><i style="background:#6366F1"></i>Ideal ${fmtPct(ideal.pct)}</span>
-        <span><i style="background:#fff;border:2px solid #D97706"></i>Proyección al cierre</span>
+      <div class="vs-switch" role="tablist">
+        <button type="button" class="${modo === 'ideal' ? 'is-activo' : ''}" onclick="cambiarComparacion('ideal')">Avance vs Ideal</button>
+        <button type="button" class="${modo === 'proyeccion' ? 'is-activo' : ''}" onclick="cambiarComparacion('proyeccion')">Avance vs Proyectado</button>
       </div>
     </div>
     <div class="vs-layout">
       <div class="text-center">
         <div class="ring-wrap doble" style="margin:0 auto 6px">
-          ${doubleRingSVG(ideal.pct, '#6366F1', avance, colorAvance)}
+          ${doubleRingSVG(refTotal, colorRef, avance, colorAvance)}
           <div class="ring-center apilado">${avance === null ? '—' :
             `<span style="color:${colorAvance}">${fmtPct(avance)}</span><small>cumplimiento total</small>`}</div>
         </div>
-        <p class="text-xs font-bold" style="color:${colorAvance}">GAP ${gap === null ? '—' : `${gap >= 0 ? '+' : ''}${gap.toFixed(1)} pts`} frente al ideal (${fmtPct(ideal.pct)})</p>
-        <p class="text-xs font-bold mt-1" style="color:#B45309">Proyección al cierre: ${fmtPct(cierre)}</p>
+        <p class="text-xs font-bold">
+          <span style="color:${colorAvance}">Avance ${fmtPct(avance)}</span> ·
+          <span style="color:${colorRef}">${nombreRef} ${fmtPct(refTotal)}</span>
+        </p>
+        ${modo === 'ideal' ? `<p class="text-[11px] font-bold mt-0.5" style="color:${colorAvance}">GAP ${gap === null ? '—' : `${gap >= 0 ? '+' : ''}${gap.toFixed(1)} pts`}</p>` : ''}
         <p class="text-[10.5px] muted mt-0.5">Ponderado ${Math.round(w.tp * 100)}% TP · ${Math.round(w.ventas * 100)}% Ventas · ${Math.round(w.fcdv * 100)}% FC & DV</p>
       </div>
       <div>
-        <div class="vs-escala"><span>Indicador</span><span>Avance (barra) · ideal (línea morada) · proyección (círculo)</span><span class="num">Avance</span><span class="num">Cierre</span><span class="num">GAP</span></div>
+        <div class="vs-escala"><span>Indicador</span><span>Avance (barra) · ${nombreRef.toLowerCase()} (línea)</span><span class="num">Avance</span><span class="num">${modo === 'ideal' ? 'GAP' : 'Proyectado'}</span></div>
         ${filas}
       </div>
     </div>`;
@@ -2678,7 +2704,7 @@ function renderSegmentos(rutas, indicadores){
 
   const umbralBarra = [minimo, minimo];
   const segLlaves = segmento({
-    titulo:'Llaves de apertura', regla:textoLlavesCorto(reglas), pills:pillsNiveles(reglas),
+    titulo:'Llaves de apertura', regla:[textoLlavesCorto(reglas), textoNivelesCorto(reglas)].filter(Boolean).join(' · '),
     anillo: anillo(rutas, rutasAnt, 'Promedio de llaves', 'Captura y Cobertura', 'LLAVES', TONOS.morado, prom,
       niveles.length ? conteoNiveles : '', umbralLlave),
     desglose:[
@@ -2693,7 +2719,7 @@ function renderSegmentos(rutas, indicadores){
   // --- Tienda Perfecta
   const w = reglas.pesos || REGLAS_DEFECTO.pesos;
   const segTP = segmento({
-    titulo:'Tienda Perfecta', peso:`${Math.round(w.tp * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.tp), pills:pillsTramos(reglas.tp),
+    titulo:'Tienda Perfecta', peso:`${Math.round(w.tp * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.tp),
     anillo: anillo(rutas, rutasAnt, 'Tienda Perfecta', 'Cumplimiento', 'TP', TONOS.verde, r => r.pct_tienda_perfecta, ''),
     desglose:[
       barraDesglose('Participación', promInd(r => r.pct_participacion), enMeta(r => r.pct_participacion)),
@@ -2704,7 +2730,7 @@ function renderSegmentos(rutas, indicadores){
 
   // --- Ventas
   const segVentas = segmento({
-    titulo:'Ventas', peso:`${Math.round(w.ventas * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.ventas), pills:pillsTramos(reglas.ventas),
+    titulo:'Ventas', peso:`${Math.round(w.ventas * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.ventas),
     anillo: anillo(rutas, rutasAnt, 'Ventas', 'Cumplimiento de cuota', 'VENTAS', TONOS.morado, r => r.pct_ventas,
       `Ideal hoy ${fmtPct(proy.pct)}`, [Math.max(proy.pct, 1), Math.max(proy.pct * 0.85, 1)]),
     desglose:[]
@@ -2717,7 +2743,7 @@ function renderSegmentos(rutas, indicadores){
   const dev = promInd(getDev), fc = promInd(getFc);
   const pdvDev = suma(indicadores, r => r.pdv_devoluciones);
   const segFcDv = segmento({
-    titulo:'Devoluciones y Fechas Cortas', peso:`${Math.round(w.fcdv * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.fcdv), pills:pillsTramos(reglas.fcdv),
+    titulo:'Devoluciones y Fechas Cortas', peso:`${Math.round(w.fcdv * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.fcdv),
     anillo: anillo(rutas, rutasAnt, 'FC & DV', 'Cumplimiento', 'FC & DV', TONOS.ambar, r => r.pct_fc_dv, ''),
     desglose:[
       barraDesglose('Devoluciones', dev, `${pdvDev ? `${formatNumber(pdvDev)} PDV con devolución · ` : ''}${enMeta(getDev)}`),
