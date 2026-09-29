@@ -278,6 +278,12 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .seg-pill b{color:var(--eficacia-blue);font-weight:800}
 .seg-pill.cero{color:var(--text-muted)}
 .seg-pill.cero b{color:var(--text-muted)}
+/* Cuadrícula 2x2 de segmentos */
+.seg-cuadricula{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:1280px){
+  .seg-cuadricula{grid-template-columns:1fr 1fr}
+  .seg-cuadricula .seg-fila{grid-template-columns:190px minmax(0,1fr);gap:18px}
+}
 @media (max-width:760px){.seg-fila{grid-template-columns:1fr}}
 .segmento-desglose{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)}
 .segmento-desglose > p{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px}
@@ -654,7 +660,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 
       <section>
         <h3 class="section-title">Llaves y cumplimiento por segmento</h3>
-        <div id="campo-segmentos" class="space-y-4"></div>
+        <div id="campo-segmentos" class="space-y-3"></div>
       </section>
 
       <section id="campo-seguimiento">
@@ -2704,7 +2710,7 @@ function renderSegmentos(rutas, indicadores){
 
   const umbralBarra = [minimo, minimo];
   const segLlaves = segmento({
-    titulo:'Llaves de apertura', regla:[textoLlavesCorto(reglas), textoNivelesCorto(reglas)].filter(Boolean).join(' · '),
+    titulo:'Llaves de apertura', regla:textoLlavesCorto(reglas),
     anillo: anillo(rutas, rutasAnt, 'Promedio de llaves', 'Captura y Cobertura', 'LLAVES', TONOS.morado, prom,
       niveles.length ? conteoNiveles : '', umbralLlave),
     desglose:[
@@ -2753,7 +2759,7 @@ function renderSegmentos(rutas, indicadores){
   });
 
   // Un segmento debajo del otro: dona a la izquierda, composición a la derecha
-  box.innerHTML = segLlaves + segTP + segVentas + segFcDv + (reglas.nota ? chipRegla(reglas.nota) : '');
+  box.innerHTML = `<div class="seg-cuadricula">${segLlaves}${segTP}${segVentas}${segFcDv}</div>` + (reglas.nota ? chipRegla(reglas.nota) : '');
 }
 
 function renderLeaderboardsCampo(rutas, indicadores){
