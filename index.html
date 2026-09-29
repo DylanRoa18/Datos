@@ -784,11 +784,9 @@ section,[id^="vista-"]{scroll-margin-top:96px}
       <!-- Encabezado propio de la selección -->
       <section id="liq-foco" class="hidden"></section>
 
-      <section id="liq-reglas"></section>
-
       <section>
-        <h3 class="section-title">Cumplimiento y pago de las rutas</h3>
-        <div id="liq-anillos" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        <h3 class="section-title">Cumplimiento y pago por segmento</h3>
+        <div id="liq-segmentos" class="space-y-3"></div>
       </section>
 
       <section>
@@ -2667,17 +2665,35 @@ function segmento({ titulo, peso, regla, pills, anillo, desglose, tituloDesglose
   </div>`;
 }
 
-function renderSegmentos(rutas, indicadores){
-  const box = document.getElementById('campo-segmentos');
+// Se usa en Seguimiento de Campo y, con valores en dinero, en Liquidación.
+// op: { boxId, mes, rutasAnt, etiquetaAnt, dinero: resumenPago(...) }
+function renderSegmentos(rutas, indicadores, op = {}){
+  const box = document.getElementById(op.boxId || 'campo-segmentos');
   if(!rutas.length){ box.innerHTML = `<div class="segmento">${emptyMsg('Sin datos para los filtros seleccionados.')}</div>`; return; }
 
-  const reglas = reglasVista(filtrosCampo.mes, rutas);
-  const proy = calcProyectado(filtrosCampo.mes);
-  const anterior = mesAnterior();
-  const rutasAnt = anterior ? filtrarCampo(DATA.rutas, undefined, String(anterior)) : [];
-  const indAnt = anterior ? filtrarCampo(DATA.indicadores, undefined, String(anterior)) : [];
-  const etiquetaAnt = anterior ? mesLabel(anterior) : null;
+  const mesSel = op.mes !== undefined ? op.mes : filtrosCampo.mes;
+  const reglas = reglasVista(mesSel, rutas);
+  const proy = calcProyectado(mesSel);
+  let rutasAnt = op.rutasAnt, etiquetaAnt = op.etiquetaAnt;
+  if(!rutasAnt){
+    const anterior = mesAnterior();
+    rutasAnt = anterior ? filtrarCampo(DATA.rutas, undefined, String(anterior)) : [];
+    etiquetaAnt = anterior ? mesLabel(anterior) : null;
+  }
   const minimo = reglas.llaves.minimo;
+
+  // Valores en dinero (solo en Liquidación, con sesión iniciada)
+  const d = op.dinero || null;
+  const dinero = k => {
+    if(!d) return '';
+    const c = d.componentes.find(x => x.k === k);
+    return `<strong>${fmtCOP(c.pagado)}</strong> de ${fmtCOP(c.base)}`;
+  };
+  const pesoTexto = (k, w) => {
+    if(!d) return `${Math.round(w * 100)}% de la comisión`;
+    const c = d.componentes.find(x => x.k === k);
+    return `${Math.round(w * 100)}% · ${fmtCOP(c.pagado)} de ${fmtCOP(c.base)}`;
+  };
 
   const anillo = (filas, filasAnt, titulo, sub, badge, badgeTono, getter, nota, umbrales = SEMAFORO_CAMPO) => {
     const v = promedio(filas, getter);
@@ -2712,21 +2728,23 @@ function renderSegmentos(rutas, indicadores){
   const segLlaves = segmento({
     titulo:'Llaves de apertura', regla:textoLlavesCorto(reglas),
     anillo: anillo(rutas, rutasAnt, 'Promedio de llaves', 'Captura y Cobertura', 'LLAVES', TONOS.morado, prom,
-      niveles.length ? conteoNiveles : '', umbralLlave),
+      [niveles.length ? conteoNiveles : '', d ? `Bolsa ${fmtCOP(d.bolsa)}` : ''].filter(Boolean).join('<br>'), umbralLlave),
     desglose:[
       barraDesglose('Llave 1 · Captura', promedio(rutas, r => r.pct_captura), 'Captura de información', umbralBarra),
       barraDesglose('Llave 2 · Cobertura', promedio(rutas, r => r.pct_cobertura),
         pdvObj > 0 ? `${formatNumber(pdvCub)} de ${formatNumber(pdvObj)} PDV cubiertos` : 'Cobertura de puntos de venta', umbralBarra),
       visObj > 0 ? barraDesglose('Visitas', visHechas / visObj * 100, `${formatNumber(visHechas)} de ${formatNumber(visObj)} programadas`) : '',
-      barraDesglose('Rutas que comisionan', pctCom, `${formatNumber(comisionan)} de ${formatNumber(rutas.length)} rutas${pctComAnt !== null ? ` · ${deltaVsAnterior(pctCom, pctComAnt, etiquetaAnt)?.texto || ''}` : ''}`)
+      barraDesglose('Rutas que comisionan', pctCom, `${formatNumber(comisionan)} de ${formatNumber(rutas.length)} rutas${pctComAnt !== null ? ` · ${deltaVsAnterior(pctCom, pctComAnt, etiquetaAnt)?.texto || ''}` : ''}`),
+      d ? barraDesglose('Comisión pagada', d.bolsa > 0 ? d.pagar / d.bolsa * 100 : null,
+        `${fmtCOP(d.pagar)} de ${fmtCOP(d.bolsa)}${d.perdidoLlaves > 0 ? ` · perdido por llaves ${fmtCOP(d.perdidoLlaves)}` : ''}`) : ''
     ]
   });
 
   // --- Tienda Perfecta
   const w = reglas.pesos || REGLAS_DEFECTO.pesos;
   const segTP = segmento({
-    titulo:'Tienda Perfecta', peso:`${Math.round(w.tp * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.tp),
-    anillo: anillo(rutas, rutasAnt, 'Tienda Perfecta', 'Cumplimiento', 'TP', TONOS.verde, r => r.pct_tienda_perfecta, ''),
+    titulo:'Tienda Perfecta', peso:pesoTexto('tp', w.tp), regla:textoDesdeCorto(reglas.tp),
+    anillo: anillo(rutas, rutasAnt, 'Tienda Perfecta', 'Cumplimiento', 'TP', TONOS.verde, r => r.pct_tienda_perfecta, dinero('tp')),
     desglose:[
       barraDesglose('Participación', promInd(r => r.pct_participacion), enMeta(r => r.pct_participacion)),
       barraDesglose('Actividades', promInd(r => r.pct_actividades), enMeta(r => r.pct_actividades)),
@@ -2736,9 +2754,9 @@ function renderSegmentos(rutas, indicadores){
 
   // --- Ventas
   const segVentas = segmento({
-    titulo:'Ventas', peso:`${Math.round(w.ventas * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.ventas),
+    titulo:'Ventas', peso:pesoTexto('ventas', w.ventas), regla:textoDesdeCorto(reglas.ventas),
     anillo: anillo(rutas, rutasAnt, 'Ventas', 'Cumplimiento de cuota', 'VENTAS', TONOS.morado, r => r.pct_ventas,
-      `Ideal hoy ${fmtPct(proy.pct)}`, [Math.max(proy.pct, 1), Math.max(proy.pct * 0.85, 1)]),
+      [`Ideal hoy ${fmtPct(proy.pct)}`, dinero('ventas')].filter(Boolean).join('<br>'), [Math.max(proy.pct, 1), Math.max(proy.pct * 0.85, 1)]),
     desglose:[]
   });
 
@@ -2749,8 +2767,8 @@ function renderSegmentos(rutas, indicadores){
   const dev = promInd(getDev), fc = promInd(getFc);
   const pdvDev = suma(indicadores, r => r.pdv_devoluciones);
   const segFcDv = segmento({
-    titulo:'Devoluciones y Fechas Cortas', peso:`${Math.round(w.fcdv * 100)}% de la comisión`, regla:textoDesdeCorto(reglas.fcdv),
-    anillo: anillo(rutas, rutasAnt, 'FC & DV', 'Cumplimiento', 'FC & DV', TONOS.ambar, r => r.pct_fc_dv, ''),
+    titulo:'Devoluciones y Fechas Cortas', peso:pesoTexto('fcdv', w.fcdv), regla:textoDesdeCorto(reglas.fcdv),
+    anillo: anillo(rutas, rutasAnt, 'FC & DV', 'Cumplimiento', 'FC & DV', TONOS.ambar, r => r.pct_fc_dv, dinero('fcdv')),
     desglose:[
       barraDesglose('Devoluciones', dev, `${pdvDev ? `${formatNumber(pdvDev)} PDV con devolución · ` : ''}${enMeta(getDev)}`),
       barraDesglose('Fechas cortas', fc, enMeta(getFc)),
@@ -3274,58 +3292,19 @@ function renderFocoLiq(rutas, personas){
   </div>`;
 }
 
-// Anillos de cumplimiento con su valor en dinero
-function renderAnillosLiq(rutas){
-  const prom = get => promedio(rutas, get);
-  const s = resumenPago(rutas);
-  const comp = k => s.componentes.find(c => c.k === k);
-  const pctBolsa = s.bolsa > 0 ? s.pagar / s.bolsa * 100 : null;
-  const unaRuta = rutas.length === 1;
-  const notaDinero = k => `<strong>${fmtCOP(comp(k).pagado)}</strong> de ${fmtCOP(comp(k).base)}`;
-  const pie = unaRuta ? '' : `<br>Promedio de ${formatNumber(rutas.length)} rutas`;
-
-  const captura = prom(r => r.pct_captura), cobertura = prom(r => r.pct_cobertura);
-  const tp = prom(r => r.pct_tienda_perfecta), ventas = prom(r => r.pct_ventas), fcdv = prom(r => r.pct_fc_dv);
-  const conLlaves = rutas.filter(r => r.llavesOk).length;
-  const reglas = reglasVista(filtrosLiq.mes, rutas);
-  const minimo = reglas.llaves.minimo;
-
-  // Reglas del mes con valores en dinero (solo visible con sesión)
-  const w = reglas.pesos || REGLAS_DEFECTO.pesos;
-  const base = COMISION_BASES.mercaderista;
-  const filaRegla = (titulo, pills) => pills ? `<div class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2" style="border-top:1px solid var(--border)">
-      <span class="text-xs font-bold" style="min-width:170px">${titulo}</span><div class="seg-pills" style="margin-top:0">${pills}</div></div>` : '';
-  document.getElementById('liq-reglas').innerHTML = `<div class="segmento">
-    <div class="seg-titulo mb-1">
-      <h4 class="text-sm font-bold font-display">Reglas de comisión · ${esc(filtrosLiq.mes ? mesLabel(filtrosLiq.mes) : 'mes más reciente')}</h4>
-      <span class="badge" style="background:var(--eficacia-blue-bg);color:var(--eficacia-blue)">Mercaderista ${fmtCOP(base)}</span>
-    </div>
-    <p class="seg-regla mb-2">${ICONO_REGLA}<span>${esc(textoLlavesCorto(reglas))}</span></p>
-    ${filaRegla('Nivel por promedio de llaves', pillsNiveles(reglas, base))}
-    ${filaRegla(`Tienda Perfecta · ${fmtCOP(base * w.tp)}`, pillsTramos(reglas.tp, base * w.tp))}
-    ${filaRegla(`Ventas · ${fmtCOP(base * w.ventas)}`, pillsTramos(reglas.ventas, base * w.ventas))}
-    ${filaRegla(`Devoluciones y FC · ${fmtCOP(base * w.fcdv)}`, pillsTramos(reglas.fcdv, base * w.fcdv))}
-    ${reglas.nota ? chipRegla(reglas.nota) : ''}
-  </div>`;
-
-  document.getElementById('liq-anillos').innerHTML = [
-    ringCard({ titulo:'Llave 1 · Captura', sub:'Captura de información', badge:'LLAVE 1', badgeTono:TONOS.azul,
-      pct:captura, color:tono(captura, [minimo, minimo]).hex,
-      nota: unaRuta ? (rutas[0].llavesOk ? 'Llaves abiertas' : 'Llaves cerradas: no comisiona') : `${formatNumber(conLlaves)} de ${formatNumber(rutas.length)} rutas con llaves abiertas` }),
-    ringCard({ titulo:'Llave 2 · Cobertura', sub:'Cobertura de puntos de venta', badge:'LLAVE 2', badgeTono:TONOS.azul,
-      pct:cobertura, color:tono(cobertura, [minimo, minimo]).hex,
-      nota: unaRuta ? '' : `Perdido por llaves: <strong>${fmtCOP(s.perdidoLlaves)}</strong>` }),
-    ringCard({ titulo:'Tienda Perfecta', sub:'60% de la comisión', badge:'TP', badgeTono:TONOS.verde,
-      pct:tp, color:tono(tp, SEMAFORO_CAMPO).hex, nota: notaDinero('tp') + pie }),
-    ringCard({ titulo:'Ventas', sub:'20% de la comisión', badge:'VENTAS', badgeTono:TONOS.morado,
-      pct:ventas, color:tono(ventas, SEMAFORO_CAMPO).hex, nota: notaDinero('ventas') + pie }),
-    ringCard({ titulo:'Devoluciones y Fechas Cortas', sub:'20% de la comisión', badge:'FC & DV', badgeTono:TONOS.ambar,
-      pct:fcdv, color:tono(fcdv, SEMAFORO_CAMPO).hex, nota: notaDinero('fcdv') + pie }),
-    ringCard({ titulo:'Comisión pagada', sub:'Porcentaje de la bolsa que se paga', badge:'$', badgeTono:TONOS.verde,
-      pct:pctBolsa, color:tono(pctBolsa, SEMAFORO_CAMPO).hex,
-      nota:`<strong>${fmtCOP(s.pagar)}</strong> de ${fmtCOP(s.bolsa)}`,
-      delta: s.potencial > 0 && !s.sinSimulacion ? { texto:`+${fmtCOP(s.potencial)} si ${unaRuta ? 'sube' : 'suben'} un tramo`, color:'var(--eficacia-blue)' } : null })
-  ].join('');
+// Segmentos de cumplimiento (igual que Seguimiento de Campo) con valores en dinero
+function renderSegmentosLiq(rutas){
+  const mes = filtrosLiq.mes;
+  const indicadores = filtrarLiq(DATA.indicadores);
+  // Mes anterior con los mismos filtros, para la comparación de los anillos
+  const meses = unicos(DATA.rutas, r => Number(r.mes_orden)).sort((a, b) => b - a);
+  const anterior = mes ? meses.find(m => m < Number(mes)) : null;
+  const rutasAnt = anterior ? DATA.rutas.filter(r => Number(r.mes_orden) === anterior &&
+    FILTROS_LIQ.every(f => f.key === 'mes' || !filtrosLiq[f.key] || normKey(f.campo(r)) === normKey(filtrosLiq[f.key]))) : [];
+  renderSegmentos(rutas, indicadores, {
+    boxId:'liq-segmentos', mes, rutasAnt, etiquetaAnt: anterior ? mesLabel(anterior) : null,
+    dinero: resumenPago(rutas)
+  });
 }
 
 function renderLiquidacion(){
@@ -3337,7 +3316,7 @@ function renderLiquidacion(){
   const personas = filtrarLiqPersonas(datosLiqPersonas(), rutas);
 
   renderFocoLiq(rutas, personas);
-  renderAnillosLiq(rutas);
+  renderSegmentosLiq(rutas);
 
   const aviso = document.getElementById('liq-aviso');
   const sinDinero = rutas.length > 0 && rutas.every(r => !r.tieneDinero);
