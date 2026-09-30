@@ -59,7 +59,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 /* Filtros */
 .filter-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;padding:16px 20px}
 .filter{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:1 1 150px;max-width:230px}
-.filter span{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+.filter > span{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
 .filter select{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:8px 12px;background:#fff;width:100%}
 .btn-clear{margin-left:auto;font-size:12px;font-weight:700;padding:8px 16px;border-radius:12px;border:1px solid var(--border);color:var(--text-muted);background:#fff}
 .btn-clear:hover{background:var(--surface-soft)}
@@ -245,7 +245,10 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .detalle-cerrar:hover{color:var(--text);border-color:#CBD5E1}
 .detalle-cerrar svg{width:16px;height:16px}
 .detalle-tablas{display:grid;grid-template-columns:1fr;column-gap:28px}
-@media (min-width:860px){.detalle-tablas.dos{grid-template-columns:1fr 1fr}}
+@media (min-width:860px){.detalle-tablas.dos{grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);column-gap:22px}}
+.detalle-divisor{background:linear-gradient(to bottom,transparent,var(--border) 8%,var(--border) 92%,transparent);width:1px;align-self:stretch}
+.detalle-parte{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--eficacia-blue);background:var(--eficacia-blue-bg);display:inline-block;padding:3px 9px;border-radius:9999px;margin-bottom:6px}
+@media (max-width:859px){.detalle-divisor{height:1px;width:auto;margin:10px 0;background:var(--border)}}
 .detalle-tablas table{width:100%;font-size:11.5px;border-collapse:collapse}
 .detalle-tablas th{font-size:10.5px;font-weight:700;color:var(--text-muted);text-align:left;padding:7px 5px;border-bottom:1px solid var(--border)}
 .detalle-tablas td{padding:6px 5px;border-bottom:1px solid var(--border);vertical-align:top}
@@ -256,7 +259,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
   .detalle-caja{padding:18px 16px;border-radius:18px}
   .detalle-caja .foco-stats{grid-template-columns:repeat(3,1fr)}
   .detalle-tablas thead{display:none}
-  .detalle-tablas tr{display:grid;grid-template-columns:repeat(4,1fr);padding:7px 0;border-bottom:1px solid var(--border)}
+  .detalle-tablas tr{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 0;border-bottom:1px solid var(--border)}
   .detalle-tablas td{border:none!important;padding:1px 3px}
   .detalle-tablas td:first-child{grid-column:1 / -1;margin-bottom:3px}
   .detalle-tablas td.num::before{content:attr(data-l);display:block;font-size:9.5px;font-weight:600;color:var(--text-muted)}
@@ -298,6 +301,31 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .firma{margin-top:14px;padding:12px 12px 2px;border-top:1px solid var(--border);text-align:left;line-height:1.3}
 .firma small{display:block;font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--text-muted);margin-bottom:3px}
 .firma span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;color:#0B1F4B;letter-spacing:-.01em}
+
+/* Selector de varios meses */
+.multi{position:relative}
+.multi-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:8px 12px;background:#fff;text-align:left}
+.multi-btn svg{width:14px;height:14px;flex-shrink:0;color:var(--text-muted);transition:transform .15s}
+.multi.abierto .multi-btn{border-color:var(--eficacia-blue)}
+.multi.abierto .multi-btn svg{transform:rotate(180deg)}
+.multi-panel{display:none;position:absolute;z-index:45;top:calc(100% + 4px);left:0;min-width:100%;width:max-content;max-width:280px;max-height:300px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 14px 34px -8px rgba(15,23,42,.22);padding:6px}
+.multi.abierto .multi-panel{display:block}
+.multi-op{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.multi-op:hover{background:var(--surface-soft)}
+.multi-op input{width:15px;height:15px;accent-color:var(--eficacia-blue)}
+.multi-op.todos{border-bottom:1px solid var(--border);border-radius:9px 9px 0 0;margin-bottom:4px}
+
+/* Buscador con sugerencias */
+.filter-buscar{flex:2 1 240px!important;max-width:340px!important}
+.buscador{position:relative}
+.buscador input{width:100%;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:8px 12px 8px 32px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 10px center/15px}
+.buscador-lista{display:none;position:absolute;z-index:46;top:calc(100% + 4px);left:0;right:0;min-width:260px;max-height:320px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 14px 34px -8px rgba(15,23,42,.22);padding:6px}
+.buscador.abierto .buscador-lista{display:block}
+.buscador-item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:7px 9px;border-radius:9px;font-size:12px;font-weight:600;text-align:left}
+.buscador-item:hover,.buscador-item.is-activo{background:var(--eficacia-blue-bg)}
+.buscador-item mark{background:#FEF3C7;color:inherit;border-radius:3px;padding:0 1px}
+.buscador-item small{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+.buscador-vacio{font-size:11.5px;color:var(--text-muted);padding:8px 10px}
 
 /* Login y sesión */
 .auth-bloque{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
@@ -363,8 +391,8 @@ section,[id^="vista-"]{scroll-margin-top:96px}
       <img src="Eficacia_logo.png" alt="Eficacia SAS" class="brand-logo">
     </div>
     <div class="header-titulo min-w-0">
-      <h1 id="vista-titulo" class="text-base font-extrabold tracking-tight font-display truncate">Material POP</h1>
-      <p id="vista-subtitulo" class="text-xs font-medium muted truncate">Llegada, salida y saldo del material en CEDI</p>
+      <h1 id="vista-titulo" class="text-base font-extrabold tracking-tight font-display truncate">Seguimiento de Campo</h1>
+      <p id="vista-subtitulo" class="text-xs font-medium muted truncate">Llaves y cumplimiento de mercaderistas, líderes y supervisores</p>
     </div>
     <div class="header-acciones">
       <span id="connection-status" class="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold" style="background:var(--amber-bg);color:var(--amber)">Conectando…</span>
@@ -396,11 +424,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
       </div>
       <p class="sidebar-label">Paneles</p>
       <div class="flex flex-col gap-1.5">
-        <button id="nav-pop" onclick="setVista('pop')" class="vista-nav-btn is-active">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
-          <span>Material POP<small>Control en CEDI</small></span>
-        </button>
-        <button id="nav-campo" onclick="setVista('campo')" class="vista-nav-btn">
+        <button id="nav-campo" onclick="setVista('campo')" class="vista-nav-btn is-active">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 11l2 2 4-4"/></svg>
           <span>Seguimiento de Campo<small>Llaves y comisiones</small></span>
         </button>
@@ -412,7 +436,11 @@ section,[id^="vista-"]{scroll-margin-top:96px}
           <span>Iniciar sesión</span>
         </button>
         <div id="auth-activo" class="hidden">
-          <p class="sidebar-label">Liquidación</p>
+          <p class="sidebar-label">Solo con sesión</p>
+          <button id="nav-pop" onclick="setVista('pop')" class="vista-nav-btn hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+            <span>Material POP<small>Control en CEDI</small></span>
+          </button>
           <button id="nav-liquidacion" onclick="setVista('liquidacion')" class="vista-nav-btn hidden">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/></svg>
             <span>Comisiones<small>Valores a pagar</small></span>
@@ -443,10 +471,16 @@ section,[id^="vista-"]{scroll-margin-top:96px}
     <!-- ==========================================================
          VISTA 1 · MATERIAL POP
          ========================================================== -->
-    <div id="vista-pop" class="space-y-6">
+    <div id="vista-pop" class="hidden space-y-6">
 
       <div class="card filter-bar">
-        <label class="filter"><span>Mes de ejecución</span><select id="pop-f-mes"></select></label>
+        <label class="filter filter-buscar"><span>Buscar</span>
+          <div class="buscador" id="pop-buscar">
+            <input type="text" placeholder="Artículo, campaña, regional…" autocomplete="off" aria-label="Buscar">
+            <div class="buscador-lista" role="listbox"></div>
+          </div>
+        </label>
+        <label class="filter"><span>Mes de ejecución</span><div id="pop-f-mes" class="multi"></div></label>
         <label class="filter"><span>Campaña</span><select id="pop-f-campana"></select></label>
         <label class="filter"><span>Regional</span><select id="pop-f-regional"></select></label>
         <label class="filter"><span>Canal</span><select id="pop-f-canal"></select></label>
@@ -629,10 +663,16 @@ section,[id^="vista-"]{scroll-margin-top:96px}
     <!-- ==========================================================
          VISTA 2 · SEGUIMIENTO DE CAMPO
          ========================================================== -->
-    <div id="vista-campo" class="hidden space-y-6">
+    <div id="vista-campo" class="space-y-6">
 
       <div class="card filter-bar">
-        <label class="filter"><span>Mes</span><select id="campo-f-mes"></select></label>
+        <label class="filter filter-buscar"><span>Buscar</span>
+          <div class="buscador" id="campo-buscar">
+            <input type="text" placeholder="Ruta, supervisor, líder, regional…" autocomplete="off" aria-label="Buscar">
+            <div class="buscador-lista" role="listbox"></div>
+          </div>
+        </label>
+        <label class="filter"><span>Meses</span><div id="campo-f-mes" class="multi"></div></label>
         <label class="filter"><span>Regional</span><select id="campo-f-regional"></select></label>
         <label class="filter"><span>Líder</span><select id="campo-f-lider"></select></label>
         <label class="filter"><span>Supervisor</span><select id="campo-f-supervisor"></select></label>
@@ -763,7 +803,13 @@ section,[id^="vista-"]{scroll-margin-top:96px}
     <div id="vista-liquidacion" class="hidden space-y-6">
 
       <div class="card filter-bar">
-        <label class="filter"><span>Mes</span><select id="liq-f-mes"></select></label>
+        <label class="filter filter-buscar"><span>Buscar</span>
+          <div class="buscador" id="liq-buscar">
+            <input type="text" placeholder="Ruta, supervisor, líder, regional…" autocomplete="off" aria-label="Buscar">
+            <div class="buscador-lista" role="listbox"></div>
+          </div>
+        </label>
+        <label class="filter"><span>Meses</span><div id="liq-f-mes" class="multi"></div></label>
         <label class="filter"><span>Regional</span><select id="liq-f-regional"></select></label>
         <label class="filter"><span>Líder</span><select id="liq-f-lider"></select></label>
         <label class="filter"><span>Supervisor</span><select id="liq-f-supervisor"></select></label>
@@ -958,10 +1004,10 @@ const DATA = { pop: [], rutas: [], indicadores: [], lideres: [], reglas: {} };
 const MESES_SEGUIMIENTO = new Set();   // meses aún en seguimiento (sin liquidación oficial)
 const etiquetaMes = v => mesLabel(v) + (MESES_SEGUIMIENTO.has(Number(v)) ? ' · seguimiento' : '');
 
-const filtrosPop = { mes: '', campana: '', regional: '', canal: '', articulo: '', busqueda: '', alerta: '' };
-const filtrosCampo = { mes: '', regional: '', lider: '', supervisor: '', ruta: '', busqueda: '', alerta: '', metrica: 'comision', comparar: 'ideal' };
+const filtrosPop = { meses: [], mes: '', campana: '', regional: '', canal: '', articulo: '', busqueda: '', alerta: '' };
+const filtrosCampo = { meses: [], mes: '', mesesIniciados: false, regional: '', lider: '', supervisor: '', ruta: '', busqueda: '', alerta: '', metrica: 'comision', comparar: 'ideal' };
 
-let vistaActual = 'pop';
+let vistaActual = 'campo';
 
 
 /* ============================================================
@@ -1092,6 +1138,18 @@ function mesDeEjecucion(valor){
   const anio2 = resto.match(/^\W*(\d{2})\b/);
   const anio = anio4 ? +anio4[1] : anio2 ? 2000 + +anio2[1] : anioActual;
   return anio * 100 + mes0 + 1;
+}
+
+// Días de mora de la recepción: si llegó, ingreso − fecha pactada;
+// si no ha llegado, hoy − fecha pactada. null si no hay fecha pactada.
+function diasMora(row){
+  const esperada = parseDateOnly(row.FECHA_RECEPCION_POP);
+  if(!esperada) return null;
+  if((Number(row.CANTIDAD_LLEGA) || 0) > 0){
+    const ingreso = parseDateOnly(row.FECHA_INGRESO);
+    return ingreso ? Math.max(0, daysBetween(esperada, ingreso)) : 0;
+  }
+  return Math.max(0, daysBetween(esperada, new Date()));
 }
 
 function calcAlertaRecepcion(row){
@@ -1448,6 +1506,122 @@ function pintarLeaderboard(id){
   }).join('')}</div>`;
 }
 
+// ---------- Selector de varios meses ----------
+// Vacío = todos. Se pueden marcar uno, varios o todos.
+const MULTI = {};
+function renderMulti(id, opciones, seleccion, textoTodos, onChange){
+  const validas = (seleccion || []).map(String).filter(v => opciones.some(o => String(o.value) === v));
+  const orden = opciones.map(o => String(o.value));
+  MULTI[id] = { opciones, seleccion: validas.sort((a, b) => orden.indexOf(a) - orden.indexOf(b)), textoTodos, onChange };
+  pintarMulti(id);
+  return MULTI[id].seleccion;
+}
+function etiquetaMulti(m){
+  if(!m.seleccion.length) return m.textoTodos;
+  if(m.seleccion.length === 1){
+    const o = m.opciones.find(x => String(x.value) === m.seleccion[0]);
+    return o ? o.label : m.seleccion[0];
+  }
+  return m.seleccion.length === m.opciones.length ? m.textoTodos : `${m.seleccion.length} seleccionados`;
+}
+function pintarMulti(id){
+  const m = MULTI[id], box = document.getElementById(id);
+  if(!box) return;
+  box.innerHTML = `<button type="button" class="multi-btn" onclick="toggleMulti('${id}')" aria-haspopup="listbox">
+      <span class="truncate">${esc(etiquetaMulti(m))}</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="multi-panel" role="listbox" aria-multiselectable="true">
+      <label class="multi-op todos"><input type="checkbox" ${!m.seleccion.length || m.seleccion.length === m.opciones.length ? 'checked' : ''} onchange="multiTodos('${id}')"><span>${esc(m.textoTodos)}</span></label>
+      ${m.opciones.map(o => `<label class="multi-op"><input type="checkbox" value="${esc(o.value)}" ${m.seleccion.includes(String(o.value)) ? 'checked' : ''}
+        onchange="multiCambio('${id}', this.value, this.checked)"><span>${esc(o.label)}</span></label>`).join('')}
+    </div>`;
+}
+function toggleMulti(id){
+  document.querySelectorAll('.multi.abierto').forEach(x => { if(x.id !== id) x.classList.remove('abierto'); });
+  document.getElementById(id).classList.toggle('abierto');
+}
+function multiCambio(id, valor, marcado){
+  const m = MULTI[id];
+  let sel = m.seleccion.filter(v => v !== valor);
+  if(marcado) sel.push(valor);
+  m.seleccion = sel;
+  m.onChange(sel);
+}
+function multiTodos(id){
+  MULTI[id].seleccion = [];
+  MULTI[id].onChange([]);
+}
+// Mes único (para textos y comparaciones) y mes de referencia para el ideal
+function mesUnico(meses){ return meses && meses.length === 1 ? String(meses[0]) : ''; }
+function mesIdeal(meses){ return meses && meses.length ? String(Math.max(...meses.map(Number))) : ''; }
+// ¿La fila pasa el filtro? (lista de meses o valor único; sin tildes ni mayúsculas)
+function coincide(filtro, valor){
+  if(Array.isArray(filtro)) return !filtro.length || filtro.includes(String(valor));
+  return !filtro || normKey(valor) === normKey(filtro);
+}
+
+// ---------- Buscador con sugerencias ----------
+// Va mostrando coincidencias mientras se escribe; al elegir una, filtra por ella.
+const BUSCADORES = {};
+function registrarBuscador(id, fuentes, aplicar){
+  BUSCADORES[id] = { fuentes, aplicar, items:[], activo:-1 };
+  const box = document.getElementById(id);
+  const input = box.querySelector('input');
+  input.addEventListener('input', () => sugerirBuscador(id));
+  input.addEventListener('focus', () => { if(input.value.trim()) sugerirBuscador(id); });
+  input.addEventListener('keydown', e => {
+    const b = BUSCADORES[id];
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(!b.items.length) return;
+      b.activo = (b.activo + (e.key === 'ArrowDown' ? 1 : -1) + b.items.length) % b.items.length;
+      pintarBuscador(id);
+    } else if(e.key === 'Enter'){
+      e.preventDefault();
+      if(b.items.length) elegirBuscador(id, Math.max(0, b.activo));
+    } else if(e.key === 'Escape'){
+      box.classList.remove('abierto');
+    }
+  });
+}
+function sugerirBuscador(id){
+  const b = BUSCADORES[id], box = document.getElementById(id);
+  const q = normKey(box.querySelector('input').value);
+  if(!q){ box.classList.remove('abierto'); b.items = []; return; }
+  const vistos = new Set(), items = [];
+  b.fuentes().forEach(f => f.valores.forEach(v => {
+    const k = `${f.key}|${v}`;
+    if(!v || vistos.has(k) || !normKey(v).includes(q)) return;
+    vistos.add(k);
+    items.push({ key:f.key, tipo:f.tipo, valor:v, empieza: normKey(v).startsWith(q) });
+  }));
+  items.sort((a, b) => (b.empieza - a.empieza) || String(a.valor).localeCompare(String(b.valor), 'es', { numeric:true }));
+  b.items = items.slice(0, 12);
+  b.activo = b.items.length ? 0 : -1;
+  pintarBuscador(id, q);
+  box.classList.add('abierto');
+}
+function pintarBuscador(id, q){
+  const b = BUSCADORES[id], box = document.getElementById(id);
+  const texto = q ?? normKey(box.querySelector('input').value);
+  const resaltar = v => {
+    const n = normKey(v), i = n.indexOf(texto);
+    return i < 0 ? esc(v) : `${esc(v.slice(0, i))}<mark>${esc(v.slice(i, i + texto.length))}</mark>${esc(v.slice(i + texto.length))}`;
+  };
+  box.querySelector('.buscador-lista').innerHTML = b.items.length
+    ? b.items.map((it, i) => `<button type="button" class="buscador-item${i === b.activo ? ' is-activo' : ''}" onmousedown="event.preventDefault()" onclick="elegirBuscador('${id}', ${i})">
+        <span class="min-w-0">${resaltar(String(it.valor))}</span><small>${esc(it.tipo)}</small></button>`).join('')
+    : `<p class="buscador-vacio">Sin coincidencias</p>`;
+}
+function elegirBuscador(id, i){
+  const b = BUSCADORES[id], it = b.items[i], box = document.getElementById(id);
+  if(!it) return;
+  box.querySelector('input').value = '';
+  box.classList.remove('abierto');
+  b.aplicar(it.key, it.valor);
+}
+
 // ---------- Ventana de detalle ----------
 // Se abre solo con clic: el fondo se oscurece y la ventana crece desde
 // el elemento tocado (efecto zoom). Se cierra con la X, el fondo o Esc.
@@ -1563,7 +1737,18 @@ function actualizarTimestamp(str){
 }
 
 // ---------- Material POP (Google Apps Script vía JSONP) ----------
-function cargarPop(intento = 1){
+// Material POP es privado: se pide con el token de la sesión y el Apps Script
+// confirma en Supabase que el usuario esté autorizado antes de responder.
+async function tokenSesion(){
+  const { data } = await supabaseClient.auth.getSession();
+  return data && data.session ? data.session.access_token : '';
+}
+async function cargarPop(intento = 1){
+  const token = await tokenSesion();
+  if(!token) throw new Error('Inicia sesión para ver Material POP.');
+  return cargarPopJsonp(token, intento);
+}
+function cargarPopJsonp(token, intento = 1){
   return new Promise((resolve, reject) => {
     const callback = 'popCallback_' + Date.now();
     const script = document.createElement('script');
@@ -1588,11 +1773,11 @@ function cargarPop(intento = 1){
     // El primer arranque del Apps Script puede tardar; se reintenta una vez.
     timer = setTimeout(() => {
       limpiar();
-      if(intento === 1) cargarPop(2).then(resolve, reject);
+      if(intento === 1) cargarPopJsonp(token, 2).then(resolve, reject);
       else reject(new Error('Google Apps Script no respondió tras dos intentos de 40 s.'));
     }, 40000);
 
-    script.src = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'callback=' + callback;
+    script.src = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'callback=' + callback + '&token=' + encodeURIComponent(token);
     document.body.appendChild(script);
   });
 }
@@ -1698,9 +1883,14 @@ async function cargarTodo(){
   const avisos = [];
   let ultimaActualizacion = null;
 
-  const [pop, campo] = await Promise.allSettled([cargarPop(), cargarCampo()]);
+  const [pop, campo] = await Promise.allSettled([
+    SESION.admin ? cargarPop() : Promise.resolve(null),
+    cargarCampo()
+  ]);
 
-  if(pop.status === 'fulfilled'){
+  if(pop.status === 'fulfilled' && pop.value === null){
+    DATA.pop = [];                       // sin sesión: Material POP no se carga
+  } else if(pop.status === 'fulfilled'){
     const records = pop.value.records;
     DATA.pop = prepararPop(records);
     ultimaActualizacion = pop.value.lastUpdated;
@@ -1728,14 +1918,16 @@ async function cargarTodo(){
   }
 
   mostrarErrores(errores.concat(avisos));
-  if(errores.length === 2) setStatus('error', 'Sin conexión');
+  if(errores.length === 2 || (!SESION.admin && errores.length === 1)) setStatus('error', 'Sin conexión');
   else if(errores.length === 1) setStatus('error', 'Conexión parcial');
   else setStatus('ok', 'Conectado');
   actualizarTimestamp(ultimaActualizacion);
 
-  // Mes por defecto en campo: el más reciente
-  if(!filtrosCampo.mes && DATA.rutas.length){
-    filtrosCampo.mes = String(Math.max(...DATA.rutas.map(r => Number(r.mes_orden) || 0)));
+  // Mes por defecto en campo: el más reciente (solo la primera vez)
+  if(!filtrosCampo.mesesIniciados && DATA.rutas.length){
+    filtrosCampo.meses = [String(Math.max(...DATA.rutas.map(r => Number(r.mes_orden) || 0)))];
+    filtrosCampo.mes = filtrosCampo.meses[0];
+    filtrosCampo.mesesIniciados = true;
   }
 
   renderPop();
@@ -1753,7 +1945,7 @@ async function cargarTodo(){
    9. VISTA · MATERIAL POP
    ============================================================ */
 const FILTROS_POP = [
-  { key:'mes', id:'pop-f-mes', campo:r => r._mes ? String(r._mes) : 'sin',
+  { key:'meses', id:'pop-f-mes', campo:r => r._mes ? String(r._mes) : 'sin',
     label:v => v === 'sin' ? 'Sin mes identificado' : mesLabel(v), todos:'Todos', orden:'mes' },
   { key:'campana', id:'pop-f-campana', campo:r => r.CAMPAÑA, todos:'Todas' },
   { key:'regional', id:'pop-f-regional', campo:r => r.REGIONAL, todos:'Todas' },
@@ -1779,7 +1971,7 @@ let ultimosPredicadosPop = {};
 // ---------- Datos ----------
 function filtrarPop(excepto){
   return DATA.pop.filter(r => FILTROS_POP.every(f =>
-    f.key === excepto || !filtrosPop[f.key] || String(f.campo(r)) === filtrosPop[f.key]));
+    f.key === excepto || coincide(filtrosPop[f.key], f.campo(r))));
 }
 function totalesPop(rows){
   const asignado = suma(rows, r => r.CANTIDAD_ASIGNADA);
@@ -1829,8 +2021,12 @@ function renderFiltrosPop(){
     const valores = unicos(filtrarPop(f.key), f.campo).map(String);
     if(f.orden === 'mes') valores.sort((a, b) => (b === 'sin' ? -1 : a === 'sin' ? 1 : Number(b) - Number(a)));
     else valores.sort((a, b) => a.localeCompare(b, 'es'));
-    filtrosPop[f.key] = llenarSelect(f.id, valores.map(v => ({ value:v, label:f.label ? f.label(v) : v })), filtrosPop[f.key], f.todos);
+    const opciones = valores.map(v => ({ value:v, label:f.label ? f.label(v) : v }));
+    filtrosPop[f.key] = f.key === 'meses'
+      ? renderMulti(f.id, opciones, filtrosPop.meses, f.todos, sel => cambiarFiltroPop('meses', sel))
+      : llenarSelect(f.id, opciones, filtrosPop[f.key], f.todos);
   });
+  filtrosPop.mes = mesUnico(filtrosPop.meses);
 }
 
 // ---------- Vista propia de Regional / Campaña ----------
@@ -2054,24 +2250,42 @@ function detalleComposicionPop(g){
   return () => {
     const articulos = agruparPop(g.filas, r => r.POP || r.Articulo)
       .filter(a => a.asignado > 0 || a.llega > 0 || a.salida > 0)
+      .map(a => {
+        // Mora del artículo: la mayor de sus filas; "pendiente" si alguna no ha llegado
+        const moras = a.filas.map(diasMora).filter(d => d !== null);
+        const pendiente = a.filas.some(r => (Number(r.CANTIDAD_LLEGA) || 0) <= 0 && diasMora(r) > 0);
+        return { ...a, mora: moras.length ? Math.max(...moras) : null, pendiente };
+      })
       .sort((a, b) => b.asignado - a.asignado || b.llega - a.llega);
 
+    const celdaMora = a => a.mora === null ? '<span class="muted">—</span>'
+      : a.mora > 0
+        ? `<span style="color:var(--alqueria-red);font-weight:800" title="${a.pendiente ? 'Aún sin llegar' : 'Llegó con mora'}">${a.mora}d${a.pendiente ? ' ⋯' : ''}</span>`
+        : '<span style="color:var(--green);font-weight:700">A tiempo</span>';
+
     const tabla = lista => `<table>
-      <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num">%</th></tr></thead>
+      <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num">%</th><th class="num">Mora</th></tr></thead>
       <tbody>${lista.map(a => `<tr>
         <td class="font-semibold">${esc(a.label)}</td>
         <td class="num" data-l="Asignado">${formatNumber(a.asignado)}</td>
         <td class="num" data-l="Llegó">${formatNumber(a.llega)}</td>
         <td class="num" data-l="Salido">${formatNumber(a.salida)}</td>
         <td class="num" data-l="%" style="color:${tono(a.pct, SEMAFORO_POP).fg};font-weight:700">${fmtPct(a.pct)}</td>
+        <td class="num" data-l="Mora">${celdaMora(a)}</td>
       </tr>`).join('')}</tbody>
     </table>`;
 
-    // Con muchos artículos se reparten en dos columnas para verlos todos sin desplazarse
+    // Con muchos artículos se reparten en dos columnas, separadas por una línea
     const dos = articulos.length > 10;
     const mitad = Math.ceil(articulos.length / 2);
-    const cuerpo = dos ? tabla(articulos.slice(0, mitad)) + tabla(articulos.slice(mitad)) : tabla(articulos);
+    const bloque = (lista, desde) => `<div class="detalle-col">
+        <p class="detalle-parte">Artículos ${desde}–${desde + lista.length - 1}</p>${tabla(lista)}</div>`;
+    const cuerpo = dos
+      ? bloque(articulos.slice(0, mitad), 1) + '<div class="detalle-divisor" aria-hidden="true"></div>' + bloque(articulos.slice(mitad), mitad + 1)
+      : `<div class="detalle-col">${tabla(articulos)}</div>`;
     const t = tono(g.pct, SEMAFORO_POP);
+    const enMora = articulos.filter(a => a.mora > 0).length;
+    const moraMax = articulos.reduce((m, a) => Math.max(m, a.mora || 0), 0);
 
     return `<div class="pr-10 mb-4">
         <p class="text-[10.5px] font-extrabold uppercase tracking-wider" style="color:var(--eficacia-blue)">${esc(g.tipo)}</p>
@@ -2082,9 +2296,10 @@ function detalleComposicionPop(g){
         <div class="foco-stat"><p>Llegó</p><p>${formatNumber(g.llega)}<small>und</small></p></div>
         <div class="foco-stat"><p>Salido</p><p>${formatNumber(g.salida)}<small>und</small></p></div>
         <div class="foco-stat"><p>Cumplimiento</p><p style="color:${t.fg}">${fmtPct(g.pct)}</p></div>
-        <div class="foco-stat"><p>Artículos</p><p>${formatNumber(articulos.length)}</p></div>
+        <div class="foco-stat"><p>Artículos en mora</p><p style="color:${enMora ? 'var(--alqueria-red)' : 'var(--green)'}">${formatNumber(enMora)}<small>de ${formatNumber(articulos.length)}${enMora ? ` · máx. ${moraMax}d` : ''}</small></p></div>
       </div>
-      <div class="detalle-tablas${dos ? ' dos' : ''}">${cuerpo}</div>`;
+      <div class="detalle-tablas${dos ? ' dos' : ''}">${cuerpo}</div>
+      <p class="text-[10.5px] muted mt-3">Mora: días entre la fecha pactada de recepción y la llegada al CEDI. "⋯" = aún no ha llegado, sigue sumando días.</p>`;
   };
 }
 
@@ -2313,7 +2528,7 @@ function toggleAlertaPop(id){
 }
 function limpiarFiltrosPop(){
   const habiaFoco = seleccionFoco().length > 0;
-  Object.assign(filtrosPop, { mes:'', campana:'', regional:'', canal:'', articulo:'', busqueda:'', alerta:'' });
+  Object.assign(filtrosPop, { meses:[], mes:'', campana:'', regional:'', canal:'', articulo:'', busqueda:'', alerta:'' });
   document.getElementById('pop-busqueda').value = '';
   document.getElementById('pop-art-busqueda').value = '';
   if(habiaFoco) recargarPopConAnimacion(); else renderPop();
@@ -2324,7 +2539,7 @@ function limpiarFiltrosPop(){
    10. VISTA · SEGUIMIENTO DE CAMPO
    ============================================================ */
 const FILTROS_CAMPO = [
-  { key:'mes', id:'campo-f-mes', campo:r => r.mes_orden, label:v => etiquetaMes(v), todos:'Todos', orden:'desc' },
+  { key:'meses', id:'campo-f-mes', campo:r => r.mes_orden, label:v => etiquetaMes(v), todos:'Todos', orden:'desc' },
   { key:'regional', id:'campo-f-regional', campo:r => r.regional, todos:'Todas' },
   { key:'lider', id:'campo-f-lider', campo:r => r.lider, todos:'Todos' },
   { key:'supervisor', id:'campo-f-supervisor', campo:r => r.supervisor, todos:'Todos' },
@@ -2343,12 +2558,12 @@ const METRICAS_CAMPO = {
 // Filtra rutas o indicadores (ambos tienen mes, regional, líder, supervisor y ruta)
 function filtrarCampo(rows, excepto, mesForzado){
   return rows.filter(r => FILTROS_CAMPO.every(f => {
-    const valor = f.key === 'mes' && mesForzado !== undefined ? mesForzado : filtrosCampo[f.key];
-    return f.key === excepto || !valor || normKey(f.campo(r)) === normKey(valor);
+    const valor = f.key === 'meses' && mesForzado !== undefined ? [String(mesForzado)] : filtrosCampo[f.key];
+    return f.key === excepto || coincide(valor, f.campo(r));
   }));
 }
 function filtrarPersonas(){
-  let filas = DATA.lideres.filter(r => !filtrosCampo.mes || String(r.mes_orden) === filtrosCampo.mes);
+  let filas = DATA.lideres.filter(r => coincide(filtrosCampo.meses, r.mes_orden));
   if(filtrosCampo.regional || filtrosCampo.lider || filtrosCampo.supervisor || filtrosCampo.ruta){
     const nombres = new Set();
     filtrarCampo(DATA.rutas).forEach(r => [r.lider, r.supervisor, r.lider_alqueria].forEach(n => n && nombres.add(normKey(n))));
@@ -2379,8 +2594,12 @@ function renderFiltrosCampo(){
   FILTROS_CAMPO.forEach(f => {
     const valores = unicos(filtrarCampo(DATA.rutas, f.key), f.campo).map(String);
     valores.sort(f.orden === 'desc' ? (a, b) => Number(b) - Number(a) : (a, b) => a.localeCompare(b, 'es'));
-    filtrosCampo[f.key] = llenarSelect(f.id, valores.map(v => ({ value:v, label:f.label ? f.label(v) : v })), filtrosCampo[f.key], f.todos);
+    const opciones = valores.map(v => ({ value:v, label:f.label ? f.label(v) : v }));
+    filtrosCampo[f.key] = f.key === 'meses'
+      ? renderMulti(f.id, opciones, filtrosCampo.meses, f.todos, sel => cambiarFiltroCampo('meses', sel))
+      : llenarSelect(f.id, opciones, filtrosCampo[f.key], f.todos);
   });
+  filtrosCampo.mes = mesUnico(filtrosCampo.meses);
   const selMetrica = document.getElementById('campo-metrica');
   selMetrica.innerHTML = Object.entries(METRICAS_CAMPO).map(([k, m]) => `<option value="${k}">${esc(m.label)}</option>`).join('');
   selMetrica.value = filtrosCampo.metrica;
@@ -2406,7 +2625,7 @@ function proyeccionCierre(avance, ideal){
 // Cambia entre "Avance vs Ideal" y "Avance vs Proyectado"
 function cambiarComparacion(modo){
   filtrosCampo.comparar = modo;
-  renderProyeccion(calcProyectado(filtrosCampo.mes), filtrarCampo(DATA.rutas));
+  renderProyeccion(calcProyectado(filtrosCampo.mes || mesIdeal(filtrosCampo.meses)), filtrarCampo(DATA.rutas));
 }
 
 function renderProyeccion(ideal, rutas){
@@ -2620,7 +2839,7 @@ function renderCampo(){
   renderFocoCampo(rutas);
   const indicadores = filtrarCampo(DATA.indicadores);
   const personas = filtrarPersonas();
-  const proy = calcProyectado(filtrosCampo.mes);
+  const proy = calcProyectado(filtrosCampo.mes || mesIdeal(filtrosCampo.meses));
 
   renderProyeccion(proy, rutas);
 
@@ -2673,7 +2892,7 @@ function renderSegmentos(rutas, indicadores, op = {}){
 
   const mesSel = op.mes !== undefined ? op.mes : filtrosCampo.mes;
   const reglas = reglasVista(mesSel, rutas);
-  const proy = calcProyectado(mesSel);
+  const proy = calcProyectado(mesSel || op.mesIdeal || mesIdeal(filtrosCampo.meses));
   let rutasAnt = op.rutasAnt, etiquetaAnt = op.etiquetaAnt;
   if(!rutasAnt){
     const anterior = mesAnterior();
@@ -2857,7 +3076,7 @@ function toggleAlertaCampo(id){
 function limpiarFiltrosCampo(){
   const ultimoMes = DATA.rutas.length ? String(Math.max(...DATA.rutas.map(r => Number(r.mes_orden) || 0))) : '';
   const habiaFoco = seleccionFocoCampo().length > 0;
-  Object.assign(filtrosCampo, { mes:ultimoMes, regional:'', lider:'', supervisor:'', ruta:'', busqueda:'', alerta:'' });
+  Object.assign(filtrosCampo, { meses: ultimoMes ? [ultimoMes] : [], mes:ultimoMes, regional:'', lider:'', supervisor:'', ruta:'', busqueda:'', alerta:'' });
   document.getElementById('campo-busqueda').value = '';
   if(habiaFoco) recargarCampoConAnimacion(); else renderCampo();
 }
@@ -2871,7 +3090,7 @@ const COMISION_BASES = { mercaderista: 250000, lider: 400000, supervisor: 300000
 const TABLAS_DINERO = { rutas: 'campo_comision_rutas', lideres: 'campo_comision_lideres' };
 
 const SESION = { usuario: null, admin: false };
-const filtrosLiq = { mes: '', regional: '', lider: '', supervisor: '', ruta: '', busqueda: '' };
+const filtrosLiq = { meses: [], mes: '', mesesIniciados: false, regional: '', lider: '', supervisor: '', ruta: '', busqueda: '' };
 
 const fmtCOP = v => (v === null || v === undefined || isNaN(v)) ? '—'
   : new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 }).format(v);
@@ -2924,18 +3143,36 @@ async function aplicarSesion(session){
     if(SESION.admin) await cargarLiquidacion();
   }
   pintarEstadoSesion();
-  if(!SESION.admin && vistaActual === 'liquidacion') setVista('pop');
-  if(SESION.admin) renderLiquidacion();
+  if(!SESION.admin && (vistaActual === 'liquidacion' || vistaActual === 'pop')) setVista('campo');
+  if(SESION.admin){
+    renderLiquidacion();
+    await cargarPopAdmin();
+  } else {
+    DATA.pop = [];
+    renderPop();
+  }
+}
+// Carga Material POP al iniciar sesión como administrador
+async function cargarPopAdmin(){
+  try{
+    const resp = await cargarPop();
+    DATA.pop = prepararPop(resp.records);
+    actualizarTimestamp(resp.lastUpdated);
+    renderPop();
+  }catch(e){
+    mostrarErrores([{ titulo:'Material POP (Google Sheets)', mensaje: e.message }]);
+  }
 }
 function pintarEstadoSesion(){
   const conSesion = !!SESION.usuario;
   document.getElementById('btn-login').classList.toggle('hidden', conSesion);
   document.getElementById('auth-activo').classList.toggle('hidden', !conSesion);
   document.getElementById('nav-liquidacion').classList.toggle('hidden', !SESION.admin);
+  document.getElementById('nav-pop').classList.toggle('hidden', !SESION.admin);
   document.getElementById('sesion-email').textContent = SESION.usuario ? SESION.usuario.email : '';
   const aviso = document.getElementById('sesion-aviso');
   aviso.classList.toggle('hidden', !conSesion || SESION.admin);
-  aviso.textContent = 'Este usuario no tiene permiso para ver la liquidación.';
+  aviso.textContent = 'Este usuario no tiene permiso para ver Material POP ni la liquidación.';
 }
 async function cargarLiquidacion(){
   try{
@@ -3076,18 +3313,17 @@ function datosLiqPersonas(){
 
 // ---------- Filtros ----------
 const FILTROS_LIQ = [
-  { key:'mes', id:'liq-f-mes', campo:r => r.mes_orden, label:v => etiquetaMes(v), todos:'Todos', orden:'desc' },
+  { key:'meses', id:'liq-f-mes', campo:r => r.mes_orden, label:v => etiquetaMes(v), todos:'Todos', orden:'desc' },
   { key:'regional', id:'liq-f-regional', campo:r => r.regional, todos:'Todas' },
   { key:'lider', id:'liq-f-lider', campo:r => r.lider, todos:'Todos' },
   { key:'supervisor', id:'liq-f-supervisor', campo:r => r.supervisor, todos:'Todos' },
   { key:'ruta', id:'liq-f-ruta', campo:r => r.ruta, todos:'Todas' }
 ];
 function filtrarLiq(rows, excepto){
-  return rows.filter(r => FILTROS_LIQ.every(f =>
-    f.key === excepto || !filtrosLiq[f.key] || normKey(f.campo(r)) === normKey(filtrosLiq[f.key])));
+  return rows.filter(r => FILTROS_LIQ.every(f => f.key === excepto || coincide(filtrosLiq[f.key], f.campo(r))));
 }
 function filtrarLiqPersonas(personas, rutasFiltradas){
-  let filas = personas.filter(r => !filtrosLiq.mes || String(r.mes_orden) === filtrosLiq.mes);
+  let filas = personas.filter(r => coincide(filtrosLiq.meses, r.mes_orden));
   if(filtrosLiq.regional || filtrosLiq.lider || filtrosLiq.supervisor || filtrosLiq.ruta){
     const nombres = new Set();
     rutasFiltradas.forEach(r => [r.lider, r.supervisor, r.lider_alqueria].forEach(n => n && nombres.add(normKey(n))));
@@ -3096,12 +3332,19 @@ function filtrarLiqPersonas(personas, rutasFiltradas){
   return filas;
 }
 function renderFiltrosLiq(rutas){
-  if(!filtrosLiq.mes && rutas.length) filtrosLiq.mes = String(Math.max(...rutas.map(r => Number(r.mes_orden) || 0)));
+  if(!filtrosLiq.mesesIniciados && rutas.length){
+    filtrosLiq.meses = [String(Math.max(...rutas.map(r => Number(r.mes_orden) || 0)))];
+    filtrosLiq.mesesIniciados = true;
+  }
   FILTROS_LIQ.forEach(f => {
     const valores = unicos(filtrarLiq(rutas, f.key), f.campo).map(String);
     valores.sort(f.orden === 'desc' ? (a, b) => Number(b) - Number(a) : (a, b) => a.localeCompare(b, 'es'));
-    filtrosLiq[f.key] = llenarSelect(f.id, valores.map(v => ({ value:v, label:f.label ? f.label(v) : v })), filtrosLiq[f.key], f.todos);
+    const opciones = valores.map(v => ({ value:v, label:f.label ? f.label(v) : v }));
+    filtrosLiq[f.key] = f.key === 'meses'
+      ? renderMulti(f.id, opciones, filtrosLiq.meses, f.todos, sel => cambiarFiltroLiq('meses', sel))
+      : llenarSelect(f.id, opciones, filtrosLiq[f.key], f.todos);
   });
+  filtrosLiq.mes = mesUnico(filtrosLiq.meses);
 }
 
 // ---------- Render ----------
@@ -3300,9 +3543,9 @@ function renderSegmentosLiq(rutas){
   const meses = unicos(DATA.rutas, r => Number(r.mes_orden)).sort((a, b) => b - a);
   const anterior = mes ? meses.find(m => m < Number(mes)) : null;
   const rutasAnt = anterior ? DATA.rutas.filter(r => Number(r.mes_orden) === anterior &&
-    FILTROS_LIQ.every(f => f.key === 'mes' || !filtrosLiq[f.key] || normKey(f.campo(r)) === normKey(filtrosLiq[f.key]))) : [];
+    FILTROS_LIQ.every(f => f.key === 'meses' || coincide(filtrosLiq[f.key], f.campo(r)))) : [];
   renderSegmentos(rutas, indicadores, {
-    boxId:'liq-segmentos', mes, rutasAnt, etiquetaAnt: anterior ? mesLabel(anterior) : null,
+    boxId:'liq-segmentos', mes, mesIdeal: mesIdeal(filtrosLiq.meses), rutasAnt, etiquetaAnt: anterior ? mesLabel(anterior) : null,
     dinero: resumenPago(rutas)
   });
 }
@@ -3381,7 +3624,8 @@ function renderLiquidacion(){
 
 function limpiarFiltrosLiq(){
   const habiaFoco = seleccionFocoLiq().length > 0;
-  Object.assign(filtrosLiq, { mes:'', regional:'', lider:'', supervisor:'', ruta:'', busqueda:'' });
+  const ultimoMes = DATA.rutas.length ? String(Math.max(...DATA.rutas.map(r => Number(r.mes_orden) || 0))) : '';
+  Object.assign(filtrosLiq, { meses: ultimoMes ? [ultimoMes] : [], mes:ultimoMes, regional:'', lider:'', supervisor:'', ruta:'', busqueda:'' });
   document.getElementById('liq-busqueda').value = '';
   if(habiaFoco) recargarLiqConAnimacion(); else renderLiquidacion();
 }
@@ -3472,6 +3716,8 @@ const VISTAS = {
 };
 
 function setVista(vista){
+  // Material POP y Comisiones solo con sesión de administrador
+  if((vista === 'pop' || vista === 'liquidacion') && !SESION.admin) vista = 'campo';
   vistaActual = vista;
   Object.keys(VISTAS).forEach(v => {
     document.getElementById(`vista-${v}`).classList.toggle('hidden', v !== vista);
@@ -3488,16 +3734,57 @@ function toggleMobileNav(abrir){
 }
 
 function conectarEventos(){
-  FILTROS_LIQ.forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroLiq(f.key, e.target.value)));
+  FILTROS_LIQ.filter(f => f.key !== 'meses').forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroLiq(f.key, e.target.value)));
+
+  // Cerrar selectores de meses y buscadores al tocar fuera
+  document.addEventListener('click', e => {
+    if(!e.target.closest('.multi')) document.querySelectorAll('.multi.abierto').forEach(x => x.classList.remove('abierto'));
+    if(!e.target.closest('.buscador')) document.querySelectorAll('.buscador.abierto').forEach(x => x.classList.remove('abierto'));
+  });
+
+  // Buscadores: al elegir una coincidencia se abre su vista propia
+  const porMeses = (rows, meses, campo) => rows.filter(r => coincide(meses, campo(r)));
+  registrarBuscador('pop-buscar', () => {
+    const rows = porMeses(DATA.pop, filtrosPop.meses, r => r._mes ? String(r._mes) : 'sin');
+    return [
+      { key:'articulo', tipo:'Artículo', valores: unicos(rows, r => r.POP || r.Articulo) },
+      { key:'campana', tipo:'Campaña', valores: unicos(rows, r => r.CAMPAÑA) },
+      { key:'regional', tipo:'Regional', valores: unicos(rows, r => r.REGIONAL) },
+      { key:'canal', tipo:'Canal', valores: unicos(rows, r => r.CANAL) }
+    ];
+  }, (key, valor) => {
+    Object.assign(filtrosPop, { campana:'', regional:'', canal:'', articulo:'', alerta:'' });
+    filtrosPop[key] = String(valor);
+    recargarPopConAnimacion();
+  });
+  const fuentesCampo = meses => () => {
+    const rows = porMeses(DATA.rutas, meses(), r => r.mes_orden);
+    return [
+      { key:'ruta', tipo:'Ruta', valores: unicos(rows, r => r.ruta) },
+      { key:'supervisor', tipo:'Supervisor', valores: unicos(rows, r => r.supervisor) },
+      { key:'lider', tipo:'Líder', valores: unicos(rows, r => r.lider) },
+      { key:'regional', tipo:'Regional', valores: unicos(rows, r => r.regional) }
+    ];
+  };
+  registrarBuscador('campo-buscar', fuentesCampo(() => filtrosCampo.meses), (key, valor) => {
+    Object.assign(filtrosCampo, { regional:'', lider:'', supervisor:'', ruta:'', alerta:'' });
+    filtrosCampo[key] = String(valor);
+    recargarCampoConAnimacion();
+  });
+  registrarBuscador('liq-buscar', fuentesCampo(() => filtrosLiq.meses), (key, valor) => {
+    Object.assign(filtrosLiq, { regional:'', lider:'', supervisor:'', ruta:'' });
+    filtrosLiq[key] = String(valor);
+    recargarLiqConAnimacion();
+  });
   document.getElementById('liq-busqueda').addEventListener('input', e => {
     filtrosLiq.busqueda = e.target.value.trim().toLowerCase(); renderLiquidacion();
   });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') cerrarLogin(); });
 
-  FILTROS_POP.forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroPop(f.key, e.target.value)));
+  FILTROS_POP.filter(f => f.key !== 'meses').forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroPop(f.key, e.target.value)));
   document.querySelectorAll('#tabla-articulos th[data-sort]').forEach(th => th.addEventListener('click', () => ordenarArticulos(th.dataset.sort)));
   document.getElementById('pop-art-busqueda').addEventListener('input', () => renderTablaArticulos());
-  FILTROS_CAMPO.forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroCampo(f.key, e.target.value)));
+  FILTROS_CAMPO.filter(f => f.key !== 'meses').forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroCampo(f.key, e.target.value)));
   document.getElementById('campo-metrica').addEventListener('change', e => {
     filtrosCampo.metrica = e.target.value;
     renderLeaderboardsCampo(filtrarCampo(DATA.rutas), filtrarCampo(DATA.indicadores));
