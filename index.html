@@ -239,7 +239,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .lb-interactivo:hover,.lb-interactivo.is-abierto{background:var(--surface-soft)}
 .detalle-modal{position:fixed;inset:0;z-index:75;display:flex;align-items:center;justify-content:center;padding:16px}
 .detalle-fondo{position:absolute;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fundido .25s ease both}
-.detalle-caja{position:relative;width:min(960px,96vw);max-height:94vh;overflow-y:auto;background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 30px 70px -15px rgba(15,23,42,.45)}
+.detalle-caja{position:relative;width:min(1080px,96vw);max-height:94vh;overflow-y:auto;background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 30px 70px -15px rgba(15,23,42,.45)}
 .detalle-caja.zoom{animation:zoomEntrada .32s cubic-bezier(.2,.9,.25,1) both}
 .detalle-cerrar{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:#fff;color:var(--text-muted)}
 .detalle-cerrar:hover{color:var(--text);border-color:#CBD5E1}
@@ -249,7 +249,13 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .detalle-divisor{background:linear-gradient(to bottom,transparent,var(--border) 8%,var(--border) 92%,transparent);width:1px;align-self:stretch}
 .detalle-parte{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--eficacia-blue);background:var(--eficacia-blue-bg);display:inline-block;padding:3px 9px;border-radius:9999px;margin-bottom:6px}
 @media (max-width:859px){.detalle-divisor{height:1px;width:auto;margin:10px 0;background:var(--border)}}
-.detalle-tablas table{width:100%;font-size:11.5px;border-collapse:collapse}
+.detalle-caja.ancha{width:min(1440px,97vw)}
+.detalle-tablas table{width:100%;font-size:12px;border-collapse:collapse}
+.detalle-tablas td.art{min-width:180px}
+.mora{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:9999px;white-space:nowrap}
+.mora small{font-size:9.5px;font-weight:700;opacity:.85}
+.mora.roja{color:var(--alqueria-red);background:var(--alqueria-red-bg)}
+.mora.verde{color:var(--green);background:var(--green-bg)}
 .detalle-tablas th{font-size:10.5px;font-weight:700;color:var(--text-muted);text-align:left;padding:7px 5px;border-bottom:1px solid var(--border)}
 .detalle-tablas td{padding:6px 5px;border-bottom:1px solid var(--border);vertical-align:top}
 .detalle-tablas th.num,.detalle-tablas td.num{text-align:right;white-space:nowrap}
@@ -1634,6 +1640,7 @@ function abrirDetalleLb(el){
   const modal = document.getElementById('lb-detalle');
   const caja = document.getElementById('lb-detalle-caja');
   document.getElementById('lb-detalle-contenido').innerHTML = item.detalle();
+  caja.classList.toggle('ancha', !!caja.querySelector('.detalle-tablas.dos'));
   modal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   caja.scrollTop = 0;
@@ -2260,13 +2267,13 @@ function detalleComposicionPop(g){
 
     const celdaMora = a => a.mora === null ? '<span class="muted">—</span>'
       : a.mora > 0
-        ? `<span style="color:var(--alqueria-red);font-weight:800" title="${a.pendiente ? 'Aún sin llegar' : 'Llegó con mora'}">${a.mora}d${a.pendiente ? ' ⋯' : ''}</span>`
-        : '<span style="color:var(--green);font-weight:700">A tiempo</span>';
+        ? `<span class="mora roja">${a.mora} días${a.pendiente ? ' <small>· sin llegar</small>' : ''}</span>`
+        : '<span class="mora verde">A tiempo</span>';
 
     const tabla = lista => `<table>
       <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num">%</th><th class="num">Mora</th></tr></thead>
       <tbody>${lista.map(a => `<tr>
-        <td class="font-semibold">${esc(a.label)}</td>
+        <td class="font-semibold art">${esc(a.label)}</td>
         <td class="num" data-l="Asignado">${formatNumber(a.asignado)}</td>
         <td class="num" data-l="Llegó">${formatNumber(a.llega)}</td>
         <td class="num" data-l="Salido">${formatNumber(a.salida)}</td>
@@ -2275,8 +2282,10 @@ function detalleComposicionPop(g){
       </tr>`).join('')}</tbody>
     </table>`;
 
-    // Con muchos artículos se reparten en dos columnas, separadas por una línea
-    const dos = articulos.length > 10;
+    // Si todos caben en la pantalla, una sola tabla; si no, dos columnas
+    // (la ventana se ensancha para que cada una se lea completa).
+    const filasQueCaben = Math.max(8, Math.floor((window.innerHeight * 0.94 - 300) / 36));
+    const dos = articulos.length > filasQueCaben && window.innerWidth >= 860;
     const mitad = Math.ceil(articulos.length / 2);
     const bloque = (lista, desde) => `<div class="detalle-col">
         <p class="detalle-parte">Artículos ${desde}–${desde + lista.length - 1}</p>${tabla(lista)}</div>`;
@@ -2299,7 +2308,7 @@ function detalleComposicionPop(g){
         <div class="foco-stat"><p>Artículos en mora</p><p style="color:${enMora ? 'var(--alqueria-red)' : 'var(--green)'}">${formatNumber(enMora)}<small>de ${formatNumber(articulos.length)}${enMora ? ` · máx. ${moraMax}d` : ''}</small></p></div>
       </div>
       <div class="detalle-tablas${dos ? ' dos' : ''}">${cuerpo}</div>
-      <p class="text-[10.5px] muted mt-3">Mora: días entre la fecha pactada de recepción y la llegada al CEDI. "⋯" = aún no ha llegado, sigue sumando días.</p>`;
+      <p class="text-[10.5px] muted mt-3">Mora: días entre la fecha pactada de recepción y la llegada al CEDI. "Sin llegar": aún no llega y los días siguen sumando.</p>`;
   };
 }
 
@@ -2494,7 +2503,8 @@ function renderTablaPop(rows, predicados){
       <td class="num font-semibold">${formatNumber(r.CANTIDAD_SALIDA)}</td>
       <td class="num font-semibold">${formatNumber(r.SALDO)}</td>
       <td class="num">${pctBadge(pctSalida([r]), SEMAFORO_POP)}</td>
-      <td class="nw"><span class="celda-sub" style="margin:0">Ingreso ${formatDate(r.FECHA_INGRESO)}</span>
+      <td class="nw"><span class="celda-sub" style="margin:0">Esperada ${formatDate(r.FECHA_RECEPCION_POP)}</span>
+        <span class="celda-sub">Ingreso ${formatDate(r.FECHA_INGRESO)}</span>
         <span class="celda-sub">Salida ${formatDate(r.FECHA_ULTIMA_SALIDA)}</span></td>
       <td><span class="badge" style="color:${alerta.fg};background:${alerta.bg}">${esc(alerta.text)}</span></td>
       <td><span class="badge" style="color:${estado.fg};background:${estado.bg}">${esc(estado.text)}</span>
@@ -3669,10 +3679,10 @@ function exportarPop(){
   const filas = filasTablaPop(filtrarPop(), ultimosPredicadosPop);
   exportarXLSX('detalle_material_pop',
     ['Campaña','Material POP','Producto foco','Mes ejecución','Canal','Región','Asignado','Llegó','Salida','Saldo','Cumplimiento %',
-     'Ingreso CEDI','Última salida','Alerta recepción','Estado ejecución','Días finalizado'],
+     'Fecha esperada','Ingreso CEDI','Última salida','Alerta recepción','Estado ejecución','Días finalizado'],
     filas.map(r => [r.CAMPAÑA, r.POP || r.Articulo, r.PRODUCTO_FOCO, r._mes ? mesLabel(r._mes) : '', r.CANAL, r.REGIONAL,
       Number(r.CANTIDAD_ASIGNADA) || 0, Number(r.CANTIDAD_LLEGA) || 0, Number(r.CANTIDAD_SALIDA) || 0, Number(r.SALDO) || 0,
-      pctNum(pctSalida([r])), formatDate(r.FECHA_INGRESO), formatDate(r.FECHA_ULTIMA_SALIDA),
+      pctNum(pctSalida([r])), formatDate(r.FECHA_RECEPCION_POP), formatDate(r.FECHA_INGRESO), formatDate(r.FECHA_ULTIMA_SALIDA),
       calcAlertaRecepcion(r).text, calcEstadoEjecucion(r).text, calcDiasFinalizado(r)]));
 }
 function exportarArticulos(){
