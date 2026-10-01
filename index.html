@@ -846,39 +846,27 @@ section,[id^="vista-"]{scroll-margin-top:96px}
         <div id="liq-resumen" class="grid grid-cols-1 xl:grid-cols-2 gap-4"></div>
       </section>
 
-      <section id="liq-niveles">
-        <h3 id="liq-niveles-titulo" class="section-title">A pagar por nivel</h3>
-        <div class="auto-grid">
-          <div id="card-liq-regional" class="card p-5">
-            <div class="lb-cabecera">
-              <div>
-                <h4 class="text-sm font-bold font-display">Por Regional</h4>
-                <p class="text-[11px] muted">Pagado frente a la bolsa de comisión de sus rutas.</p>
-              </div>
-              <button type="button" class="lb-orden" data-lb="liq-lb-regional" onclick="toggleOrdenLb('liq-lb-regional')">↓ Mayor a menor</button>
-            </div>
-            <div id="liq-lb-regional"></div>
+      <section id="liq-niveles" class="card p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h3 id="liq-niveles-titulo" class="text-base font-bold tracking-tight font-display">A pagar por nivel</h3>
+            <p class="text-xs mt-0.5 font-medium muted">Comisión de las rutas a cargo de cada uno. Clic en un encabezado para ordenar.</p>
           </div>
-          <div id="card-liq-lider" class="card p-5">
-            <div class="lb-cabecera">
-              <div>
-                <h4 class="text-sm font-bold font-display">Por Líder</h4>
-                <p class="text-[11px] muted">Comisión de las rutas a cargo de cada líder.</p>
-              </div>
-              <button type="button" class="lb-orden" data-lb="liq-lb-lider" onclick="toggleOrdenLb('liq-lb-lider')">↓ Mayor a menor</button>
-            </div>
-            <div id="liq-lb-lider"></div>
-          </div>
-          <div id="card-liq-supervisor" class="card p-5">
-            <div class="lb-cabecera">
-              <div>
-                <h4 class="text-sm font-bold font-display">Por Supervisor</h4>
-                <p class="text-[11px] muted">Comisión de las rutas a cargo de cada supervisor.</p>
-              </div>
-              <button type="button" class="lb-orden" data-lb="liq-lb-supervisor" onclick="toggleOrdenLb('liq-lb-supervisor')">↓ Mayor a menor</button>
-            </div>
-            <div id="liq-lb-supervisor"></div>
-          </div>
+          <div id="liq-niveles-tabs" class="vs-switch" role="tablist"></div>
+        </div>
+        <div class="table-scroll" style="max-height:none">
+          <table id="tabla-niveles">
+            <thead>
+              <tr>
+                <th data-orden="label">Nombre</th>
+                <th class="num" data-orden="n">Rutas</th>
+                <th class="num" data-orden="bolsa">Bolsa</th>
+                <th class="num" data-orden="pagar">A pagar</th>
+                <th data-orden="pct" style="width:32%">% de la bolsa pagado</th>
+              </tr>
+            </thead>
+            <tbody id="liq-tabla-niveles"></tbody>
+          </table>
         </div>
       </section>
 
@@ -897,8 +885,8 @@ section,[id^="vista-"]{scroll-margin-top:96px}
           <table>
             <thead>
               <tr>
-                <th>Ruta</th><th>Líder / Supervisor</th><th>Llaves</th>
-                <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
+                <th>Ruta</th><th>Líder / Supervisor</th><th>Llaves</th><th>% Cumplimiento</th>
+                <th class="num">Tienda Perfecta ($)</th><th class="num">Ventas ($)</th><th class="num">FC & DV ($)</th>
                 <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Control Excel</th>
               </tr>
             </thead>
@@ -920,8 +908,8 @@ section,[id^="vista-"]{scroll-margin-top:96px}
           <table>
             <thead>
               <tr>
-                <th>Nombre</th><th>Llaves</th>
-                <th class="num">Tienda Perfecta</th><th class="num">Ventas</th><th class="num">FC & DV</th>
+                <th>Nombre</th><th>Llaves</th><th>% Cumplimiento</th>
+                <th class="num">Tienda Perfecta ($)</th><th class="num">Ventas ($)</th><th class="num">FC & DV ($)</th>
                 <th class="num">A pagar</th><th>Siguiente tramo</th><th class="num">Control Excel</th>
               </tr>
             </thead>
@@ -1826,7 +1814,48 @@ function prepararPop(records){
     _mes: mesDeEjecucion(r.EJECUCION)
   }));
 }
+// Clave de una persona sin importar el orden de nombres y apellidos:
+// "LAURA ESTEPHANIA PIÑEROS MONTAÑA" = "PIÑEROS MONTAÑA LAURA ESTEPHANIA"
+function claveNombre(v){ return normKey(v).split(' ').filter(Boolean).sort().join(' '); }
+
+// Unifica cómo se escribe cada persona en todos los meses (se usa la forma
+// del mes más reciente) y evita que un supervisor aparezca como líder.
+function unificarNombres(rutas, lideres, indicadores){
+  const canon = {};
+  const registrar = (nombre, mes) => {
+    if(!nombre) return;
+    const k = claveNombre(nombre);
+    if(!canon[k] || mes >= canon[k].mes) canon[k] = { nombre, mes };
+  };
+  rutas.forEach(r => ['lider', 'supervisor', 'lider_alqueria'].forEach(c => registrar(r[c], Number(r.mes_orden))));
+  lideres.forEach(r => registrar(r.nombre, Number(r.mes_orden)));
+  const fijar = v => v ? (canon[claveNombre(v)] || { nombre:v }).nombre : v;
+  rutas.forEach(r => { r.lider = fijar(r.lider); r.supervisor = fijar(r.supervisor); r.lider_alqueria = fijar(r.lider_alqueria); });
+  lideres.forEach(r => { r.nombre = fijar(r.nombre); });
+  indicadores.forEach(r => { r.supervisor = fijar(r.supervisor); });
+
+  // Quién es supervisor y quién líder (según cargo y meses de liquidación oficial)
+  const supervisores = new Set(), lideresSet = new Set();
+  lideres.forEach(r => {
+    if(tipoCargo(r.cargo) === 'supervisor') supervisores.add(claveNombre(r.nombre));
+    else if(tipoCargo(r.cargo) === 'lider' && r.fuente !== 'indicadores') lideresSet.add(claveNombre(r.nombre));
+  });
+  rutas.forEach(r => { if(r.supervisor) supervisores.add(claveNombre(r.supervisor)); });
+  rutas.forEach(r => { if(r.lider && r.fuente !== 'indicadores' && !supervisores.has(claveNombre(r.lider))) lideresSet.add(claveNombre(r.lider)); });
+
+  // Si en una ruta el "líder" es en realidad un supervisor, se toma el líder real de esa ruta en otro mes
+  const liderPorRuta = {};
+  [...rutas].sort((a, b) => a.mes_orden - b.mes_orden).forEach(r => {
+    if(r.lider && lideresSet.has(claveNombre(r.lider))) liderPorRuta[claveRuta(r.ruta)] = r.lider;
+  });
+  const esSupervisorNoLider = n => n && supervisores.has(claveNombre(n)) && !lideresSet.has(claveNombre(n));
+  rutas.forEach(r => { if(esSupervisorNoLider(r.lider)) r.lider = liderPorRuta[claveRuta(r.ruta)] || null; });
+  // En meses de seguimiento, quita "líderes" que en realidad son supervisores
+  return lideres.filter(r => !(r.fuente === 'indicadores' && tipoCargo(r.cargo) === 'lider' && esSupervisorNoLider(r.nombre)));
+}
+
 function prepararCampo({ rutas, indicadores, lideres }){
+  lideres = unificarNombres(rutas, lideres, indicadores);
   const rutasOk = rutas.map(r => {
     const captura = num(r.pct_captura), cobertura = num(r.pct_cobertura);
     const tp = num(r.pct_tienda_perfecta), ventas = num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
@@ -2258,16 +2287,24 @@ function detalleComposicionPop(g){
     const articulos = agruparPop(g.filas, r => r.POP || r.Articulo)
       .filter(a => a.asignado > 0 || a.llega > 0 || a.salida > 0)
       .map(a => {
-        // Mora del artículo: la mayor de sus filas; "pendiente" si alguna no ha llegado
+        // Un artículo puede tener varias filas (una por regional, canal o campaña).
+        // Mora = la mayor de sus filas. Se cuentan aparte las filas que aún no llegan,
+        // para no decir "sin llegar" si el resto del material sí llegó.
+        const conAsignacion = a.filas.filter(r => (Number(r.CANTIDAD_ASIGNADA) || 0) > 0);
+        const pendientes = conAsignacion.filter(r => (Number(r.CANTIDAD_LLEGA) || 0) <= 0 && diasMora(r) > 0);
         const moras = a.filas.map(diasMora).filter(d => d !== null);
-        const pendiente = a.filas.some(r => (Number(r.CANTIDAD_LLEGA) || 0) <= 0 && diasMora(r) > 0);
-        return { ...a, mora: moras.length ? Math.max(...moras) : null, pendiente };
+        return { ...a, mora: moras.length ? Math.max(...moras) : null,
+          pendientes: pendientes.length, totalFilas: conAsignacion.length,
+          dondeFalta: unicos(pendientes, r => [r.REGIONAL, r.CANAL].filter(Boolean).join(' · ')) };
       })
       .sort((a, b) => b.asignado - a.asignado || b.llega - a.llega);
 
     const celdaMora = a => a.mora === null ? '<span class="muted">—</span>'
       : a.mora > 0
-        ? `<span class="mora roja">${a.mora} días${a.pendiente ? ' <small>· sin llegar</small>' : ''}</span>`
+        ? `<span class="mora roja" title="${a.pendientes ? esc('Falta en: ' + a.dondeFalta.join(', ')) : 'Llegó con mora'}">${a.mora} días${
+            !a.pendientes ? ''
+            : a.pendientes >= a.totalFilas ? ' <small>· sin llegar</small>'
+            : ` <small>· falta en ${a.pendientes} de ${a.totalFilas}</small>`}</span>`
         : '<span class="mora verde">A tiempo</span>';
 
     const tabla = lista => `<table>
@@ -2308,7 +2345,7 @@ function detalleComposicionPop(g){
         <div class="foco-stat"><p>Artículos en mora</p><p style="color:${enMora ? 'var(--alqueria-red)' : 'var(--green)'}">${formatNumber(enMora)}<small>de ${formatNumber(articulos.length)}${enMora ? ` · máx. ${moraMax}d` : ''}</small></p></div>
       </div>
       <div class="detalle-tablas${dos ? ' dos' : ''}">${cuerpo}</div>
-      <p class="text-[10.5px] muted mt-3">Mora: días entre la fecha pactada de recepción y la llegada al CEDI. "Sin llegar": aún no llega y los días siguen sumando.</p>`;
+      <p class="text-[10.5px] muted mt-3">Mora: días entre la fecha pactada de recepción y la llegada al CEDI. "Sin llegar": no ha llegado nada. "Falta en 1 de 4": una parte (regional o canal) aún no llega; pasa el mouse sobre la etiqueta para ver dónde.</p>`;
   };
 }
 
@@ -3407,9 +3444,19 @@ function tarjetaResumen(titulo, s){
   </div>`;
 }
 
-function celdaComponente(r, k, pct){
+// Columna aparte con el % de cumplimiento de cada componente (no es el % que se paga)
+function celdaCumplimiento(r){
+  const linea = (nombre, v) => {
+    const t = tono(v, SEMAFORO_CAMPO);
+    return `<span class="flex items-center justify-between gap-3 text-[11px] font-semibold" style="white-space:nowrap">
+      <span class="muted">${nombre}</span><span class="font-extrabold" style="color:${t.fg}">${fmtPct(v)}</span></span>`;
+  };
+  return `<td class="nw">${linea('TP', r.pct_tienda_perfecta)}${linea('Ventas', r.pct_ventas)}${linea('FC & DV', r.pct_fc_dv)}</td>`;
+}
+// Solo dinero: lo pagado y la base del componente
+function celdaComponente(r, k){
   return `<td class="num"><span class="font-bold">${fmtCOP(r.pagado[k])}</span>
-    <span class="celda-sub">${fmtPct(pct)} · de ${fmtCOP(r.base[k])}</span></td>`;
+    <span class="celda-sub">Base ${fmtCOP(r.base[k])}</span></td>`;
 }
 function celdaTramos(r){
   if(r.sinSimulacion) return `<td><span class="text-[11px] font-semibold muted">No aplica: este mes se liquidó con reglas distintas</span></td>`;
@@ -3468,9 +3515,6 @@ function renderFocoLiq(rutas, personas){
   const seleccion = seleccionFocoLiq();
   const enFoco = seleccion.length > 0;
 
-  document.getElementById('card-liq-regional').classList.toggle('hidden', !!regional);
-  document.getElementById('card-liq-lider').classList.toggle('hidden', !!lider);
-  document.getElementById('card-liq-supervisor').classList.toggle('hidden', !!supervisor);
   document.getElementById('liq-niveles').classList.toggle('hidden', !!ruta || (!!regional && !!lider && !!supervisor));
   document.getElementById('liq-niveles-titulo').textContent =
     enFoco ? `A pagar dentro de ${seleccion.map(s => s.valor).join(' · ')}` : 'A pagar por nivel';
@@ -3584,52 +3628,91 @@ function renderLiquidacion(){
     tarjetaResumen('Mercaderistas (rutas)', resumenPago(rutas)) +
     tarjetaResumen('Líderes y Supervisores', resumenPago(personas));
 
-  // Rankings: barra clara = bolsa, sólida = pagado
-  const porNivel = keyFn => {
-    const g = {};
-    rutas.forEach(r => {
-      const k = keyFn(r);
-      if(!k) return;
-      g[k] = g[k] || { bolsa:0, pagar:0, n:0 };
-      g[k].bolsa += r.baseTotal; g[k].pagar += r.pagar; g[k].n++;
-    });
-    return Object.entries(g).map(([label, v]) => {
-      const p = v.bolsa > 0 ? v.pagar / v.bolsa * 100 : 0;
-      const t = tono(p, SEMAFORO_CAMPO);
-      return { label, value:v.bolsa, hecho:v.pagar, colorHecho:t.hex, colorBadge:'var(--text)',
-        badge:fmtCOP(v.pagar), extra:`${fmtPct(p)} de ${fmtCOP(v.bolsa)} · ${v.n} ${v.n === 1 ? 'ruta' : 'rutas'}` };
-    });
-  };
-  renderLeaderboard('liq-lb-regional', porNivel(r => r.regional));
-  renderLeaderboard('liq-lb-lider', porNivel(r => r.lider));
-  renderLeaderboard('liq-lb-supervisor', porNivel(r => r.supervisor));
+  renderNivelesLiq(rutas);
 
   const filas = filasLiqRutas(rutas);
   pintarTabla('liq-tabla-rutas', filas.length ? filas.map(r => `<tr>
     <td class="font-bold">${esc(r.ruta)}<span class="celda-sub">${esc(r.regional)} · ${esc(r.mes)}</span></td>
     <td>${esc(r.lider)}<span class="celda-sub">${esc(r.supervisor)}</span></td>
-    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">${fmtPct(r.pct_captura)} · ${fmtPct(r.pct_cobertura)}</span></td>
+    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">Captura ${fmtPct(r.pct_captura)}</span><span class="celda-sub" style="margin-top:0">Cobertura ${fmtPct(r.pct_cobertura)}</span></td>
+    ${celdaCumplimiento(r)}
     ${celdaComponente(r, 'tp', r.pct_tienda_perfecta)}
     ${celdaComponente(r, 'ventas', r.pct_ventas)}
     ${celdaComponente(r, 'fcdv', r.pct_fc_dv)}
-    <td class="num"><span class="font-extrabold" style="color:${r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${fmtCOP(r.pagar)}</span><span class="celda-sub">de ${fmtCOP(r.baseTotal)}</span></td>
+    <td class="num"><span class="font-extrabold" style="color:${r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${fmtCOP(r.pagar)}</span><span class="celda-sub">Bolsa ${fmtCOP(r.baseTotal)}</span></td>
     ${celdaTramos(r)}
     ${celdaDiferencia(r)}
-  </tr>`).join('') : emptyRow(9));
+  </tr>`).join('') : emptyRow(10));
   document.getElementById('liq-rutas-count').textContent = `${formatNumber(filas.length)} rutas · total a pagar ${fmtCOP(suma(filas, r => r.pagar))}`;
 
   const ps = [...personas].sort((a, b) => String(a.cargo).localeCompare(String(b.cargo), 'es') || b.pagar - a.pagar);
   pintarTabla('liq-tabla-personas', ps.length ? ps.map(r => `<tr>
     <td class="font-bold">${esc(r.nombre)}<span class="celda-sub">${esc(r.cargo)} · ${esc(r.mes)}</span></td>
-    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">${fmtPct(r.pct_captura)} · ${fmtPct(r.pct_cobertura)}</span></td>
+    <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">Captura ${fmtPct(r.pct_captura)}</span><span class="celda-sub" style="margin-top:0">Cobertura ${fmtPct(r.pct_cobertura)}</span></td>
+    ${celdaCumplimiento(r)}
     ${celdaComponente(r, 'tp', r.pct_tienda_perfecta)}
     ${celdaComponente(r, 'ventas', r.pct_ventas)}
     ${celdaComponente(r, 'fcdv', r.pct_fc_dv)}
-    <td class="num"><span class="font-extrabold" style="color:${r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${fmtCOP(r.pagar)}</span><span class="celda-sub">de ${fmtCOP(r.baseTotal)}</span></td>
+    <td class="num"><span class="font-extrabold" style="color:${r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)'}">${fmtCOP(r.pagar)}</span><span class="celda-sub">Bolsa ${fmtCOP(r.baseTotal)}</span></td>
     ${celdaTramos(r)}
     ${celdaDiferencia(r)}
-  </tr>`).join('') : emptyRow(8));
+  </tr>`).join('') : emptyRow(9));
   document.getElementById('liq-personas-count').textContent = `${formatNumber(ps.length)} personas · total a pagar ${fmtCOP(suma(ps, r => r.pagar))}`;
+}
+
+// ---------- A pagar por nivel: una tabla con pestañas Regional / Líder / Supervisor ----------
+const NIVELES_LIQ = [
+  { key:'regional', label:'Regional' },
+  { key:'lider', label:'Líder' },
+  { key:'supervisor', label:'Supervisor' }
+];
+const estadoNiveles = { nivel:'regional', orden:'pagar', dir:-1 };
+let ultimasRutasNiveles = [];
+
+function renderNivelesLiq(rutas){
+  if(rutas) ultimasRutasNiveles = rutas;
+  // Pestañas: no se muestra el nivel que ya está filtrado
+  const disponibles = NIVELES_LIQ.filter(n => !filtrosLiq[n.key]);
+  if(!disponibles.some(n => n.key === estadoNiveles.nivel) && disponibles.length) estadoNiveles.nivel = disponibles[0].key;
+  document.getElementById('liq-niveles-tabs').innerHTML = disponibles.map(n =>
+    `<button type="button" class="${n.key === estadoNiveles.nivel ? 'is-activo' : ''}" onclick="cambiarNivelLiq('${n.key}')">${n.label}</button>`).join('');
+
+  const g = {};
+  ultimasRutasNiveles.forEach(r => {
+    const k = r[estadoNiveles.nivel];
+    if(!k) return;
+    g[k] = g[k] || { label:k, bolsa:0, pagar:0, n:0 };
+    g[k].bolsa += r.baseTotal; g[k].pagar += r.pagar; g[k].n++;
+  });
+  const { orden, dir } = estadoNiveles;
+  const filas = Object.values(g).map(v => ({ ...v, pct: v.bolsa > 0 ? v.pagar / v.bolsa * 100 : 0 }))
+    .sort((a, b) => typeof a[orden] === 'string' ? dir * a[orden].localeCompare(b[orden], 'es') : dir * (a[orden] - b[orden]));
+
+  pintarTabla('liq-tabla-niveles', filas.length ? filas.map(v => {
+    const t = tono(v.pct, SEMAFORO_CAMPO);
+    return `<tr>
+      <td class="font-bold">${esc(v.label)}</td>
+      <td class="num">${formatNumber(v.n)}</td>
+      <td class="num muted">${fmtCOP(v.bolsa)}</td>
+      <td class="num font-extrabold" style="color:var(--green)">${fmtCOP(v.pagar)}</td>
+      <td><div class="flex items-center gap-3">
+        <div class="leaderboard-track" style="height:8px"><div class="leaderboard-fill" style="width:${Math.min(100, v.pct)}%;background:${t.fg}"></div></div>
+        <span class="text-xs font-extrabold num" style="color:${t.fg};min-width:48px">${fmtPct(v.pct)}</span>
+      </div></td>
+    </tr>`;
+  }).join('') : emptyRow(5));
+
+  document.querySelectorAll('#tabla-niveles th[data-orden]').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.querySelector('.sort-flecha')?.remove();
+    if(th.dataset.orden === orden) th.insertAdjacentHTML('beforeend', `<span class="sort-flecha">${dir > 0 ? '▲' : '▼'}</span>`);
+  });
+}
+function cambiarNivelLiq(nivel){ estadoNiveles.nivel = nivel; renderNivelesLiq(); }
+function ordenarNivelesLiq(campo){
+  estadoNiveles.dir = estadoNiveles.orden === campo ? -estadoNiveles.dir : (campo === 'label' ? 1 : -1);
+  estadoNiveles.orden = campo;
+  renderNivelesLiq();
 }
 
 function limpiarFiltrosLiq(){
@@ -3786,6 +3869,7 @@ function conectarEventos(){
     filtrosLiq[key] = String(valor);
     recargarLiqConAnimacion();
   });
+  document.querySelectorAll('#tabla-niveles th[data-orden]').forEach(th => th.addEventListener('click', () => ordenarNivelesLiq(th.dataset.orden)));
   document.getElementById('liq-busqueda').addEventListener('input', e => {
     filtrosLiq.busqueda = e.target.value.trim().toLowerCase(); renderLiquidacion();
   });

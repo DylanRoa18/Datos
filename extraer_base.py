@@ -792,9 +792,11 @@ def cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log):
 
     mapa, hoja_mapa = mapa_rutas_libro(archivo, nombres_hojas, hoja)
     if mapa:
+        # Lo de la hoja de liquidación del libro manda: en Indicadores la columna
+        # "LIDER" a veces trae en realidad a los supervisores.
         for campo in ("regional", "lider", "supervisor"):
             rutas[campo] = [
-                actual if actual else (mapa.get(clave_ruta(ruta), {}).get(campo))
+                (mapa.get(clave_ruta(ruta), {}).get(campo)) or actual
                 for actual, ruta in zip(rutas[campo], rutas["ruta"])
             ]
         rutas["regional"] = rutas["regional"].apply(
