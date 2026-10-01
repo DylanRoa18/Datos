@@ -256,7 +256,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .mora small{font-size:9.5px;font-weight:700;opacity:.85}
 .mora.roja{color:var(--alqueria-red);background:var(--alqueria-red-bg)}
 .mora.verde{color:var(--green);background:var(--green-bg)}
-.detalle-tablas th{font-size:10.5px;font-weight:700;color:var(--text-muted);text-align:left;padding:7px 5px;border-bottom:1px solid var(--border)}
+.detalle-tablas th{font-size:10.5px;font-weight:700;color:var(--text-muted);text-align:left;padding:7px 5px;border-bottom:1px solid var(--border);position:sticky;top:-22px;background:#fff;z-index:1}
 .detalle-tablas td{padding:6px 5px;border-bottom:1px solid var(--border);vertical-align:top}
 .detalle-tablas th.num,.detalle-tablas td.num{text-align:right;white-space:nowrap}
 .detalle-tablas tr:last-child td{border-bottom:none}
@@ -2319,10 +2319,8 @@ function detalleComposicionPop(g){
       </tr>`).join('')}</tbody>
     </table>`;
 
-    // Si todos caben en la pantalla, una sola tabla; si no, dos columnas
-    // (la ventana se ensancha para que cada una se lea completa).
-    const filasQueCaben = Math.max(8, Math.floor((window.innerHeight * 0.94 - 300) / 36));
-    const dos = articulos.length > filasQueCaben && window.innerWidth >= 860;
+    // Siempre una sola tabla de largo (si hay muchos artículos, la ventana se desplaza hacia abajo)
+    const dos = false;
     const mitad = Math.ceil(articulos.length / 2);
     const bloque = (lista, desde) => `<div class="detalle-col">
         <p class="detalle-parte">Artículos ${desde}–${desde + lista.length - 1}</p>${tabla(lista)}</div>`;
