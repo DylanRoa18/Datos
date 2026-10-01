@@ -239,7 +239,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .lb-interactivo:hover,.lb-interactivo.is-abierto{background:var(--surface-soft)}
 .detalle-modal{position:fixed;inset:0;z-index:75;display:flex;align-items:center;justify-content:center;padding:16px}
 .detalle-fondo{position:absolute;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fundido .25s ease both}
-.detalle-caja{position:relative;width:min(1080px,96vw);max-height:94vh;overflow-y:auto;background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 30px 70px -15px rgba(15,23,42,.45)}
+.detalle-caja{position:relative;width:min(860px,96vw);max-height:94vh;overflow-y:auto;background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 30px 70px -15px rgba(15,23,42,.45)}
 .detalle-caja.zoom{animation:zoomEntrada .32s cubic-bezier(.2,.9,.25,1) both}
 .detalle-cerrar{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:#fff;color:var(--text-muted)}
 .detalle-cerrar:hover{color:var(--text);border-color:#CBD5E1}
@@ -252,6 +252,36 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .detalle-caja.ancha{width:min(1440px,97vw)}
 .detalle-tablas table{width:100%;font-size:12px;border-collapse:collapse}
 .detalle-tablas td.art{min-width:180px}
+/* Ventana de detalle POP: resumen + grupos por estado */
+.dz-resumen{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin:14px 0 6px;padding:14px 16px;border-radius:16px;background:var(--surface-soft);border:1px solid var(--border)}
+.dz-resumen-barra{flex:1 1 320px;min-width:0}
+.dz-grupo{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
+.dz-grupo summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:4px 0}
+.dz-grupo summary::-webkit-details-marker{display:none}
+.dz-grupo summary::after{content:'';margin-left:auto;width:8px;height:8px;border-right:2px solid var(--text-muted);border-bottom:2px solid var(--text-muted);transform:rotate(45deg);transition:transform .15s}
+.dz-grupo[open] summary::after{transform:rotate(-135deg)}
+.dz-punto{width:9px;height:9px;border-radius:9999px;flex-shrink:0}
+.dz-conteo{font-size:11px;font-weight:800;padding:1px 8px;border-radius:9999px;background:var(--surface-soft);border:1px solid var(--border)}
+.dz-etiqueta{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1px}
+.dz-dato p{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px}
+.dz-cabecera{display:grid;grid-template-columns:minmax(0,1fr) 170px 190px;gap:14px;padding:6px 4px 4px;margin-top:4px;border-bottom:1px solid var(--border);
+  font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}
+.dz-cabecera span:nth-child(2){text-align:left}
+.dz-cabecera span:last-child{text-align:right}
+@media (max-width:640px){.dz-cabecera{display:none}}
+.dz-item{display:grid;grid-template-columns:minmax(0,1fr) 170px 190px;align-items:center;gap:14px;padding:9px 4px;border-bottom:1px solid #F1F5F9}
+.dz-item:last-child{border-bottom:none}
+.dz-nombre{font-size:12.5px;font-weight:700;line-height:1.3}
+.dz-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.dz-sub b{color:var(--text);font-weight:700}
+.dz-avance{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+.dz-avance .leaderboard-track{height:7px}
+.dz-avance span{min-width:52px;text-align:right}
+.dz-mora{text-align:right}
+@media (max-width:640px){
+  .dz-item{grid-template-columns:1fr auto;gap:6px 10px}
+  .dz-item > :first-child{grid-column:1 / -1}
+}
 .mora{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:9999px;white-space:nowrap}
 .mora small{font-size:9.5px;font-weight:700;opacity:.85}
 .mora.roja{color:var(--alqueria-red);background:var(--alqueria-red-bg)}
@@ -2282,69 +2312,128 @@ function renderAnillosPop(t){
 }
 
 // Contenido de la ventana: artículos que componen un grupo (regional, campaña o canal)
+// Ventana de detalle: resumen en una línea y artículos agrupados por estado
+// (falta por llegar, en despacho, completos), cada uno en una fila liviana.
 function detalleComposicionPop(g){
   return () => {
     const articulos = agruparPop(g.filas, r => r.POP || r.Articulo)
       .filter(a => a.asignado > 0 || a.llega > 0 || a.salida > 0)
       .map(a => {
-        // Un artículo puede tener varias filas (una por regional, canal o campaña).
-        // Mora = la mayor de sus filas. Se cuentan aparte las filas que aún no llegan,
-        // para no decir "sin llegar" si el resto del material sí llegó.
+        // Un artículo puede tener varias filas (por regional, canal o campaña)
         const conAsignacion = a.filas.filter(r => (Number(r.CANTIDAD_ASIGNADA) || 0) > 0);
         const pendientes = conAsignacion.filter(r => (Number(r.CANTIDAD_LLEGA) || 0) <= 0 && diasMora(r) > 0);
         const moras = a.filas.map(diasMora).filter(d => d !== null);
         return { ...a, mora: moras.length ? Math.max(...moras) : null,
           pendientes: pendientes.length, totalFilas: conAsignacion.length,
           dondeFalta: unicos(pendientes, r => [r.REGIONAL, r.CANAL].filter(Boolean).join(' · ')) };
-      })
-      .sort((a, b) => b.asignado - a.asignado || b.llega - a.llega);
+      });
 
-    const celdaMora = a => a.mora === null ? '<span class="muted">—</span>'
+    const chipMora = a => a.mora === null ? ''
       : a.mora > 0
-        ? `<span class="mora roja" title="${a.pendientes ? esc('Falta en: ' + a.dondeFalta.join(', ')) : 'Llegó con mora'}">${a.mora} días${
-            !a.pendientes ? ''
-            : a.pendientes >= a.totalFilas ? ' <small>· sin llegar</small>'
-            : ` <small>· falta en ${a.pendientes} de ${a.totalFilas}</small>`}</span>`
+        ? `<span class="mora roja" title="${a.pendientes ? esc('Falta en: ' + a.dondeFalta.join(', ')) : 'Llegó con mora'}">${a.mora} días de mora${
+            !a.pendientes ? '' : a.pendientes >= a.totalFilas ? '' : ` <small>· falta en ${a.pendientes} de ${a.totalFilas}</small>`}</span>`
         : '<span class="mora verde">A tiempo</span>';
 
-    const tabla = lista => `<table>
-      <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num">%</th><th class="num">Mora</th></tr></thead>
-      <tbody>${lista.map(a => `<tr>
-        <td class="font-semibold art">${esc(a.label)}</td>
-        <td class="num" data-l="Asignado">${formatNumber(a.asignado)}</td>
-        <td class="num" data-l="Llegó">${formatNumber(a.llega)}</td>
-        <td class="num" data-l="Salido">${formatNumber(a.salida)}</td>
-        <td class="num" data-l="%" style="color:${tono(a.pct, SEMAFORO_POP).fg};font-weight:700">${fmtPct(a.pct)}</td>
-        <td class="num" data-l="Mora">${celdaMora(a)}</td>
-      </tr>`).join('')}</tbody>
-    </table>`;
+    const fila = a => {
+      const t = tono(a.pct, SEMAFORO_POP);
+      return `<div class="dz-item">
+        <div class="min-w-0">
+          <p class="dz-nombre">${esc(a.label)}</p>
+          <p class="dz-sub">Asignado <b>${formatNumber(a.asignado)}</b> · Llegó <b>${formatNumber(a.llega)}</b> · Salido <b>${formatNumber(a.salida)}</b></p>
+        </div>
+        <div class="dz-avance">
+          ${a.asignado > 0 ? `<div class="leaderboard-track"><div class="leaderboard-fill" style="width:${Math.min(100, a.pct || 0)}%;background:${t.fg}"></div></div>
+          <span style="color:${t.fg}">${fmtPct(a.pct)}</span>` : '<span class="muted">Sin asignación</span>'}
+        </div>
+        <div class="dz-mora">${chipMora(a)}</div>
+      </div>`;
+    };
 
-    // Siempre una sola tabla de largo (si hay muchos artículos, la ventana se desplaza hacia abajo)
-    const dos = false;
-    const mitad = Math.ceil(articulos.length / 2);
-    const bloque = (lista, desde) => `<div class="detalle-col">
-        <p class="detalle-parte">Artículos ${desde}–${desde + lista.length - 1}</p>${tabla(lista)}</div>`;
-    const cuerpo = dos
-      ? bloque(articulos.slice(0, mitad), 1) + '<div class="detalle-divisor" aria-hidden="true"></div>' + bloque(articulos.slice(mitad), mitad + 1)
-      : `<div class="detalle-col">${tabla(articulos)}</div>`;
+    const porAsignado = (x, y) => y.asignado - x.asignado || y.llega - x.llega;
+    const grupos = [
+      { titulo:'Falta por llegar', desc:'Aún no llega al CEDI (todo o una parte)', color:'var(--alqueria-red)', abierto:false,
+        items: articulos.filter(a => a.pendientes > 0) },
+      { titulo:'En despacho', desc:'Llegó, pero falta salida frente a lo asignado', color:'var(--amber)', abierto:false,
+        items: articulos.filter(a => !a.pendientes && a.asignado > 0 && a.salida < a.asignado) },
+      { titulo:'Completos', desc:'Salió todo lo asignado', color:'var(--green)', abierto:false,
+        items: articulos.filter(a => !a.pendientes && a.asignado > 0 && a.salida >= a.asignado) },
+      { titulo:'Llegó sin asignación', desc:'Material recibido sin cantidad asignada', color:'var(--purple)', abierto:false,
+        items: articulos.filter(a => !a.pendientes && a.asignado <= 0) }
+    ].filter(x => x.items.length);
+
     const t = tono(g.pct, SEMAFORO_POP);
     const enMora = articulos.filter(a => a.mora > 0).length;
     const moraMax = articulos.reduce((m, a) => Math.max(m, a.mora || 0), 0);
 
-    return `<div class="pr-10 mb-4">
+    const encabezado = `<div class="pr-10">
         <p class="text-[10.5px] font-extrabold uppercase tracking-wider" style="color:var(--eficacia-blue)">${esc(g.tipo)}</p>
-        <h3 class="text-xl font-extrabold font-display tracking-tight">${esc(g.label)}</h3>
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h3 class="text-xl font-extrabold font-display tracking-tight">${esc(g.label)}</h3>
+          <span class="text-xs font-semibold muted">${formatNumber(articulos.length)} artículos</span>
+        </div>
       </div>
-      <div class="foco-stats" style="margin-top:0;margin-bottom:14px">
-        <div class="foco-stat"><p>Asignado</p><p>${formatNumber(g.asignado)}<small>und</small></p></div>
-        <div class="foco-stat"><p>Llegó</p><p>${formatNumber(g.llega)}<small>und</small></p></div>
-        <div class="foco-stat"><p>Salido</p><p>${formatNumber(g.salida)}<small>und</small></p></div>
-        <div class="foco-stat"><p>Cumplimiento</p><p style="color:${t.fg}">${fmtPct(g.pct)}</p></div>
-        <div class="foco-stat"><p>Artículos en mora</p><p style="color:${enMora ? 'var(--alqueria-red)' : 'var(--green)'}">${formatNumber(enMora)}<small>de ${formatNumber(articulos.length)}${enMora ? ` · máx. ${moraMax}d` : ''}</small></p></div>
+
+      <div class="dz-resumen">
+        <div class="dz-resumen-barra">
+          <div class="flex items-end justify-between gap-3 mb-1.5">
+            <div>
+              <p class="dz-etiqueta">Avance de salida</p>
+              <span class="text-xs font-semibold muted">Salido <b class="text-[var(--text)]">${formatNumber(g.salida)}</b> de ${formatNumber(g.asignado)} und asignadas · llegaron ${formatNumber(g.llega)}</span>
+            </div>
+            <div class="text-right">
+              <p class="dz-etiqueta">% Cumplimiento</p>
+              <span class="text-lg font-extrabold font-display" style="color:${t.fg}">${fmtPct(g.pct)}</span>
+            </div>
+          </div>
+          <div class="leaderboard-track" style="height:10px"><div class="leaderboard-fill" style="width:${Math.min(100, g.pct || 0)}%;background:${t.fg}"></div></div>
+        </div>
+        <div class="dz-dato"><p>Mora</p>${enMora ? `<span class="mora roja">${enMora} con mora · máx. ${moraMax} días</span>` : '<span class="mora verde">Sin mora</span>'}</div>
+      </div>`;
+
+    const vistaResumen = `${grupos.map(gr => `<details class="dz-grupo"${gr.abierto ? ' open' : ''}>
+        <summary>
+          <span class="dz-punto" style="background:${gr.color}"></span>
+          <span class="font-bold text-sm">${gr.titulo}</span>
+          <span class="dz-conteo">${gr.items.length}</span>
+          <span class="text-[11px] muted hidden sm:inline">${gr.desc}</span>
+        </summary>
+        <div class="dz-cabecera"><span>Artículo · cantidades</span><span title="Salido frente a lo asignado">% Cumplimiento</span><span>Mora</span></div>
+        <div>${gr.items.sort(porAsignado).map(fila).join('')}</div>
+      </details>`).join('')}`;
+
+    // ---- Vista "Tabla completa" (la tabla anterior, todo en columnas) ----
+    const celdaMoraTabla = a => a.mora === null ? '<span class="muted">—</span>'
+      : a.mora > 0
+        ? `<span class="mora roja" title="${a.pendientes ? esc('Falta en: ' + a.dondeFalta.join(', ')) : 'Llegó con mora'}">${a.mora} días${
+            !a.pendientes ? '' : a.pendientes >= a.totalFilas ? ' <small>· sin llegar</small>' : ` <small>· falta en ${a.pendientes} de ${a.totalFilas}</small>`}</span>`
+        : '<span class="mora verde">A tiempo</span>';
+    const vistaTabla = `<div class="detalle-tablas"><div class="detalle-col"><table>
+      <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num">% Cumpl.</th><th class="num">Mora</th></tr></thead>
+      <tbody>${[...articulos].sort(porAsignado).map(a => `<tr>
+        <td class="font-semibold art">${esc(a.label)}</td>
+        <td class="num" data-l="Asignado">${formatNumber(a.asignado)}</td>
+        <td class="num" data-l="Llegó">${formatNumber(a.llega)}</td>
+        <td class="num" data-l="Salido">${formatNumber(a.salida)}</td>
+        <td class="num" data-l="% Cumpl." style="color:${tono(a.pct, SEMAFORO_POP).fg};font-weight:700">${fmtPct(a.pct)}</td>
+        <td class="num" data-l="Mora">${celdaMoraTabla(a)}</td>
+      </tr>`).join('')}</tbody></table></div></div>`;
+
+    return encabezado + `
+      <div class="flex justify-end mt-3">
+        <div class="vs-switch" role="tablist">
+          <button type="button" class="is-activo" onclick="cambiarVistaDetalle(this, 'resumen')">Resumen por estado</button>
+          <button type="button" onclick="cambiarVistaDetalle(this, 'tabla')">Tabla completa</button>
+        </div>
       </div>
-      <div class="detalle-tablas${dos ? ' dos' : ''}">${cuerpo}</div>
-      <p class="text-[10.5px] muted mt-3">Mora: días entre la fecha pactada de recepción y la llegada al CEDI. "Sin llegar": no ha llegado nada. "Falta en 1 de 4": una parte (regional o canal) aún no llega; pasa el mouse sobre la etiqueta para ver dónde.</p>`;
+      <div data-vista="resumen">${vistaResumen}</div>
+      <div data-vista="tabla" class="hidden mt-3">${vistaTabla}</div>`;
   };
+}
+// Cambia entre "Resumen por estado" y "Tabla completa" dentro de la ventana
+function cambiarVistaDetalle(boton, vista){
+  const caja = boton.closest('#lb-detalle-contenido');
+  boton.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('is-activo', b === boton));
+  caja.querySelectorAll('[data-vista]').forEach(d => d.classList.toggle('hidden', d.dataset.vista !== vista));
 }
 
 function renderSeguimientoPop(rows){
