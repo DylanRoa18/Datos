@@ -3137,7 +3137,10 @@ function renderCampo(){
   renderSegmentos(rutas, indicadores);
   renderTendenciaCampo();
   renderLeaderboardsCampo(rutas, indicadores);
-  renderTablaPersonas(personas);
+  // El rol ruta no ve la tabla de Líderes y Supervisores (además del CSS, se oculta aquí)
+  const seccionPersonas = document.getElementById('campo-personas');
+  seccionPersonas.style.display = rolActual() === 'ruta' ? 'none' : '';
+  if(rolActual() !== 'ruta') renderTablaPersonas(personas);
   renderTablaRutas(rutas, alertas.predicados);
 }
 
@@ -3387,7 +3390,7 @@ const ROLES = {
 const SESION = { usuario: null, perfil: null };
 // Debe ser igual a DOMINIO_USUARIOS en crear_usuarios.py
 const DOMINIO_USUARIOS = 'tablero.local';
-const rolActual = () => SESION.perfil ? SESION.perfil.rol : null;
+const rolActual = () => SESION.perfil ? String(SESION.perfil.rol || '').trim().toLowerCase() : null;
 const puedeDinero = () => !!(ROLES[rolActual()] || {}).dinero;
 const puedePop = () => !!(ROLES[rolActual()] || {}).pop;
 const filtrosLiq = { meses: [], mes: '', mesesIniciados: false, regional: '', lider: '', supervisor: '', ruta: '', busqueda: '' };
