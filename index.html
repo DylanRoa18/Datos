@@ -363,6 +363,80 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .buscador-item small{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
 .buscador-vacio{font-size:11.5px;color:var(--text-muted);padding:8px 10px}
 
+/* ===== Pantalla de inicio de sesión (identidad Alquería) ===== */
+.pantalla-inicio{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F7F5F2;z-index:90}
+.pantalla-inicio.hidden,.login-pantalla.hidden,#app.hidden{display:none}
+.login-pantalla{min-height:100vh;background:#F7F5F2;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+.login-contenedor{width:100%;max-width:1180px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:48px;align-items:stretch}
+.login-form-lado{display:flex;flex-direction:column;justify-content:center;max-width:460px;width:100%;margin:0 auto;padding:12px 0}
+.login-logos{display:flex;align-items:center;gap:14px;margin-bottom:38px}
+.login-logos img{height:38px;width:auto;object-fit:contain}
+.login-logos img:first-child{height:46px}
+.login-logos span{width:1px;height:30px;background:#E2DDD7}
+.login-titulo{font-family:'Plus Jakarta Sans',sans-serif;font-size:40px;font-weight:800;letter-spacing:-.02em;color:#141414;line-height:1.1}
+.login-bienvenida{font-size:15px;line-height:1.55;color:#4B4B4B;margin:12px 0 30px}
+.login-form label{display:block;font-size:13px;font-weight:600;color:#3A3A3A;margin:0 0 7px}
+.login-form label span{color:var(--alqueria-red)}
+.login-campo{position:relative;margin-bottom:18px}
+.login-campo input{width:100%;font-size:14px;font-weight:500;padding:15px 48px 15px 20px;border-radius:14px;border:1px solid #E7E2DC;background:#fff;
+  box-shadow:0 4px 14px -6px rgba(0,0,0,.12);outline:none;transition:border-color .15s,box-shadow .15s}
+.login-campo input:focus{border-color:var(--alqueria-red);box-shadow:0 0 0 4px rgba(218,41,28,.12)}
+.login-campo > svg,.login-ojo svg{width:18px;height:18px;color:#8A8A8A}
+.login-campo > svg{position:absolute;right:18px;top:50%;transform:translateY(-50%);pointer-events:none}
+.login-ojo{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.login-ojo:hover{background:#F3F0EC}
+.login-olvido{font-size:13px;color:#4B4B4B;text-decoration:underline;margin:-6px 0 22px}
+.login-olvido:hover{color:var(--alqueria-red)}
+.login-error{font-size:13px;font-weight:600;color:var(--alqueria-red);background:#FDECEA;border-radius:10px;padding:10px 14px;margin:-8px 0 18px}
+.login-error.info{color:#1E3A8A;background:var(--eficacia-blue-bg)}
+.login-boton{position:relative;width:100%;display:flex;align-items:center;justify-content:center;height:54px;border-radius:9999px;background:var(--alqueria-red);
+  color:#fff;font-size:15px;font-weight:700;box-shadow:0 12px 26px -10px rgba(218,41,28,.7);transition:transform .15s,background .15s}
+.login-boton:hover{background:#C2231A;transform:translateY(-1px)}
+.login-boton:disabled{opacity:.75;cursor:wait;transform:none}
+.login-boton-flecha{position:absolute;right:6px;top:6px;width:42px;height:42px;border-radius:9999px;background:#fff;color:var(--alqueria-red);display:flex;align-items:center;justify-content:center}
+.login-boton-flecha svg{width:20px;height:20px}
+.login-nota{font-size:13px;color:#5A5A5A;text-align:center;margin-top:22px}
+.login-visual{position:relative;overflow:hidden;border-radius:28px;min-height:560px;padding:44px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;
+  background:radial-gradient(120% 90% at 85% 0%,#F0483A 0%,#DA291C 45%,#9E1A12 100%)}
+.login-circulo{position:absolute;border-radius:9999px;background:rgba(255,255,255,.09)}
+.login-circulo.uno{width:420px;height:420px;right:-140px;top:-140px}
+.login-circulo.dos{width:260px;height:260px;left:-90px;bottom:-90px;background:rgba(255,255,255,.07)}
+.login-visual-contenido{position:relative;z-index:1}
+.login-etiqueta{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.18);padding:6px 12px;border-radius:9999px}
+.login-visual h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:36px;font-weight:800;line-height:1.12;letter-spacing:-.02em;margin:18px 0 12px}
+.login-visual-texto{font-size:15px;line-height:1.55;max-width:420px;opacity:.92}
+.login-vaquita{display:block;width:100%;max-width:440px;height:auto;margin:22px auto 0;filter:drop-shadow(0 14px 28px rgba(80,0,0,.35))}
+.login-tarjetas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:38px;max-width:460px}
+.login-tarjeta{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(6px)}
+.login-anillo{width:56px;height:56px;flex-shrink:0}
+.login-barras{display:flex;align-items:flex-end;gap:5px;height:52px;flex-shrink:0}
+.login-barras i{display:block;width:9px;border-radius:4px;background:#fff}
+.login-tarjeta-titulo{font-size:11.5px;font-weight:600;opacity:.85}
+.login-tarjeta-valor{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800}
+.login-firma{position:relative;z-index:1;font-size:12px;font-weight:600;opacity:.85}
+@media (max-width:900px){
+  .login-contenedor{grid-template-columns:1fr;gap:28px}
+  .login-visual{min-height:auto;padding:28px;order:-1}
+  .login-visual h2{font-size:26px}
+  .login-tarjetas{display:none}
+  .login-vaquita{max-width:260px;margin:12px auto 0}
+  .login-titulo{font-size:32px}
+  .login-logos{margin-bottom:24px}
+}
+
+/* Perfil en el menú */
+.tend-cambios{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tend-cambio{font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border)}
+.tend-cambio b{font-weight:800}
+.tend-svg{width:100%;height:auto;display:block;overflow:visible}
+.tend-svg text{font-family:'Inter',sans-serif}
+.sesion-avatar{width:34px;height:34px;border-radius:9999px;background:var(--alqueria-red);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* Lo que cada rol no debe ver */
+body.rol-ruta [data-ocultar~="ruta"],
+body.rol-supervisor [data-ocultar~="supervisor"],
+body.rol-lider [data-ocultar~="lider"]{display:none!important}
+
 /* Login y sesión */
 .auth-bloque{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .sesion-info{margin-top:8px;padding:10px 12px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border)}
@@ -418,6 +492,75 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 <body class="min-h-screen pb-12">
 
 <!-- ============================================================
+     PANTALLA DE CARGA INICIAL (mientras se revisa la sesión)
+     ============================================================ -->
+<div id="pantalla-inicio" class="pantalla-inicio">
+  <div class="foco-spinner" style="--foco:var(--alqueria-red)"></div>
+</div>
+
+<!-- ============================================================
+     PANTALLA DE INICIO DE SESIÓN (sin sesión no se muestra nada más)
+     ============================================================ -->
+<div id="pantalla-login" class="login-pantalla hidden">
+  <div class="login-contenedor">
+
+    <section class="login-form-lado">
+      <div class="login-logos">
+        <img src="alqueria.png" alt="Grupo Alquería">
+        <span></span>
+        <img src="Eficacia_logo.png" alt="Eficacia SAS">
+      </div>
+
+      <h1 class="login-titulo">Inicia sesión</h1>
+      <p class="login-bienvenida">¡Bienvenido! Ingresa con tu usuario y contraseña para ver el tablero de Material POP y Seguimiento de Campo.</p>
+
+      <form id="form-login" class="login-form" onsubmit="iniciarSesion(event)" novalidate>
+        <label for="login-email">Usuario<span>*</span></label>
+        <div class="login-campo">
+          <input id="login-email" type="text" required autocomplete="username" autocapitalize="characters" spellcheck="false" placeholder="Escribe tu usuario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+
+        <label for="login-pass">Contraseña<span>*</span></label>
+        <div class="login-campo">
+          <input id="login-pass" type="password" required autocomplete="current-password" placeholder="Contraseña">
+          <button type="button" class="login-ojo" onclick="verContrasena()" aria-label="Mostrar u ocultar la contraseña">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <button type="button" class="login-olvido" onclick="olvidoContrasena()">¿Olvidaste tu contraseña?</button>
+        <p id="login-error" class="login-error hidden" role="alert"></p>
+
+        <button id="login-boton" type="submit" class="login-boton">
+          <span id="login-boton-texto">Iniciar sesión</span>
+          <span class="login-boton-flecha" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </button>
+      </form>
+
+      <p class="login-nota">¿No tienes acceso? Solicítalo al administrador del tablero.</p>
+    </section>
+
+    <section class="login-visual" aria-hidden="true">
+      <div class="login-circulo uno"></div>
+      <div class="login-circulo dos"></div>
+      <div class="login-visual-contenido">
+        <p class="login-etiqueta">Tablero comercial</p>
+        <h2>Material POP<br>y Seguimiento de Campo</h2>
+        <p class="login-visual-texto">Llaves, cumplimiento, comisiones y despacho de material en un solo lugar.</p>
+
+        <img src="Vaquita.png" alt="Moo! Haz tu seguimiento cada día" class="login-vaquita">
+      </div>
+      <p class="login-firma">© Desarrollado por Dylan Alejandro Rodriguez Roa</p>
+    </section>
+
+  </div>
+</div>
+
+<div id="app" class="hidden">
+<!-- ============================================================
      HEADER
      ============================================================ -->
 <header class="bg-white border-b sticky top-0 z-30" style="border-color:var(--border)">
@@ -467,12 +610,8 @@ section,[id^="vista-"]{scroll-margin-top:96px}
       </div>
       <!-- Acceso con login a la liquidación en dinero -->
       <div class="auth-bloque">
-        <button id="btn-login" type="button" onclick="abrirLogin()" class="vista-nav-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-          <span>Iniciar sesión</span>
-        </button>
-        <div id="auth-activo" class="hidden">
-          <p class="sidebar-label">Solo con sesión</p>
+        <div id="auth-activo">
+          <p id="nav-gestion-label" class="sidebar-label">Gestión</p>
           <button id="nav-pop" onclick="setVista('pop')" class="vista-nav-btn hidden">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
             <span>Material POP<small>Control en CEDI</small></span>
@@ -482,9 +621,13 @@ section,[id^="vista-"]{scroll-margin-top:96px}
             <span>Comisiones<small>Valores a pagar</small></span>
           </button>
           <div class="sesion-info">
-            <p class="text-[10.5px] font-semibold muted">Sesión iniciada</p>
-            <p id="sesion-email" class="text-xs font-bold truncate"></p>
-            <p id="sesion-aviso" class="text-[10.5px] font-semibold mt-1 hidden" style="color:var(--alqueria-red)"></p>
+            <div class="flex items-center gap-2.5">
+              <span id="sesion-iniciales" class="sesion-avatar"></span>
+              <div class="min-w-0">
+                <p id="sesion-nombre" class="text-[13px] font-extrabold truncate"></p>
+                <p id="sesion-rol" class="text-[11px] font-semibold muted truncate"></p>
+              </div>
+            </div>
             <button type="button" onclick="cerrarSesion()" class="sesion-salir">Cerrar sesión</button>
           </div>
         </div>
@@ -702,17 +845,17 @@ section,[id^="vista-"]{scroll-margin-top:96px}
     <div id="vista-campo" class="space-y-6">
 
       <div class="card filter-bar">
-        <label class="filter filter-buscar"><span>Buscar</span>
+        <label class="filter filter-buscar" data-ocultar="ruta"><span>Buscar</span>
           <div class="buscador" id="campo-buscar">
             <input type="text" placeholder="Ruta, supervisor, líder, regional…" autocomplete="off" aria-label="Buscar">
             <div class="buscador-lista" role="listbox"></div>
           </div>
         </label>
         <label class="filter"><span>Meses</span><div id="campo-f-mes" class="multi"></div></label>
-        <label class="filter"><span>Regional</span><select id="campo-f-regional"></select></label>
-        <label class="filter"><span>Líder</span><select id="campo-f-lider"></select></label>
-        <label class="filter"><span>Supervisor</span><select id="campo-f-supervisor"></select></label>
-        <label class="filter"><span>Ruta</span><select id="campo-f-ruta"></select></label>
+        <label class="filter" data-ocultar="ruta"><span>Regional</span><select id="campo-f-regional"></select></label>
+        <label class="filter" data-ocultar="ruta supervisor lider"><span>Líder</span><select id="campo-f-lider"></select></label>
+        <label class="filter" data-ocultar="ruta supervisor"><span>Supervisor</span><select id="campo-f-supervisor"></select></label>
+        <label class="filter" data-ocultar="ruta"><span>Ruta</span><select id="campo-f-ruta"></select></label>
         <button class="btn-clear" onclick="limpiarFiltrosCampo()">Limpiar ✕</button>
       </div>
 
@@ -734,12 +877,28 @@ section,[id^="vista-"]{scroll-margin-top:96px}
         <div id="campo-alertas" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
       </section>
 
+      <section id="campo-tendencia" class="card p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-2">
+          <div>
+            <h3 class="text-base font-bold tracking-tight font-display">Tendencia mes a mes</h3>
+            <p class="text-xs mt-0.5 font-medium muted">Todos los meses cargados, con los demás filtros aplicados. * = mes en seguimiento.</p>
+          </div>
+          <label class="filter" style="max-width:320px;min-width:240px">
+            <span>Ver</span>
+            <select id="campo-tendencia-ruta"></select>
+          </label>
+        </div>
+        <div id="campo-tendencia-leyenda"></div>
+        <div id="campo-tendencia-grafica"></div>
+        <div id="campo-tendencia-cambios" class="tend-cambios"></div>
+      </section>
+
       <section>
         <h3 class="section-title">Llaves y cumplimiento por segmento</h3>
         <div id="campo-segmentos" class="space-y-3"></div>
       </section>
 
-      <section id="campo-seguimiento">
+      <section id="campo-seguimiento" data-ocultar="ruta">
         <div class="flex flex-wrap items-end justify-between gap-3 mb-3">
           <h3 id="campo-seguimiento-titulo" class="section-title" style="margin-bottom:0">Seguimiento y cobertura</h3>
           <label class="filter" style="max-width:260px">
@@ -758,7 +917,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
             </div>
             <div id="campo-lb-regional"></div>
           </div>
-          <div id="card-campo-supervisor" class="card p-5">
+          <div id="card-campo-supervisor" class="card p-5" data-ocultar="supervisor">
             <div class="lb-cabecera">
               <div>
                 <h4 class="text-sm font-bold font-display">Cumplimiento por Supervisor</h4>
@@ -781,7 +940,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
         </div>
       </section>
 
-      <section id="campo-personas" class="card p-5 sm:p-6">
+      <section id="campo-personas" class="card p-5 sm:p-6" data-ocultar="ruta">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <h3 class="text-base font-bold tracking-tight font-display">Líderes y Supervisores</h3>
@@ -847,8 +1006,8 @@ section,[id^="vista-"]{scroll-margin-top:96px}
         </label>
         <label class="filter"><span>Meses</span><div id="liq-f-mes" class="multi"></div></label>
         <label class="filter"><span>Regional</span><select id="liq-f-regional"></select></label>
-        <label class="filter"><span>Líder</span><select id="liq-f-lider"></select></label>
-        <label class="filter"><span>Supervisor</span><select id="liq-f-supervisor"></select></label>
+        <label class="filter" data-ocultar="supervisor lider"><span>Líder</span><select id="liq-f-lider"></select></label>
+        <label class="filter" data-ocultar="supervisor"><span>Supervisor</span><select id="liq-f-supervisor"></select></label>
         <label class="filter"><span>Ruta</span><select id="liq-f-ruta"></select></label>
         <button class="btn-clear" onclick="limpiarFiltrosLiq()">Limpiar ✕</button>
       </div>
@@ -874,6 +1033,22 @@ section,[id^="vista-"]{scroll-margin-top:96px}
       <section>
         <h3 class="section-title">Resumen de pago</h3>
         <div id="liq-resumen" class="grid grid-cols-1 xl:grid-cols-2 gap-4"></div>
+      </section>
+
+      <section id="liq-tendencia" class="card p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-2">
+          <div>
+            <h3 class="text-base font-bold tracking-tight font-display">Tendencia mes a mes</h3>
+            <p class="text-xs mt-0.5 font-medium muted">Todos los meses cargados, con los demás filtros aplicados. Pasa el mouse sobre una barra o punto para ver el detalle.</p>
+          </div>
+          <label class="filter" style="max-width:320px;min-width:240px">
+            <span>Ver</span>
+            <select id="liq-tendencia-ruta"></select>
+          </label>
+        </div>
+        <div id="liq-tendencia-leyenda"></div>
+        <div id="liq-tendencia-grafica"></div>
+        <div id="liq-tendencia-cambios" class="tend-cambios"></div>
       </section>
 
       <section id="liq-niveles" class="card p-5 sm:p-6">
@@ -955,6 +1130,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
   </div>
 </div>
 </main>
+</div>
 
 <!-- Ventana pequeña con el detalle de un ranking -->
 <div id="lb-detalle" class="detalle-modal hidden">
@@ -967,29 +1143,6 @@ section,[id^="vista-"]{scroll-margin-top:96px}
   </div>
 </div>
 
-<!-- ============================================================
-     VENTANA DE INICIO DE SESIÓN
-     ============================================================ -->
-<div id="login-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="login-titulo">
-  <div class="modal-fondo" onclick="cerrarLogin()"></div>
-  <form class="modal-caja" onsubmit="iniciarSesion(event)">
-    <div class="flex items-start justify-between gap-3 mb-1">
-      <h3 id="login-titulo" class="text-lg font-extrabold font-display">Iniciar sesión</h3>
-      <button type="button" onclick="cerrarLogin()" class="muted text-lg leading-none" aria-label="Cerrar">✕</button>
-    </div>
-    <p class="text-xs muted mb-5">Acceso restringido a la liquidación de comisiones.</p>
-    <label class="filter" style="max-width:none">
-      <span>Correo</span>
-      <input id="login-email" type="email" required autocomplete="username" class="search-input">
-    </label>
-    <label class="filter mt-3" style="max-width:none">
-      <span>Contraseña</span>
-      <input id="login-pass" type="password" required autocomplete="current-password" class="search-input">
-    </label>
-    <p id="login-error" class="text-xs font-semibold mt-3 hidden" style="color:var(--alqueria-red)"></p>
-    <button id="login-boton" type="submit" class="w-full mt-5 px-4 py-2.5 text-white text-sm font-bold rounded-xl hover:opacity-90" style="background:var(--eficacia-blue)">Entrar</button>
-  </form>
-</div>
 
 
 <script>
@@ -1950,7 +2103,7 @@ async function cargarTodo(){
   let ultimaActualizacion = null;
 
   const [pop, campo] = await Promise.allSettled([
-    SESION.admin ? cargarPop() : Promise.resolve(null),
+    puedePop() ? cargarPop() : Promise.resolve(null),
     cargarCampo()
   ]);
 
@@ -1984,7 +2137,7 @@ async function cargarTodo(){
   }
 
   mostrarErrores(errores.concat(avisos));
-  if(errores.length === 2 || (!SESION.admin && errores.length === 1)) setStatus('error', 'Sin conexión');
+  if(errores.length === 2 || (!puedePop() && errores.length === 1)) setStatus('error', 'Sin conexión');
   else if(errores.length === 1) setStatus('error', 'Conexión parcial');
   else setStatus('ok', 'Conectado');
   actualizarTimestamp(ultimaActualizacion);
@@ -1999,8 +2152,8 @@ async function cargarTodo(){
   renderPop();
   renderCampo();
 
-  // Con sesión de administrador también se recarga la liquidación
-  if(SESION.admin){
+  // Roles con acceso a dinero: también se carga la liquidación
+  if(puedeDinero()){
     await cargarLiquidacion();
     renderLiquidacion();
   }
@@ -2979,9 +3132,10 @@ function renderCampo(){
 
   // --- Alertas ---
   const alertas = alertasCampo(rutas, personas, proy);
-  renderAlertas('campo-alertas', alertas.lista, filtrosCampo.alerta, 'toggleAlertaCampo');
+  renderAlertas('campo-alertas', alertas.lista.filter(a => !(a.id === 'personas' && rolActual() === 'ruta')), filtrosCampo.alerta, 'toggleAlertaCampo');
 
   renderSegmentos(rutas, indicadores);
+  renderTendenciaCampo();
   renderLeaderboardsCampo(rutas, indicadores);
   renderTablaPersonas(personas);
   renderTablaRutas(rutas, alertas.predicados);
@@ -3223,70 +3377,93 @@ function limpiarFiltrosCampo(){
 const COMISION_BASES = { mercaderista: 250000, lider: 400000, supervisor: 300000 };
 const TABLAS_DINERO = { rutas: 'campo_comision_rutas', lideres: 'campo_comision_lideres' };
 
-const SESION = { usuario: null, admin: false };
+// Roles: qué puede ver cada uno (la base de datos aplica lo mismo con sus permisos)
+const ROLES = {
+  admin:      { label:'Administrador', dinero:true,  pop:true  },
+  lider:      { label:'Líder',         dinero:true,  pop:true  },
+  supervisor: { label:'Supervisor',    dinero:true,  pop:false },
+  ruta:       { label:'Ruta',          dinero:false, pop:false }
+};
+const SESION = { usuario: null, perfil: null };
+// Debe ser igual a DOMINIO_USUARIOS en crear_usuarios.py
+const DOMINIO_USUARIOS = 'tablero.local';
+const rolActual = () => SESION.perfil ? SESION.perfil.rol : null;
+const puedeDinero = () => !!(ROLES[rolActual()] || {}).dinero;
+const puedePop = () => !!(ROLES[rolActual()] || {}).pop;
 const filtrosLiq = { meses: [], mes: '', mesesIniciados: false, regional: '', lider: '', supervisor: '', ruta: '', busqueda: '' };
 
 const fmtCOP = v => (v === null || v === undefined || isNaN(v)) ? '—'
   : new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 }).format(v);
 
 // ---------- Sesión ----------
-function abrirLogin(){
-  document.getElementById('login-error').classList.add('hidden');
-  document.getElementById('login-modal').classList.remove('hidden');
-  toggleMobileNav(false);
-  setTimeout(() => document.getElementById('login-email').focus(), 50);
+function mostrarPantalla(cual){
+  document.getElementById('pantalla-inicio').classList.toggle('hidden', cual !== 'inicio');
+  document.getElementById('pantalla-login').classList.toggle('hidden', cual !== 'login');
+  document.getElementById('app').classList.toggle('hidden', cual !== 'app');
 }
-function cerrarLogin(){
-  document.getElementById('login-modal').classList.add('hidden');
-  document.getElementById('login-pass').value = '';
+function mensajeLogin(texto, tipo = 'error'){
+  const el = document.getElementById('login-error');
+  el.textContent = texto || '';
+  el.classList.toggle('hidden', !texto);
+  el.classList.toggle('info', tipo === 'info');
+}
+function verContrasena(){
+  const input = document.getElementById('login-pass');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+function olvidoContrasena(){
+  mensajeLogin('Para restablecer tu contraseña, escríbele al administrador del tablero.', 'info');
 }
 async function iniciarSesion(e){
   e.preventDefault();
+  const usuario = document.getElementById('login-email').value.trim();
+  const clave = document.getElementById('login-pass').value;
+  if(!usuario || !clave){ mensajeLogin('Escribe tu usuario y tu contraseña.'); return; }
+  // Se ingresa con usuario; internamente Supabase usa un correo armado con él
+  // (también se acepta un correo completo, para cuentas creadas antes).
+  const email = usuario.includes('@') ? usuario.toLowerCase() : `${usuario.toLowerCase()}@${DOMINIO_USUARIOS}`;
+
   const boton = document.getElementById('login-boton');
-  const error = document.getElementById('login-error');
-  boton.disabled = true; boton.textContent = 'Verificando…';
-  error.classList.add('hidden');
+  boton.disabled = true;
+  document.getElementById('login-boton-texto').textContent = 'Verificando…';
+  mensajeLogin('');
 
-  const { error: err } = await supabaseClient.auth.signInWithPassword({
-    email: document.getElementById('login-email').value.trim(),
-    password: document.getElementById('login-pass').value
-  });
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password: clave });
 
-  boton.disabled = false; boton.textContent = 'Entrar';
-  if(err){
-    error.textContent = /invalid/i.test(err.message) ? 'Correo o contraseña incorrectos.' : err.message;
-    error.classList.remove('hidden');
-    return;
-  }
-  cerrarLogin();
+  boton.disabled = false;
+  document.getElementById('login-boton-texto').textContent = 'Iniciar sesión';
+  if(error) mensajeLogin(/invalid/i.test(error.message) ? 'Usuario o contraseña incorrectos.' : error.message);
 }
 async function cerrarSesion(){
   await supabaseClient.auth.signOut();
+  window.location.reload();   // limpia por completo los datos de la sesión anterior
 }
 
-// Se ejecuta al abrir la página y cada vez que se inicia o cierra sesión
+// Se ejecuta al abrir la página y cada vez que se inicia sesión
+let sesionAplicada = null;
 async function aplicarSesion(session){
-  SESION.usuario = session ? session.user : null;
-  SESION.admin = false;
-  DATA.dineroRutas = [];
-  DATA.dineroLideres = [];
+  const usuario = session ? session.user : null;
+  if(!usuario){ SESION.usuario = null; SESION.perfil = null; mostrarPantalla('login'); return; }
+  if(sesionAplicada === usuario.id) return;     // evita cargar dos veces la misma sesión
 
-  if(SESION.usuario){
-    const { data, error } = await supabaseClient.rpc('es_admin_liquidacion');
-    SESION.admin = !error && data === true;
-    if(SESION.admin) await cargarLiquidacion();
+  const { data, error } = await supabaseClient.rpc('mi_perfil');
+  if(error || !data){
+    await supabaseClient.auth.signOut();
+    mostrarPantalla('login');
+    mensajeLogin('Tu usuario no tiene acceso al tablero. Pide al administrador que te habilite.');
+    return;
   }
+  sesionAplicada = usuario.id;
+  SESION.usuario = usuario;
+  SESION.perfil = typeof data === 'string' ? JSON.parse(data) : data;
+
+  ['admin', 'lider', 'supervisor', 'ruta'].forEach(r => document.body.classList.toggle(`rol-${r}`, rolActual() === r));
   pintarEstadoSesion();
-  if(!SESION.admin && (vistaActual === 'liquidacion' || vistaActual === 'pop')) setVista('campo');
-  if(SESION.admin){
-    renderLiquidacion();
-    await cargarPopAdmin();
-  } else {
-    DATA.pop = [];
-    renderPop();
-  }
+  mostrarPantalla('app');
+  setVista('campo');
+  await cargarTodo();
 }
-// Carga Material POP al iniciar sesión como administrador
+// Carga Material POP (administradores y líderes)
 async function cargarPopAdmin(){
   try{
     const resp = await cargarPop();
@@ -3298,15 +3475,17 @@ async function cargarPopAdmin(){
   }
 }
 function pintarEstadoSesion(){
-  const conSesion = !!SESION.usuario;
-  document.getElementById('btn-login').classList.toggle('hidden', conSesion);
-  document.getElementById('auth-activo').classList.toggle('hidden', !conSesion);
-  document.getElementById('nav-liquidacion').classList.toggle('hidden', !SESION.admin);
-  document.getElementById('nav-pop').classList.toggle('hidden', !SESION.admin);
-  document.getElementById('sesion-email').textContent = SESION.usuario ? SESION.usuario.email : '';
-  const aviso = document.getElementById('sesion-aviso');
-  aviso.classList.toggle('hidden', !conSesion || SESION.admin);
-  aviso.textContent = 'Este usuario no tiene permiso para ver Material POP ni la liquidación.';
+  const p = SESION.perfil || {};
+  const rol = ROLES[p.rol] || { label:'' };
+  const nombre = p.nombre || (SESION.usuario ? SESION.usuario.email : '');
+  const partes = String(nombre).trim().split(/\s+/);
+  document.getElementById('sesion-nombre').textContent = nombre;
+  document.getElementById('sesion-rol').textContent = rol.label + (p.alcance && p.rol !== 'admin' ? ` · ${p.alcance}` : '');
+  document.getElementById('sesion-rol').title = document.getElementById('sesion-rol').textContent;
+  document.getElementById('sesion-iniciales').textContent = ((partes[0] || '')[0] || '') + ((partes[1] || '')[0] || '');
+  document.getElementById('nav-pop').classList.toggle('hidden', !puedePop());
+  document.getElementById('nav-liquidacion').classList.toggle('hidden', !puedeDinero());
+  document.getElementById('nav-gestion-label').classList.toggle('hidden', !puedePop() && !puedeDinero());
 }
 async function cargarLiquidacion(){
   try{
@@ -3320,7 +3499,8 @@ async function cargarLiquidacion(){
 function iniciarAuth(){
   supabaseClient.auth.getSession().then(({ data }) => aplicarSesion(data.session));
   supabaseClient.auth.onAuthStateChange((evento, session) => {
-    if(evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') aplicarSesion(session);
+    if(evento === 'SIGNED_IN') aplicarSesion(session);
+    if(evento === 'SIGNED_OUT' && SESION.usuario) window.location.reload();
   });
 }
 
@@ -3692,7 +3872,7 @@ function renderSegmentosLiq(rutas){
 }
 
 function renderLiquidacion(){
-  if(!SESION.admin) return;
+  if(!puedeDinero()) return;
   const todas = datosLiqRutas();
   renderFiltrosLiq(todas);
   aplicarColorLiq();
@@ -3716,6 +3896,7 @@ function renderLiquidacion(){
     tarjetaResumen('Líderes y Supervisores', resumenPago(personas));
 
   renderNivelesLiq(rutas);
+  renderTendenciaLiq();
 
   const filas = filasLiqRutas(rutas);
   pintarTabla('liq-tabla-rutas', filas.length ? filas.map(r => `<tr>
@@ -3747,11 +3928,161 @@ function renderLiquidacion(){
   document.getElementById('liq-personas-count').textContent = `${formatNumber(ps.length)} personas · total a pagar ${fmtCOP(suma(ps, r => r.pagar))}`;
 }
 
+// ---------- Tendencia mes a mes (todas las rutas del alcance o una ruta) ----------
+const estadoTendencia = { ruta:'' };
+const fmtCorto = v => {
+  const a = Math.abs(v || 0);
+  if(a >= 1e6) return `$${(v / 1e6).toFixed(1).replace('.', ',')} M`;
+  if(a >= 1e3) return `$${Math.round(v / 1e3)} mil`;
+  return fmtCOP(v);
+};
+// Gráfica de barras + línea por mes, sin etiquetas encimadas.
+// cfg: { barra:{ key, fmt, color, nombre }, linea:{ key, fmt, color, nombre }, ejeBarraPct }
+function svgTendencia(puntos, cfg){
+  const W = 820, H = 280, pl = 70, pr = 56, pt = 30, pb = 46;
+  const iw = W - pl - pr, ih = H - pt - pb, n = puntos.length;
+  const vB = p => p[cfg.barra.key], vL = p => p[cfg.linea.key];
+  // Ejes en % con marcas redondas (0, 25, 50, 75, 100…)
+  const topePct = vals => Math.max(100, Math.ceil(Math.max(0, ...vals) / 25) * 25);
+  const maxB = cfg.ejeBarraPct ? topePct(puntos.map(p => vB(p) || 0)) : Math.max(...puntos.map(p => vB(p) || 0), 1) * 1.18;
+  const maxL = topePct(puntos.map(p => vL(p) || 0));
+  const paso = iw / n, bw = Math.min(64, paso * 0.46);
+  const x = i => pl + paso * i + paso / 2;
+  const yB = v => pt + ih * (1 - (v || 0) / maxB);
+  const yL = v => pt + ih * (1 - v / maxL);
+  const halo = 'stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke"';
+
+  let svg = `<svg class="tend-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tendencia mensual">`;
+  for(let k = 0; k <= 4; k++){
+    const y = pt + ih * k / 4;
+    svg += `<line x1="${pl}" x2="${W - pr}" y1="${y}" y2="${y}" stroke="#EEF2F7"/>`;
+    svg += `<text x="${pl - 10}" y="${y + 4}" text-anchor="end" font-size="10.5" fill="#94A3B8">${cfg.ejeBarraPct ? Math.round(maxB * (1 - k / 4)) + '%' : fmtCorto(maxB * (1 - k / 4))}</text>`;
+    if(!cfg.ejeBarraPct) svg += `<text x="${W - pr + 10}" y="${y + 4}" font-size="10.5" fill="#94A3B8">${Math.round(maxL * (1 - k / 4))}%</text>`;
+  }
+  const ejeLinea = cfg.ejeBarraPct ? yB : yL;   // con eje en % ambas series comparten escala
+
+  // Barras y sus etiquetas
+  const etiquetasBarra = [];
+  puntos.forEach((p, i) => {
+    const y = yB(vB(p)), alto = pt + ih - y;
+    svg += `<rect x="${x(i) - bw / 2}" y="${y}" width="${bw}" height="${Math.max(alto, 1)}" rx="7" fill="${cfg.barra.color}" opacity="${p.estimado ? 0.35 : 0.9}">
+      <title>${p.label} · ${cfg.barra.nombre}: ${cfg.barra.fmt(vB(p))}${p.estimado ? ' (estimado)' : ''}</title></rect>`;
+    etiquetasBarra[i] = y - 8;
+    svg += `<text x="${x(i)}" y="${y - 8}" text-anchor="middle" font-size="11" font-weight="800" fill="#1E293B" ${halo}>${cfg.barra.fmt(vB(p))}</text>`;
+    svg += `<text x="${x(i)}" y="${H - pb + 18}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#475569">${p.label}</text>`;
+    if(p.estimado) svg += `<text x="${x(i)}" y="${H - pb + 32}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#94A3B8">estimado</text>`;
+  });
+
+  // Línea y sus etiquetas: si choca con la etiqueta de la barra, va debajo del punto
+  const conLinea = puntos.map((p, i) => ({ v: vL(p), i, label: p.label })).filter(p => p.v !== null && p.v !== undefined);
+  if(conLinea.length > 1){
+    svg += `<polyline fill="none" stroke="${cfg.linea.color}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"
+      points="${conLinea.map(p => `${x(p.i)},${ejeLinea(p.v)}`).join(' ')}"/>`;
+  }
+  conLinea.forEach(p => {
+    const cy = ejeLinea(p.v);
+    let ty = cy - 12;
+    if(Math.abs(ty - etiquetasBarra[p.i]) < 16) ty = cy + 20;           // debajo del punto
+    if(ty > pt + ih - 4) ty = cy - 12 - 16;                            // si se sale por abajo, más arriba
+    svg += `<circle cx="${x(p.i)}" cy="${cy}" r="5" fill="#fff" stroke="${cfg.linea.color}" stroke-width="2.6"><title>${p.label} · ${cfg.linea.nombre}: ${cfg.linea.fmt(p.v)}</title></circle>`;
+    svg += `<text x="${x(p.i)}" y="${ty}" text-anchor="middle" font-size="11" font-weight="800" fill="${cfg.linea.color}" ${halo}>${cfg.linea.fmt(p.v)}</text>`;
+  });
+  return svg + '</svg>';
+}
+function leyendaTendencia(cfg){
+  return `<div class="ring-leyenda" style="justify-content:flex-start;margin:4px 0 2px">
+    <span><i style="background:${cfg.barra.color};border-radius:3px"></i>${esc(cfg.barra.nombre)}</span>
+    <span><i style="background:#fff;border:2.5px solid ${cfg.linea.color}"></i>${esc(cfg.linea.nombre)}</span></div>`;
+}
+function chipsCambios(puntos, cfg){
+  const color = v => v > 0 ? 'var(--green)' : v < 0 ? 'var(--alqueria-red)' : 'var(--text-muted)';
+  const flecha = v => v > 0 ? '▲' : v < 0 ? '▼' : '=';
+  return puntos.slice(1).map((p, i) => {
+    const ant = puntos[i];
+    const dB = (p[cfg.barra.key] ?? 0) - (ant[cfg.barra.key] ?? 0);
+    const dL = p[cfg.linea.key] !== null && ant[cfg.linea.key] !== null ? p[cfg.linea.key] - ant[cfg.linea.key] : null;
+    const textoB = cfg.ejeBarraPct ? `${Math.abs(dB).toFixed(1)} pts` : fmtCorto(Math.abs(dB));
+    return `<span class="tend-cambio">${p.label} vs ${ant.label}:
+      ${esc(cfg.barra.nombre)} <b style="color:${color(dB)}">${flecha(dB)} ${textoB}</b>
+      ${dL !== null ? ` · ${esc(cfg.linea.nombre)} <b style="color:${color(dL)}">${flecha(dL)} ${Math.abs(dL).toFixed(1)} pts</b>` : ''}</span>`;
+  }).join('') || '<span class="text-xs muted">Se necesita más de un mes cargado para ver los cambios.</span>';
+}
+const etiquetaMesCorta = m => `${MESES_NOMBRE[(m % 100) - 1].slice(0, 3)} ${String(Math.floor(m / 100)).slice(2)}`;
+
+// Selector "Ver": total o una ruta (si el usuario solo tiene una ruta, no hay selector)
+function llenarSelectorRutas(selId, filas, estado, rutaFiltro){
+  const rutas = unicos(filas, r => r.ruta).sort((a, b) => String(a).localeCompare(String(b), 'es', { numeric:true }));
+  if(rutaFiltro) estado.ruta = rutaFiltro;
+  if(estado.ruta && !rutas.some(r => normKey(r) === normKey(estado.ruta))) estado.ruta = '';
+  const sel = document.getElementById(selId);
+  sel.innerHTML = `<option value="">${rutas.length === 1 ? esc(rutas[0]) : `Todas las rutas (${rutas.length})`}</option>` +
+    (rutas.length > 1 ? rutas.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join('') : '');
+  sel.value = rutas.length > 1 ? estado.ruta : '';
+  sel.closest('label').style.display = rutas.length <= 1 ? 'none' : '';
+  return estado.ruta ? filas.filter(r => normKey(r.ruta) === normKey(estado.ruta)) : filas;
+}
+
+// ---------- Tendencia en Seguimiento de Campo (porcentajes, todos los roles) ----------
+const estadoTendCampo = { ruta:'' };
+const CFG_TEND_CAMPO = {
+  ejeBarraPct: true,
+  barra: { key:'cumplimiento', nombre:'Cumplimiento total', color:'#0052CC', fmt: v => fmtPct(v) },
+  linea: { key:'llaves', nombre:'Promedio de llaves', color:'#DA291C', fmt: v => fmtPct(v) }
+};
+function renderTendenciaCampo(){
+  const grafica = document.getElementById('campo-tendencia-grafica');
+  if(!grafica) return;
+  const filas = llenarSelectorRutas('campo-tendencia-ruta', filtrarCampo(DATA.rutas, 'meses'), estadoTendCampo, filtrosCampo.ruta);
+  const porMes = {};
+  filas.forEach(r => { (porMes[Number(r.mes_orden)] = porMes[Number(r.mes_orden)] || []).push(r); });
+  const puntos = Object.keys(porMes).map(Number).sort((a, b) => a - b).map(m => {
+    const rows = porMes[m], w = (reglasDe(m).pesos || REGLAS_DEFECTO.pesos);
+    const tp = promedio(rows, r => r.pct_tienda_perfecta), ve = promedio(rows, r => r.pct_ventas), fc = promedio(rows, r => r.pct_fc_dv);
+    return {
+      mes:m, label:etiquetaMesCorta(m) + (MESES_SEGUIMIENTO.has(m) ? '*' : ''),
+      cumplimiento: w.tp * (tp || 0) + w.ventas * (ve || 0) + w.fcdv * (fc || 0),
+      llaves: promedio(rows, r => promedioLlaves(r.pct_captura, r.pct_cobertura)),
+      estimado: MESES_SEGUIMIENTO.has(m)
+    };
+  });
+  document.getElementById('campo-tendencia-leyenda').innerHTML = leyendaTendencia(CFG_TEND_CAMPO);
+  const cambios = document.getElementById('campo-tendencia-cambios');
+  if(!puntos.length){ grafica.innerHTML = emptyMsg('Sin datos para los filtros seleccionados.'); cambios.innerHTML = ''; return; }
+  grafica.innerHTML = svgTendencia(puntos, CFG_TEND_CAMPO);
+  cambios.innerHTML = chipsCambios(puntos, CFG_TEND_CAMPO);
+}
+
+const CFG_TEND_LIQ = {
+  barra: { key:'pagar', nombre:'Valor a pagar', color:'#0052CC', fmt: v => fmtCorto(v) },
+  linea: { key:'pct', nombre:'% de la bolsa pagado', color:'#DA291C', fmt: v => fmtPct(v) }
+};
+function renderTendenciaLiq(){
+  const grafica = document.getElementById('liq-tendencia-grafica');
+  if(!grafica) return;
+  const filas = llenarSelectorRutas('liq-tendencia-ruta', filtrarLiq(datosLiqRutas(), 'meses'), estadoTendencia, filtrosLiq.ruta);
+  const porMes = {};
+  filas.forEach(r => {
+    const m = Number(r.mes_orden);
+    const g = porMes[m] = porMes[m] || { mes:m, pagar:0, bolsa:0, conDinero:0 };
+    g.pagar += r.pagar; g.bolsa += r.baseTotal;
+    if(r.tieneDinero) g.conDinero++;
+  });
+  const puntos = Object.values(porMes).sort((a, b) => a.mes - b.mes).map(g => ({
+    ...g, label: etiquetaMesCorta(g.mes), pct: g.bolsa > 0 ? g.pagar / g.bolsa * 100 : null, estimado: g.conDinero === 0
+  }));
+  document.getElementById('liq-tendencia-leyenda').innerHTML = leyendaTendencia(CFG_TEND_LIQ);
+  const cambios = document.getElementById('liq-tendencia-cambios');
+  if(!puntos.length){ grafica.innerHTML = emptyMsg('Sin datos para los filtros seleccionados.'); cambios.innerHTML = ''; return; }
+  grafica.innerHTML = svgTendencia(puntos, CFG_TEND_LIQ);
+  cambios.innerHTML = chipsCambios(puntos, CFG_TEND_LIQ);
+}
+
 // ---------- A pagar por nivel: una tabla con pestañas Regional / Líder / Supervisor ----------
 const NIVELES_LIQ = [
   { key:'regional', label:'Regional' },
-  { key:'lider', label:'Líder' },
-  { key:'supervisor', label:'Supervisor' }
+  { key:'lider', label:'Líder', ocultarPara:['lider', 'supervisor'] },
+  { key:'supervisor', label:'Supervisor', ocultarPara:['supervisor'] },
+  { key:'ruta', label:'Ruta' }
 ];
 const estadoNiveles = { nivel:'regional', orden:'pagar', dir:-1 };
 let ultimasRutasNiveles = [];
@@ -3759,7 +4090,7 @@ let ultimasRutasNiveles = [];
 function renderNivelesLiq(rutas){
   if(rutas) ultimasRutasNiveles = rutas;
   // Pestañas: no se muestra el nivel que ya está filtrado
-  const disponibles = NIVELES_LIQ.filter(n => !filtrosLiq[n.key]);
+  const disponibles = NIVELES_LIQ.filter(n => !filtrosLiq[n.key] && !(n.ocultarPara || []).includes(rolActual()));
   if(!disponibles.some(n => n.key === estadoNiveles.nivel) && disponibles.length) estadoNiveles.nivel = disponibles[0].key;
   document.getElementById('liq-niveles-tabs').innerHTML = disponibles.map(n =>
     `<button type="button" class="${n.key === estadoNiveles.nivel ? 'is-activo' : ''}" onclick="cambiarNivelLiq('${n.key}')">${n.label}</button>`).join('');
@@ -3897,7 +4228,7 @@ const VISTAS = {
 
 function setVista(vista){
   // Material POP y Comisiones solo con sesión de administrador
-  if((vista === 'pop' || vista === 'liquidacion') && !SESION.admin) vista = 'campo';
+  if((vista === 'pop' && !puedePop()) || (vista === 'liquidacion' && !puedeDinero())) vista = 'campo';
   vistaActual = vista;
   Object.keys(VISTAS).forEach(v => {
     document.getElementById(`vista-${v}`).classList.toggle('hidden', v !== vista);
@@ -3957,10 +4288,11 @@ function conectarEventos(){
     recargarLiqConAnimacion();
   });
   document.querySelectorAll('#tabla-niveles th[data-orden]').forEach(th => th.addEventListener('click', () => ordenarNivelesLiq(th.dataset.orden)));
+  document.getElementById('liq-tendencia-ruta').addEventListener('change', e => { estadoTendencia.ruta = e.target.value; renderTendenciaLiq(); });
+  document.getElementById('campo-tendencia-ruta').addEventListener('change', e => { estadoTendCampo.ruta = e.target.value; renderTendenciaCampo(); });
   document.getElementById('liq-busqueda').addEventListener('input', e => {
     filtrosLiq.busqueda = e.target.value.trim().toLowerCase(); renderLiquidacion();
   });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape') cerrarLogin(); });
 
   FILTROS_POP.filter(f => f.key !== 'meses').forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroPop(f.key, e.target.value)));
   document.querySelectorAll('#tabla-articulos th[data-sort]').forEach(th => th.addEventListener('click', () => ordenarArticulos(th.dataset.sort)));
@@ -3980,8 +4312,7 @@ function conectarEventos(){
 
 conectarEventos();
 conectarDetalleLb();
-cargarTodo();
-iniciarAuth();
+iniciarAuth();   // los datos se cargan solo después de iniciar sesión
 </script>
 </body>
 </html>
