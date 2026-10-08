@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seguimiento de Comisiones · Alquería & Eficacia</title>
+<title>Material POP y Seguimiento de Campo · Alquería & Eficacia</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -77,7 +77,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .alert-icon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .alert-icon svg{width:19px;height:19px}
 
-/* Avance vs ideal (Seguimiento de Comisiones) */
+/* Avance vs ideal (Seguimiento de Campo) */
 .vs-layout{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
 .vs-fila{display:grid;grid-template-columns:150px 1fr 64px 76px;align-items:center;gap:12px;padding:7px 0}
 .vs-track{position:relative;height:10px;border-radius:9999px;background:var(--track)}
@@ -303,7 +303,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 @keyframes fundido{from{opacity:0}to{opacity:1}}
 @keyframes zoomEntrada{from{opacity:0;transform:scale(.25)}to{opacity:1;transform:none}}
 
-/* Segmentos de Seguimiento de Comisiones: anillos + su desglose */
+/* Segmentos de Seguimiento de Campo: anillos + su desglose */
 .segmento{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px 20px}
 .segmento-cabecera{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 16px;margin-bottom:12px}
 .segmento-anillos{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
@@ -512,7 +512,7 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
       </div>
 
       <h1 class="login-titulo">Inicia sesión</h1>
-      <p class="login-bienvenida">¡Bienvenido! Ingresa con tu usuario y contraseña para ver el tablero de Seguimiento de Comisiones.</p>
+      <p class="login-bienvenida">¡Bienvenido! Ingresa con tu usuario y contraseña para ver el tablero de Material POP y Seguimiento de Campo.</p>
 
       <form id="form-login" class="login-form" onsubmit="iniciarSesion(event)" novalidate>
         <label for="login-email">Usuario<span>*</span></label>
@@ -548,8 +548,8 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
       <div class="login-circulo dos"></div>
       <div class="login-visual-contenido">
         <p class="login-etiqueta">Tablero comercial</p>
-        <h2>Seguimiento<br>de Comisiones</h2>
-        <p class="login-visual-texto">Llaves, cumplimiento y comisión alcanzada de rutas, supervisores y líderes en un solo lugar.</p>
+        <h2>Material POP<br>y Seguimiento de Campo</h2>
+        <p class="login-visual-texto">Llaves, cumplimiento, comisiones y despacho de material en un solo lugar.</p>
 
         <img src="Vaquita.png" alt="Moo! Haz tu seguimiento cada día" class="login-vaquita">
       </div>
@@ -570,7 +570,7 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
       <img src="Eficacia_logo.png" alt="Eficacia SAS" class="brand-logo">
     </div>
     <div class="header-titulo min-w-0">
-      <h1 id="vista-titulo" class="text-base font-extrabold tracking-tight font-display truncate">Seguimiento de Comisiones</h1>
+      <h1 id="vista-titulo" class="text-base font-extrabold tracking-tight font-display truncate">Seguimiento de Campo</h1>
       <p id="vista-subtitulo" class="text-xs font-medium muted truncate">Llaves y cumplimiento de mercaderistas, líderes y supervisores</p>
     </div>
     <div class="header-acciones">
@@ -605,7 +605,7 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
       <div class="flex flex-col gap-1.5">
         <button id="nav-campo" onclick="setVista('campo')" class="vista-nav-btn is-active">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 11l2 2 4-4"/></svg>
-          <span>Seguimiento de Comisiones<small>Llaves y cumplimiento</small></span>
+          <span>Seguimiento de Campo<small>Llaves y comisiones</small></span>
         </button>
       </div>
       <!-- Acceso con login a la liquidación en dinero -->
@@ -1960,7 +1960,7 @@ function cargarPopJsonp(token, intento = 1){
   });
 }
 
-// ---------- Seguimiento de Comisiones (Supabase) ----------
+// ---------- Seguimiento de Campo (Supabase) ----------
 async function leerTablaCompleta(tabla){
   const pagina = 1000;
   let desde = 0, filas = [];
@@ -2133,7 +2133,7 @@ async function cargarTodo(){
   if(campo.status === 'fulfilled'){
     Object.assign(DATA, prepararCampo(campo.value));
   } else {
-    errores.push({ titulo:'Seguimiento de Comisiones (Supabase)', mensaje: campo.reason.message + '\nVerifica que ejecutaste supabase_tablas.sql y que corriste sincronizar_supabase.py.' });
+    errores.push({ titulo:'Seguimiento de Campo (Supabase)', mensaje: campo.reason.message + '\nVerifica que ejecutaste supabase_tablas.sql y que corriste sincronizar_supabase.py.' });
   }
 
   mostrarErrores(errores.concat(avisos));
@@ -3175,7 +3175,7 @@ function segmento({ titulo, peso, regla, pills, anillo, desglose, tituloDesglose
   </div>`;
 }
 
-// Se usa en Seguimiento de Comisiones y, con valores en dinero, en Liquidación.
+// Se usa en Seguimiento de Campo y, con valores en dinero, en Liquidación.
 // op: { boxId, mes, rutasAnt, etiquetaAnt, dinero: resumenPago(...) }
 function renderSegmentos(rutas, indicadores, op = {}){
   const box = document.getElementById(op.boxId || 'campo-segmentos');
@@ -3859,7 +3859,7 @@ function renderFocoLiq(rutas, personas){
   </div>`;
 }
 
-// Segmentos de cumplimiento (igual que Seguimiento de Comisiones) con valores en dinero
+// Segmentos de cumplimiento (igual que Seguimiento de Campo) con valores en dinero
 function renderSegmentosLiq(rutas){
   const mes = filtrosLiq.mes;
   const indicadores = filtrarLiq(DATA.indicadores);
@@ -4025,11 +4025,11 @@ function llenarSelectorRutas(selId, filas, estado, rutaFiltro){
   return estado.ruta ? filas.filter(r => normKey(r.ruta) === normKey(estado.ruta)) : filas;
 }
 
-// ---------- Tendencia en Seguimiento de Comisiones (porcentajes, todos los roles) ----------
+// ---------- Tendencia en Seguimiento de Campo (porcentajes, todos los roles) ----------
 const estadoTendCampo = { ruta:'' };
 const CFG_TEND_CAMPO = {
   ejeBarraPct: true,
-  barra: { key:'comision', nombre:'% Comisión alcanzada', color:'#0052CC', fmt: v => fmtPct(v) },
+  barra: { key:'cumplimiento', nombre:'Cumplimiento total', color:'#0052CC', fmt: v => fmtPct(v) },
   linea: { key:'llaves', nombre:'Promedio de llaves', color:'#DA291C', fmt: v => fmtPct(v) }
 };
 function renderTendenciaCampo(){
@@ -4039,10 +4039,11 @@ function renderTendenciaCampo(){
   const porMes = {};
   filas.forEach(r => { (porMes[Number(r.mes_orden)] = porMes[Number(r.mes_orden)] || []).push(r); });
   const puntos = Object.keys(porMes).map(Number).sort((a, b) => a - b).map(m => {
-    const rows = porMes[m];
+    const rows = porMes[m], w = (reglasDe(m).pesos || REGLAS_DEFECTO.pesos);
+    const tp = promedio(rows, r => r.pct_tienda_perfecta), ve = promedio(rows, r => r.pct_ventas), fc = promedio(rows, r => r.pct_fc_dv);
     return {
       mes:m, label:etiquetaMesCorta(m) + (MESES_SEGUIMIENTO.has(m) ? '*' : ''),
-      comision: promedio(rows, r => r.pctComision),
+      cumplimiento: w.tp * (tp || 0) + w.ventas * (ve || 0) + w.fcdv * (fc || 0),
       llaves: promedio(rows, r => promedioLlaves(r.pct_captura, r.pct_cobertura)),
       estimado: MESES_SEGUIMIENTO.has(m)
     };
@@ -4056,7 +4057,7 @@ function renderTendenciaCampo(){
 
 const CFG_TEND_LIQ = {
   barra: { key:'pagar', nombre:'Valor a pagar', color:'#0052CC', fmt: v => fmtCorto(v) },
-  linea: { key:'pct', nombre:'% Comisión alcanzada', color:'#DA291C', fmt: v => fmtPct(v) }
+  linea: { key:'pct', nombre:'% de la bolsa pagado', color:'#DA291C', fmt: v => fmtPct(v) }
 };
 function renderTendenciaLiq(){
   const grafica = document.getElementById('liq-tendencia-grafica');
@@ -4224,7 +4225,7 @@ function exportarPersonas(){
    ============================================================ */
 const VISTAS = {
   pop:   { titulo:'Material POP', sub:'Llegada, salida y saldo del material en CEDI' },
-  campo: { titulo:'Seguimiento de Comisiones', sub:'Llaves, cumplimiento y comisión alcanzada de rutas, líderes y supervisores' },
+  campo: { titulo:'Seguimiento de Campo', sub:'Llaves y cumplimiento de mercaderistas, líderes y supervisores' },
   liquidacion: { titulo:'Liquidación de comisiones', sub:'Valores a pagar por ruta, líder y supervisor' }
 };
 
