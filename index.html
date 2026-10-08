@@ -3385,6 +3385,7 @@ const ROLES = {
   admin:      { label:'Administrador', dinero:true,  pop:true  },
   lider:      { label:'Líder',         dinero:true,  pop:true  },
   supervisor: { label:'Supervisor',    dinero:true,  pop:false },
+  consulta:   { label:'Consulta',      dinero:true,  pop:false },   // ve todo menos Material POP
   ruta:       { label:'Ruta',          dinero:false, pop:false }
 };
 const SESION = { usuario: null, perfil: null };
@@ -3460,7 +3461,7 @@ async function aplicarSesion(session){
   SESION.usuario = usuario;
   SESION.perfil = typeof data === 'string' ? JSON.parse(data) : data;
 
-  ['admin', 'lider', 'supervisor', 'ruta'].forEach(r => document.body.classList.toggle(`rol-${r}`, rolActual() === r));
+  ['admin', 'consulta', 'lider', 'supervisor', 'ruta'].forEach(r => document.body.classList.toggle(`rol-${r}`, rolActual() === r));
   pintarEstadoSesion();
   mostrarPantalla('app');
   setVista('campo');
@@ -3483,7 +3484,7 @@ function pintarEstadoSesion(){
   const nombre = p.nombre || (SESION.usuario ? SESION.usuario.email : '');
   const partes = String(nombre).trim().split(/\s+/);
   document.getElementById('sesion-nombre').textContent = nombre;
-  document.getElementById('sesion-rol').textContent = rol.label + (p.alcance && p.rol !== 'admin' ? ` · ${p.alcance}` : '');
+  document.getElementById('sesion-rol').textContent = rol.label + (p.alcance && !['admin', 'consulta'].includes(p.rol) ? ` · ${p.alcance}` : '');
   document.getElementById('sesion-rol').title = document.getElementById('sesion-rol').textContent;
   document.getElementById('sesion-iniciales').textContent = ((partes[0] || '')[0] || '') + ((partes[1] || '')[0] || '');
   document.getElementById('nav-pop').classList.toggle('hidden', !puedePop());

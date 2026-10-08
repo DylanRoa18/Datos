@@ -6,9 +6,9 @@ Cada persona entra con un USUARIO (no con correo). El script lo genera
 a partir del nombre, junto con una contraseña personalizada.
 
   Dylan Alejandro Rodriguez Roa (admin)  ->  usuario  DARODRIGUEZ
-                                             clave    DyRoAdmin2026*37
+                                             clave    DyRo482*
   Ruta CTR_1                             ->  usuario  CTR1
-                                             clave    Ctr1Ruta2026*82
+                                             clave    Ctr1735*
 
 Paso 1 · Ejecuta el script una vez: como aún no existe el Excel, crea
          "usuarios_dashboard.xlsx" con líderes, supervisores y rutas.
@@ -18,6 +18,8 @@ Paso 2 · Revisa el Excel:
          - NOMBRE en orden "Nombres Apellidos" (de ahí sale el usuario).
          - CREAR = NO para quien no deba tener acceso.
          - Agrega filas de administradores (ROL = admin, ALCANCE vacío).
+         - ROL = consulta (ALCANCE vacío): ve Seguimiento y Comisiones
+           de todos, pero NO Material POP.
          - USUARIO y CONTRASENA vacíos = se generan solos. Si escribes
            algo, se respeta.
 
@@ -25,7 +27,7 @@ Paso 3 · Ejecuta el script otra vez: ahora sí crea las cuentas.
          El mismo Excel queda con el USUARIO y la CONTRASENA de cada uno
          para que los entregues. Guárdalo en un lugar seguro.
 
-Roles: admin · lider · supervisor · ruta
+Roles: admin · consulta · lider · supervisor · ruta
 Usa la misma .env de sincronizar_supabase.py (service_role key).
 ============================================================
 """
@@ -49,15 +51,21 @@ ARCHIVO = CARPETA / "usuarios_dashboard.xlsx"
 # usuario (nunca se envían correos). Debe ser IGUAL al del index.html.
 DOMINIO_USUARIOS = "tablero.local"
 
-# Contraseña = 2 letras del nombre + 2 del apellido + rol + año + "*"
-# Por seguridad se agregan 2 dígitos al azar al final (DyRoAdmin2026*37),
-# así nadie puede adivinar la clave de otro conociendo el patrón.
-# Si los quieres quitar, cambia a False (no recomendado).
-AGREGAR_DIGITOS_AL_AZAR = True
+# Contraseña corta = 2 letras del nombre + 2 del apellido + 3 dígitos al azar + "*"
+#   DyRo482*   (en rutas: código de la ruta, Ctr1735*)
+# Los dígitos al azar evitan que alguien adivine la clave de otro.
+DIGITOS_AL_AZAR = 3
 
-ROLES = {"admin", "lider", "supervisor", "ruta"}
-NOMBRE_ROL = {"admin": "Administrador", "lider": "Líder", "supervisor": "Supervisor", "ruta": "Ruta"}
-PALABRA_ROL = {"admin": "Admin", "lider": "Lider", "supervisor": "Super", "ruta": "Ruta"}
+# True = a TODAS las filas (con CREAR distinto de NO) se les genera y aplica
+# una contraseña NUEVA con el formato corto, aunque ya tengan una en el Excel.
+# Úsalo una vez para pasar a todos a claves cortas y vuelve a dejarlo en False.
+# (También: python crear_usuarios.py --nuevas-claves)
+NUEVAS_CLAVES_PARA_TODOS = False
+
+ROLES = {"admin", "consulta", "lider", "supervisor", "ruta"}
+SIN_ALCANCE = {"admin", "consulta"}   # ven a todos
+NOMBRE_ROL = {"admin": "Administrador", "consulta": "Consulta", "lider": "Líder", "supervisor": "Supervisor", "ruta": "Ruta"}
+PALABRA_ROL = {"admin": "Admin", "consulta": "Consulta", "lider": "Lider", "supervisor": "Super", "ruta": "Ruta"}
 
 load_dotenv(CARPETA / ".env")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -108,10 +116,8 @@ def generar_contrasena(rol, nombre, alcance):
         n = (nombres[0] if nombres else "Us")[:2]
         a = (apellidos[0] if apellidos else "Er")[:2]
         base = n[:1].upper() + n[1:].lower() + a[:1].upper() + a[1:].lower()
-    clave = f"{base}{PALABRA_ROL[rol]}{datetime.now().year}*"
-    if AGREGAR_DIGITOS_AL_AZAR:
-        clave += f"{secrets.randbelow(90) + 10}"
-    return clave
+    digitos = "".join(str(secrets.randbelow(10)) for _ in range(DIGITOS_AL_AZAR))
+    return f"{base}{digitos}*"
 
 
 def correo_interno(usuario):
@@ -171,6 +177,17 @@ def crear_usuarios(sb):
     if not ARCHIVO.exists():
         raise RuntimeError(f"No existe {ARCHIVO.name}. Ejecuta primero: python crear_usuarios.py --plantilla")
 
+    # Si el Excel está abierto no se podrían guardar las contraseñas: se avisa ANTES de tocar nada
+    try:
+        with open(ARCHIVO, "r+b"):
+            pass
+    except PermissionError:
+        raise RuntimeError(f"Cierra {ARCHIVO.name} en Excel y vuelve a ejecutar (no se cambió nada).")
+
+    nuevas_claves = NUEVAS_CLAVES_PARA_TODOS or "--nuevas-claves" in sys.argv
+    if nuevas_claves:
+        print("🔑 Modo claves nuevas: se genera una contraseña corta para cada fila.\n")
+
     df = pd.read_excel(ARCHIVO, dtype=str).fillna("")
     df.columns = [c.strip().upper() for c in df.columns]
     for col in ("USUARIO", "CONTRASENA", "CREAR", "ESTADO"):
@@ -193,7 +210,7 @@ def crear_usuarios(sb):
             df.at[i, "ESTADO"] = f"Error: rol '{rol}' no válido"
             errores += 1
             continue
-        if rol != "admin" and not alcance:
+        if rol not in SIN_ALCANCE and not alcance:
             df.at[i, "ESTADO"] = "Error: falta ALCANCE"
             errores += 1
             continue
@@ -206,7 +223,7 @@ def crear_usuarios(sb):
         usados.add(usuario)
         email = correo_interno(usuario)
 
-        clave = f["CONTRASENA"].strip()
+        clave = generar_contrasena(rol, nombre, alcance) if nuevas_claves else f["CONTRASENA"].strip()
         try:
             if email in existentes:
                 if clave:
@@ -221,7 +238,7 @@ def crear_usuarios(sb):
 
             sb.table("usuarios_dashboard").upsert({
                 "email": email, "usuario": usuario, "nombre": nombre, "rol": rol,
-                "alcance": None if rol == "admin" else alcance, "activo": True,
+                "alcance": None if rol in SIN_ALCANCE else alcance, "activo": True,
             }).execute()
 
             df.at[i, "USUARIO"] = usuario
@@ -233,9 +250,16 @@ def crear_usuarios(sb):
             print(f"❌ {usuario}: {error}")
             errores += 1
 
-    df.to_excel(ARCHIVO, index=False)
+    try:
+        df.to_excel(ARCHIVO, index=False)
+        destino = ARCHIVO
+    except PermissionError:
+        # Las cuentas ya se cambiaron: las contraseñas no se pueden perder
+        destino = ARCHIVO.with_name(f"usuarios_dashboard_{datetime.now():%Y%m%d_%H%M%S}.xlsx")
+        df.to_excel(destino, index=False)
+        print(f"\n⚠️  {ARCHIVO.name} estaba abierto. Resultados guardados en {destino.name}")
     print(f"\nCreados: {creados} · Actualizados: {actualizados} · Con error: {errores}")
-    print(f"📄 Usuarios y contraseñas guardados en: {ARCHIVO}")
+    print(f"📄 Usuarios y contraseñas guardados en: {destino}")
     print("   Este archivo tiene las contraseñas: guárdalo en un lugar seguro y no lo subas a GitHub.")
 
 
