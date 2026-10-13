@@ -104,6 +104,8 @@ HOJAS = {
         "hoja": "Indicadores",
         "tabla": "campo_indicadores",
         "clave": "RUTA",
+        # Desde Septiembre 2026 la columna del supervisor se llama "LIDER"
+        "alias": {"SUPERVISOR": ["LIDER"]},
         "opcionales": ["OBJ VISITAS", "VISITAS", "% VISITAS", "SUPERVISOR", "FECHAS CORTAS", "DEVOLUCIONES"],
         "columnas": [
             ("MES", "mes", "mes"),
@@ -132,6 +134,8 @@ HOJAS = {
 
     "RUTAS": {
         "hoja": "Liquidacion por Rutas",
+        # Otros nombres que ha tenido la hoja ("Liquidacion Comision Septiembre"...)
+        "alternas": ["Liquidacion Comision"],
         "tabla": "campo_liquidacion_rutas",
         "clave": "RUTA",
         "detectar_umbral": True,
@@ -170,6 +174,9 @@ HOJAS = {
 
     "LIDERES": {
         "hoja": "Liquidacion Lideres y Superviso",
+        # Desde Septiembre 2026 la hoja se llama "Liquidacion Supervisores" y viene
+        # en bloques (LIDER / SUPERVISOR / FORMADORA) en vez de columnas CARGO y NOMBRE.
+        "alternas": ["Liquidacion Supervisores", "Liquidacion Lideres"],
         "tabla": "campo_liquidacion_lideres",
         "clave": "NOMBRE",
         "columnas": [
@@ -532,6 +539,59 @@ def buscar_hoja(nombres_hojas, nombre_esperado):
     return None
 
 
+def hoja_de(nombres_hojas, config):
+    """Hoja de una tabla: el nombre de siempre o uno de sus nombres alternos."""
+    for nombre in [config["hoja"]] + config.get("alternas", []):
+        hoja = buscar_hoja(nombres_hojas, nombre)
+        if hoja is not None:
+            return hoja
+    return None
+
+
+# Encabezado de la primera columna de cada bloque -> cargo
+CARGOS_BLOQUE = {"LIDER": "Lider", "LIDERES": "Lider", "SUPERVISOR": "Supervisor",
+                 "SUPERVISORES": "Supervisor", "COORDINADOR": "Supervisor", "FORMADORA": "Formadora",
+                 "FORMADOR": "Formador"}
+
+
+def leer_hoja_bloques(archivo, nombre_hoja):
+    """
+    Hoja de líderes y supervisores armada en bloques: cada bloque tiene su
+    propio encabezado y la primera columna dice el cargo
+    (LIDER | LLAVE 1 CAPTURA | ...). Se unen en una sola tabla con
+    columnas CARGO y NOMBRE, igual que la hoja de antes.
+    """
+    crudo = pd.read_excel(archivo, sheet_name=nombre_hoja, header=None, dtype=object)
+    marca = clave_columna("LLAVE 1 CAPTURA")
+    bloques, actual = [], None
+    for i in range(len(crudo)):
+        valores = [normalizar(v) for v in crudo.iloc[i].tolist()]
+        if marca in [clave_columna(v) for v in valores]:
+            col_nombre = next(j for j, v in enumerate(valores) if v)
+            cargo = CARGOS_BLOQUE.get(valores[col_nombre], valores[col_nombre].title())
+            encabezados = list(valores)
+            encabezados[col_nombre] = "NOMBRE"
+            actual = {"cargo": cargo, "encabezados": desduplicar(encabezados), "filas": []}
+            bloques.append(actual)
+            continue
+        if actual is None or not any(valores):
+            actual = None if not any(valores) else actual
+            continue
+        actual["filas"].append((i, crudo.iloc[i].tolist()))
+
+    partes = []
+    for b in bloques:
+        if not b["filas"]:
+            continue
+        df = pd.DataFrame([f for _, f in b["filas"]], columns=b["encabezados"])
+        df["CARGO"] = b["cargo"]
+        df["__FILA_EXCEL"] = [i + 1 for i, _ in b["filas"]]
+        partes.append(df.loc[:, ~df.columns.duplicated()])
+    if not partes:
+        raise ValueError('No se encontraron bloques con la columna "LLAVE 1 CAPTURA".')
+    return pd.concat(partes, ignore_index=True)
+
+
 def leer_hoja(archivo, nombre_hoja, clave):
     """
     Lee la hoja sin asumir que el encabezado está en la fila 1:
@@ -572,7 +632,7 @@ def clave_columna(nombre):
     return re.sub(r"[^A-Z0-9%&$]", "", base) + (f"#{repeticion}" if repeticion else "")
 
 
-def resolver_columna(esperada, tipo, disponibles, usadas):
+def resolver_columna(esperada, tipo, disponibles, usadas, alias_hoja=None):
     """
     Busca la columna del Excel que corresponde a la esperada:
     1) nombre exacto, 2) mismo nombre sin espacios/puntos, 3) nombres
@@ -583,7 +643,7 @@ def resolver_columna(esperada, tipo, disponibles, usadas):
         return esperada
 
     por_clave = {clave_columna(c): c for c in libres}
-    for candidato in [esperada] + ALIAS_COLUMNAS.get(esperada, []):
+    for candidato in [esperada] + ALIAS_COLUMNAS.get(esperada, []) + (alias_hoja or {}).get(esperada, []):
         encontrada = por_clave.get(clave_columna(candidato))
         if encontrada:
             return encontrada
@@ -605,7 +665,7 @@ def preparar_hoja(datos, config, mes_respaldo):
     # Relaciona cada columna esperada con la real del Excel
     mapa, usadas, faltantes, renombradas = {}, set(), [], []
     for esperada, _, tipo in columnas:
-        real = resolver_columna(esperada, tipo, list(datos.columns), usadas)
+        real = resolver_columna(esperada, tipo, list(datos.columns), usadas, config.get("alias"))
         if real is None:
             faltantes.append(esperada)
         else:
@@ -883,7 +943,7 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
     resultado = {}
 
     # Sin "Liquidacion por Rutas" -> archivo de seguimiento: todo sale de Indicadores
-    if buscar_hoja(nombres_hojas, HOJAS["RUTAS"]["hoja"]) is None:
+    if hoja_de(nombres_hojas, HOJAS["RUTAS"]) is None:
         log("ℹ️  Archivo de SEGUIMIENTO (no trae \"Liquidacion por Rutas\"): se usa la hoja Indicadores.")
         return archivo, cargar_seguimiento(archivo, nombres_hojas, mes_respaldo, log)
 
@@ -892,13 +952,21 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
         log(f" HOJA: {config['hoja']}  ->  {config['tabla']}")
         log("=" * 70)
 
-        hoja = buscar_hoja(nombres_hojas, config["hoja"])
+        hoja = hoja_de(nombres_hojas, config)
         if hoja is None:
             log(f"❌ No se encontró la hoja. Hojas disponibles: {', '.join(nombres_hojas)}")
             continue
+        if hoja != config["hoja"]:
+            log(f'ℹ️  Se usa la hoja "{hoja}".')
 
         try:
-            datos = leer_hoja(archivo, hoja, config["clave"])
+            try:
+                datos = leer_hoja(archivo, hoja, config["clave"])
+            except ValueError:
+                if clave != "LIDERES":
+                    raise
+                datos = leer_hoja_bloques(archivo, hoja)
+                log(f"ℹ️  Hoja en bloques por cargo: {', '.join(sorted(datos['CARGO'].unique()))}")
             df, avisos = preparar_hoja(datos, config, mes_respaldo)
         except Exception as error:
             log(f"❌ Error leyendo la hoja: {error}")
