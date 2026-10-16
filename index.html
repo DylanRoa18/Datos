@@ -317,6 +317,10 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .seg-pill b{color:var(--eficacia-blue);font-weight:800}
 .seg-pill.cero{color:var(--text-muted)}
 .seg-pill.cero b{color:var(--text-muted)}
+.badge.pendiente{color:#64748B;background:#F1F5F9;border:1px dashed #CBD5E1}
+.ring-center .pendiente-txt{font-size:15px;font-weight:800;color:#64748B}
+.barra-pendiente{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.barra-pendiente .leaderboard-track{background:repeating-linear-gradient(45deg,#F1F5F9,#F1F5F9 6px,#E2E8F0 6px,#E2E8F0 12px)}
 /* Cuadrícula 2x2 de segmentos */
 .seg-cuadricula{display:grid;grid-template-columns:1fr;gap:16px}
 @media (min-width:1280px){
@@ -1431,6 +1435,14 @@ function reglasDe(mes){
   const r = (DATA.reglas || {})[Number(mes)] || {};
   return { ...REGLAS_DEFECTO, ...r, llaves:{ ...REGLAS_DEFECTO.llaves, ...(r.llaves || {}) } };
 }
+// Indicadores que aún no llegan ese mes (Ventas, Devoluciones...): se muestran "Pendiente"
+const MENSAJE_PENDIENTE_DEFECTO = 'Aún no contamos con la información de este indicador: depende de Alquería o del cliente. Pronto estará disponible.';
+const esPendienteMes = (mes, k) => (reglasDe(mes).pendientes || []).includes(k);
+const todosPendientes = (rows, campo) => rows.length > 0 && rows.every(r => r[campo]);
+function badgePendiente(){
+  return `<span class="badge pendiente" title="${esc(MENSAJE_PENDIENTE_DEFECTO)}">Pendiente</span>`;
+}
+const pctVentas = r => r.ventasPendiente ? badgePendiente() : pctBadge(r.pct_ventas, SEMAFORO_CAMPO);
 // Reglas que aplican a lo que se está viendo: el mes filtrado o el más reciente
 function reglasVista(mes, rows){
   if(mes) return reglasDe(mes);
@@ -2041,8 +2053,9 @@ function prepararCampo({ rutas, indicadores, lideres }){
   lideres = unificarNombres(rutas, lideres, indicadores);
   const rutasOk = rutas.map(r => {
     const captura = num(r.pct_captura), cobertura = num(r.pct_cobertura);
-    const tp = num(r.pct_tienda_perfecta), ventas = num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
-    return { ...r, pct_captura:captura, pct_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv,
+    const ventasPendiente = esPendienteMes(r.mes_orden, 'ventas');
+    const tp = num(r.pct_tienda_perfecta), ventas = ventasPendiente ? null : num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
+    return { ...r, pct_captura:captura, pct_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv, ventasPendiente,
       ...calcComision(captura, cobertura, tp, ventas, fcdv,
         { reglas:reglasDe(r.mes_orden), cumple:r.corresponde_comision, pctComision:r.pct_comision }) };
   });
@@ -2077,7 +2090,10 @@ function prepararCampo({ rutas, indicadores, lideres }){
   const indicadoresOk = indicadores.map(r => {
     const k = claveRuta(r.ruta);
     const ref = porRutaMes[`${r.mes_orden}|${k}`] || porRuta[k] || {};
+    const devPendiente = esPendienteMes(r.mes_orden, 'devoluciones');
     return { ...r,
+      ...(devPendiente ? { pct_devoluciones:null, pct_cumpl_devoluciones:null, pdv_devoluciones:null, pct_objetivo_devoluciones:null } : {}),
+      devPendiente,
       ruta: ref.ruta || r.ruta,
       regional: ref.regional || null,
       lider: ref.lider || null,
@@ -2086,8 +2102,9 @@ function prepararCampo({ rutas, indicadores, lideres }){
 
   const lideresOk = lideres.map(r => {
     const captura = num(r.pct_llave_captura), cobertura = num(r.pct_llave_cobertura);
-    const tp = num(r.pct_tienda_perfecta), ventas = num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
-    return { ...r, pct_llave_captura:captura, pct_llave_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv,
+    const ventasPendiente = esPendienteMes(r.mes_orden, 'ventas');
+    const tp = num(r.pct_tienda_perfecta), ventas = ventasPendiente ? null : num(r.pct_ventas), fcdv = num(r.pct_fc_dv);
+    return { ...r, pct_llave_captura:captura, pct_llave_cobertura:cobertura, pct_tienda_perfecta:tp, pct_ventas:ventas, pct_fc_dv:fcdv, ventasPendiente,
       ...calcComision(captura, cobertura, tp, ventas, fcdv,
         { reglas:reglasDe(r.mes_orden), cumple:r.cumple_llaves, pctComision:r.pct_comision }) };
   });
@@ -3093,7 +3110,7 @@ function renderFocoCampo(rutas){
       ${stat('Captura', fmtPct(prom(r => r.pct_captura)), prom(r => r.pct_captura))}
       ${stat('Cobertura', fmtPct(prom(r => r.pct_cobertura)), prom(r => r.pct_cobertura))}
       ${stat('Tienda Perfecta', fmtPct(prom(r => r.pct_tienda_perfecta)), prom(r => r.pct_tienda_perfecta))}
-      ${stat('Ventas', fmtPct(prom(r => r.pct_ventas)), prom(r => r.pct_ventas))}
+      ${todosPendientes(rutas, 'ventasPendiente') ? stat('Ventas', 'Pendiente', null) : stat('Ventas', fmtPct(prom(r => r.pct_ventas)), prom(r => r.pct_ventas))}
       ${stat('FC & DV', fmtPct(prom(r => r.pct_fc_dv)), prom(r => r.pct_fc_dv))}
       ${stat('Comisión alcanzada', fmtPct(comision), comision)}
     </div>
@@ -3159,6 +3176,23 @@ function barraDesglose(label, v, detalle, umbrales = SEMAFORO_CAMPO){
     <span class="leaderboard-value" style="color:${t.fg}">${fmtPct(v)}</span>
   </div>`;
 }
+function barraPendiente(label){
+  return `<div class="leaderboard-item barra-pendiente">
+    <div class="min-w-0 flex-1">
+      <div class="lb-linea">
+        <p class="leaderboard-nombre">${esc(label)}</p>
+        <p class="leaderboard-detalle">Aún sin información · depende de Alquería o del cliente</p>
+      </div>
+      <div class="leaderboard-track"></div>
+    </div>
+    ${badgePendiente()}
+  </div>`;
+}
+function anilloPendiente(titulo, sub, badge, badgeTono){
+  return ringCard({ titulo, sub, badge, badgeTono, pct:0, color:'#CBD5E1',
+    centroHtml:'<span class="pendiente-txt">Pendiente</span>',
+    nota:'Aún no contamos con esta información: depende de Alquería o del cliente.<br>Pronto estará disponible.' });
+}
 function segmento({ titulo, peso, regla, pills, anillo, desglose, tituloDesglose }){
   const cuerpo = (desglose || []).filter(Boolean).join('');
   return `<div class="segmento seg-fila">
@@ -3202,6 +3236,7 @@ function renderSegmentos(rutas, indicadores, op = {}){
   const pesoTexto = (k, w) => {
     if(!d) return `${Math.round(w * 100)}% de la comisión`;
     const c = d.componentes.find(x => x.k === k);
+    if(c.pendiente) return `${Math.round(w * 100)}% · base ${fmtCOP(c.base)} por confirmar`;
     return `${Math.round(w * 100)}% · ${fmtCOP(c.pagado)} de ${fmtCOP(c.base)}`;
   };
 
@@ -3263,9 +3298,10 @@ function renderSegmentos(rutas, indicadores, op = {}){
   });
 
   // --- Ventas
+  const ventasPend = todosPendientes(rutas, 'ventasPendiente');
   const segVentas = segmento({
     titulo:'Ventas', peso:pesoTexto('ventas', w.ventas), regla:textoDesdeCorto(reglas.ventas),
-    anillo: anillo(rutas, rutasAnt, 'Ventas', 'Cumplimiento de cuota', 'VENTAS', TONOS.morado, r => r.pct_ventas,
+    anillo: ventasPend ? anilloPendiente('Ventas', 'Cumplimiento de cuota', 'VENTAS', TONOS.morado) : anillo(rutas, rutasAnt, 'Ventas', 'Cumplimiento de cuota', 'VENTAS', TONOS.morado, r => r.pct_ventas,
       [`Ideal hoy ${fmtPct(proy.pct)}`, dinero('ventas')].filter(Boolean).join('<br>'), [Math.max(proy.pct, 1), Math.max(proy.pct * 0.85, 1)]),
     desglose:[]
   });
@@ -3280,14 +3316,18 @@ function renderSegmentos(rutas, indicadores, op = {}){
     titulo:'Devoluciones y Fechas Cortas', peso:pesoTexto('fcdv', w.fcdv), regla:textoDesdeCorto(reglas.fcdv),
     anillo: anillo(rutas, rutasAnt, 'FC & DV', 'Cumplimiento', 'FC & DV', TONOS.ambar, r => r.pct_fc_dv, dinero('fcdv')),
     desglose:[
-      barraDesglose('Devoluciones', dev, `${pdvDev ? `${formatNumber(pdvDev)} PDV con devolución · ` : ''}${enMeta(getDev)}`),
+      todosPendientes(indicadores, 'devPendiente') ? barraPendiente('Devoluciones')
+        : barraDesglose('Devoluciones', dev, `${pdvDev ? `${formatNumber(pdvDev)} PDV con devolución · ` : ''}${enMeta(getDev)}`),
       barraDesglose('Fechas cortas', fc, enMeta(getFc)),
       dev !== null && fc !== null ? barraDesglose('Promedio devoluciones y fechas cortas', (dev + fc) / 2, '') : ''
     ]
   });
 
   // Un segmento debajo del otro: dona a la izquierda, composición a la derecha
-  box.innerHTML = `<div class="seg-cuadricula">${segLlaves}${segTP}${segVentas}${segFcDv}</div>` + (reglas.nota ? chipRegla(reglas.nota) : '');
+  const hayPend = ventasPend || todosPendientes(indicadores, 'devPendiente');
+  box.innerHTML = `<div class="seg-cuadricula">${segLlaves}${segTP}${segVentas}${segFcDv}</div>`
+    + (hayPend ? chipRegla(reglas.mensaje_pendientes || MENSAJE_PENDIENTE_DEFECTO) : '')
+    + (reglas.nota ? chipRegla(reglas.nota) : '');
 }
 
 function renderLeaderboardsCampo(rutas, indicadores){
@@ -3317,7 +3357,7 @@ function renderTablaPersonas(personas){
     <td><span class="font-bold">${esc(r.nombre)}</span><span class="celda-sub">${esc(r.cargo)} · ${esc(r.mes)}</span></td>
     <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">Captura ${fmtPct(r.pct_llave_captura)} · Cobertura ${fmtPct(r.pct_llave_cobertura)}</span></td>
     <td class="num">${pctBadge(r.pct_tienda_perfecta, SEMAFORO_CAMPO)}</td>
-    <td class="num">${pctBadge(r.pct_ventas, SEMAFORO_CAMPO)}</td>
+    <td class="num">${pctVentas(r)}</td>
     <td class="num">${pctBadge(r.pct_fc_dv, SEMAFORO_CAMPO)}</td>
     <td class="num">${pctBadge(r.pctComision, SEMAFORO_CAMPO)}</td>
     <td class="muted">${esc(r.comentario || '—')}</td>
@@ -3344,7 +3384,7 @@ function renderTablaRutas(rutas, predicados){
     <td>${esc(r.lider)}<span class="celda-sub">${esc(r.supervisor)}</span></td>
     <td>${llavesBadge(r.llavesOk)}<span class="celda-sub">Captura ${fmtPct(r.pct_captura)} · Cobertura ${fmtPct(r.pct_cobertura)}</span></td>
     <td class="num">${pctBadge(r.pct_tienda_perfecta, SEMAFORO_CAMPO)}</td>
-    <td class="num">${pctBadge(r.pct_ventas, SEMAFORO_CAMPO)}</td>
+    <td class="num">${pctVentas(r)}</td>
     <td class="num">${pctBadge(r.pct_fc_dv, SEMAFORO_CAMPO)}</td>
     <td class="num">${pctBadge(r.pctComision, SEMAFORO_CAMPO)}</td>
     <td class="muted">${esc(r.observaciones || '—')}</td>
@@ -3576,6 +3616,7 @@ function liquidar(r, d, cargo){
       tramos.push({ texto:`Promedio de llaves a ${nivelSig.desde}%`, ganancia: (baseCargo * nivelSig.factor - baseTotal) * (totalCalc / (baseTotal || 1)) });
     }
     [['TP', 'tp'], ['Ventas', 'ventas'], ['FC & DV', 'fcdv']].forEach(([nombre, k]) => {
+      if((reglas.pendientes || []).includes(k)) return;
       const meta = siguiente(reglas[k], pct[k]);
       if(meta) tramos.push({ texto:`${nombre} a ${meta.desde}%`, ganancia: base[k] * (meta.factor - factorTramos(pct[k], reglas[k])) });
     });
@@ -3670,14 +3711,18 @@ function resumenPago(filas){
   const bolsa = suma(filas, r => r.baseTotal);
   const pagar = suma(filas, r => r.pagar);
   const perdidoLlaves = suma(filas, r => r.perdidoLlaves);
+  // Ventas sin información aún: no es dinero perdido, está por confirmar
+  const pendiente = suma(filas, r => r.ventasPendiente && r.llavesOk ? Math.max(0, r.base.ventas - r.pagado.ventas) : 0);
+  const ventasPend = todosPendientes(filas, 'ventasPendiente');
   return {
     n: filas.length,
     comisionan: filas.filter(r => r.llavesOk && r.pagar > 0).length,
-    bolsa, pagar, perdidoLlaves,
-    perdidoTramos: Math.max(0, bolsa - pagar - perdidoLlaves),
+    bolsa, pagar, perdidoLlaves, pendiente,
+    perdidoTramos: Math.max(0, bolsa - pagar - perdidoLlaves - pendiente),
     potencial: suma(filas, r => r.tramos[0] ? r.tramos[0].ganancia : 0),
     sinSimulacion: filas.length > 0 && filas.every(r => r.sinSimulacion),
-    componentes: ['tp', 'ventas', 'fcdv'].map(k => ({ k, base: suma(filas, r => r.base[k]), pagado: suma(filas, r => r.pagado[k]) }))
+    componentes: ['tp', 'ventas', 'fcdv'].map(k => ({ k, base: suma(filas, r => r.base[k]), pagado: suma(filas, r => r.pagado[k]),
+      pendiente: k === 'ventas' && ventasPend }))
   };
 }
 function tarjetaResumen(titulo, s){
@@ -3698,10 +3743,12 @@ function tarjetaResumen(titulo, s){
       ${stat('Bolsa total', fmtCOP(s.bolsa))}
       ${stat('Perdido por llaves', fmtCOP(s.perdidoLlaves), s.perdidoLlaves > 0 ? 'var(--alqueria-red)' : '')}
       ${stat('Perdido por tramos', fmtCOP(s.perdidoTramos), s.perdidoTramos > 0 ? 'var(--amber)' : '')}
+      ${s.pendiente > 0 ? stat('Ventas por confirmar', fmtCOP(s.pendiente), '#64748B') : ''}
       ${stat('Si suben un tramo', s.sinSimulacion ? 'No aplica' : '+' + fmtCOP(s.potencial), s.sinSimulacion ? 'var(--text-muted)' : 'var(--eficacia-blue)')}
     </div>
     <div class="mt-4">
       ${s.componentes.map(c => {
+        if(c.pendiente) return barraPendiente(nombres[c.k]);
         const p = c.base > 0 ? c.pagado / c.base * 100 : 0;
         return `<div class="leaderboard-item">
           <div class="min-w-0 flex-1">
@@ -3722,7 +3769,7 @@ function celdaCumplimiento(r){
     return `<span class="flex items-center justify-between gap-3 text-[11px] font-semibold" style="white-space:nowrap">
       <span class="muted">${nombre}</span><span class="font-extrabold" style="color:${t.fg}">${fmtPct(v)}</span></span>`;
   };
-  return `<td class="nw">${linea('TP', r.pct_tienda_perfecta)}${linea('Ventas', r.pct_ventas)}${linea('FC & DV', r.pct_fc_dv)}</td>`;
+  return `<td class="nw">${linea('TP', r.pct_tienda_perfecta)}${r.ventasPendiente ? `<span class="flex items-center justify-between gap-3 text-[11px] font-semibold" style="white-space:nowrap"><span class="muted">Ventas</span><span class="font-extrabold" style="color:#64748B">Pendiente</span></span>` : linea('Ventas', r.pct_ventas)}${linea('FC & DV', r.pct_fc_dv)}</td>`;
 }
 // Solo dinero: lo pagado y la base del componente
 function celdaComponente(r, k){
@@ -3818,7 +3865,7 @@ function renderFocoLiq(rutas, personas){
       stat('Comisionó', fmtCOP(r.pagar), r.pagar > 0 ? 'var(--green)' : 'var(--alqueria-red)', `de ${fmtCOP(r.baseTotal)}`),
       stat('Llaves', r.llavesOk ? 'Abiertas' : 'Cerradas', r.llavesOk ? 'var(--green)' : 'var(--alqueria-red)'),
       stat('Tienda Perfecta', fmtCOP(r.pagado.tp), null, fmtPct(r.pct_tienda_perfecta)),
-      stat('Ventas', fmtCOP(r.pagado.ventas), null, fmtPct(r.pct_ventas)),
+      stat('Ventas', fmtCOP(r.pagado.ventas), null, r.ventasPendiente ? 'Pendiente' : fmtPct(r.pct_ventas)),
       stat('FC & DV', fmtCOP(r.pagado.fcdv), null, fmtPct(r.pct_fc_dv)),
       stat('Dejó de ganar', fmtCOP(Math.max(0, r.baseTotal - r.pagar)), r.baseTotal - r.pagar > 0 ? 'var(--amber)' : '')
     ].join('');

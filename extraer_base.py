@@ -270,6 +270,17 @@ REGLAS_POR_DEFECTO = {
     "nota": "",
 }
 
+# Ventas desde Septiembre 2026: se paga desde el 70% (antes desde el 80%)
+TRAMOS_VENTAS_DESDE_70 = [t for t in TRAMOS_ESCALONADO_ESTANDAR if t["desde"] > 80] + [{"desde": 70, "factor": 0.7}]
+# FC & DV desde Septiembre 2026: solo se paga con el 100%
+TRAMOS_SOLO_100 = [{"desde": 100, "factor": 1.0}]
+
+# Indicadores que aún no llegan en un mes (los da Alquería o el cliente).
+# El dashboard los muestra como "Pendiente" con el mensaje de abajo.
+# Si el Excel ya los trae con datos, se dejan de marcar solos.
+MENSAJE_PENDIENTES = ("Aún no contamos con la información de {que}: depende de Alquería o del cliente. "
+                      "Pronto estará disponible.")
+
 REGLAS_MES = {
     "2026-07": {
         "llaves": {"modo": "cobertura", "minimo": 70},
@@ -277,7 +288,26 @@ REGLAS_MES = {
         "nota": "Julio se liquidó con reglas especiales en los componentes; se muestra lo pagado según el Excel.",
     },
     "2026-08": {},
-    "2026-09": {},
+    "2026-09": {
+        "ventas": TRAMOS_VENTAS_DESDE_70,
+        "fcdv": TRAMOS_SOLO_100,
+    },
+    # Octubre 2026 (tabla "Indicadores Comisión Variable"):
+    #   Llaves: promedio de Captura y Cobertura. 95%-100% abre el 100% ($250.000);
+    #           60%-94% abre el 60% ($150.000).
+    #   Pesos: Tienda Perfecta 50% · Ventas 20% · FC & DV 30%
+    #   Tienda Perfecta: 90%-100% paga 100%; 60%-89% paga 60%
+    #   Ventas: paga según cumplimiento desde el 70%
+    #   FC & DV: devoluciones < 1,5% y fechas cortas reportadas al 100%
+    "2026-10": {
+        "niveles": [{"desde": 95, "factor": 1.0}, {"desde": 60, "factor": 0.6}],
+        "pesos": {"tp": 0.5, "ventas": 0.2, "fcdv": 0.3},
+        "tp": [{"desde": 90, "factor": 1.0}, {"desde": 60, "factor": 0.6}],
+        "ventas": TRAMOS_VENTAS_DESDE_70,
+        "fcdv": TRAMOS_SOLO_100,
+        "pendientes": ["ventas", "devoluciones"],
+        "nota": "Octubre es un avance del mes: los valores pueden cambiar con la liquidación final.",
+    },
 }
 
 
@@ -317,12 +347,30 @@ def construir_reglas(bases):
     for clave in ("RUTAS", "LIDERES"):
         if clave in bases and len(bases[clave]):
             meses |= {int(m) for m in bases[clave]["mes_orden"].dropna().unique()}
-    filas = [{
-        "mes_orden": m,
-        "mes": f"{NOMBRES_MES[m % 100]} {m // 100}",
-        "reglas": reglas_de_mes(m),
-    } for m in sorted(meses)]
+    filas = []
+    for m in sorted(meses):
+        reglas = reglas_de_mes(m)
+        pendientes = [p for p in reglas.get("pendientes", []) if not hay_datos(bases, m, p)]
+        reglas["pendientes"] = pendientes
+        if pendientes:
+            nombres = {"ventas": "Ventas", "devoluciones": "Devoluciones", "fcdv": "Fechas cortas y Devoluciones"}
+            que = " y ".join(nombres.get(p, p) for p in pendientes)
+            reglas["mensaje_pendientes"] = MENSAJE_PENDIENTES.format(que=que)
+        filas.append({"mes_orden": m, "mes": f"{NOMBRES_MES[m % 100]} {m // 100}", "reglas": reglas})
     return pd.DataFrame(filas)
+
+
+def hay_datos(bases, mes_orden, indicador):
+    """¿El mes ya trae datos reales de ese indicador? (para dejar de marcarlo pendiente)"""
+    if indicador == "ventas" and "RUTAS" in bases and len(bases["RUTAS"]):
+        r = bases["RUTAS"]
+        v = pd.to_numeric(r.loc[r["mes_orden"] == mes_orden, "pct_ventas"], errors="coerce")
+        return bool((v.fillna(0) > 0).any())
+    if indicador == "devoluciones" and "INDICADORES" in bases and len(bases["INDICADORES"]):
+        i = bases["INDICADORES"]
+        v = pd.to_numeric(i.loc[i["mes_orden"] == mes_orden, "pdv_devoluciones"], errors="coerce")
+        return bool((v.fillna(0) > 0).any())
+    return False
 
 
 # Columnas que no todos los meses traen: si faltan no se avisa
@@ -992,7 +1040,73 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
         else:
             resultado[clave] = df
 
+    actualizar_supervisores(resultado, log)
     return archivo, resultado
+
+
+def clave_persona(valor):
+    """Mismo nombre aunque cambie el orden, tildes o espacios."""
+    return " ".join(sorted(re.sub(r"[^A-Z ]", " ", normalizar(valor)).split()))
+
+
+def actualizar_supervisores(resultado, log):
+    """
+    La hoja Indicadores trae el supervisor actual de cada ruta. Si en la
+    liquidación sigue el anterior (pasó en Octubre 2026 con 3 supervisores
+    nuevos), se usa el de Indicadores, en la tabla de % y en la de dinero,
+    para que cada supervisor vea sus rutas en el dashboard.
+    """
+    ind, rutas = resultado.get("INDICADORES"), resultado.get("RUTAS")
+    if ind is None or rutas is None or not len(ind) or not len(rutas) or "supervisor" not in ind:
+        return
+    actual = {}
+    for _, f in ind.iterrows():
+        if f.get("supervisor"):
+            actual[(f["mes_orden"], clave_ruta(f["ruta"]))] = f["supervisor"]
+
+    cambios = {}
+    for i, f in rutas.iterrows():
+        nuevo = actual.get((f["mes_orden"], clave_ruta(f["ruta"])))
+        if nuevo and clave_persona(nuevo) != clave_persona(f["supervisor"]):
+            cambios[i] = nuevo
+    if not cambios:
+        return
+
+    resumen, reemplazados = {}, set()
+    for i, nuevo in cambios.items():
+        anterior = rutas.at[i, "supervisor"]
+        resumen[(anterior, nuevo)] = resumen.get((anterior, nuevo), 0) + 1
+        reemplazados.add((rutas.at[i, "mes_orden"], clave_persona(anterior)))
+        rutas.at[i, "supervisor"] = nuevo
+    dinero = resultado.get("RUTAS_DINERO")
+    if dinero is not None and len(dinero):
+        filas = {rutas.at[i, "fila_excel"]: nuevo for i, nuevo in cambios.items()}
+        dinero["supervisor"] = [filas.get(fe, sup) for fe, sup in zip(dinero["fila_excel"], dinero["supervisor"])]
+
+    log(f"\nℹ️  Supervisor actualizado desde Indicadores en {len(cambios)} rutas:")
+    for (anterior, nuevo), n in sorted(resumen.items(), key=lambda x: -x[1]):
+        log(f"     {anterior}  ->  {nuevo}  ({n} rutas)")
+
+    # Quien fue reemplazado y ya no tiene rutas ese mes no sigue en el mes
+    # (sale de la liquidación de líderes y supervisores solo de ese mes;
+    #  los meses anteriores se conservan).
+    lideres = resultado.get("LIDERES")
+    if lideres is None or not len(lideres):
+        return
+    con_rutas = {(m, clave_persona(sup)) for m, sup in zip(rutas["mes_orden"], rutas["supervisor"])}
+    quitar = [i for i, f in lideres.iterrows()
+              if "SUPER" in normalizar(f.get("cargo"))
+              and (f["mes_orden"], clave_persona(f["nombre"])) in reemplazados
+              and (f["mes_orden"], clave_persona(f["nombre"])) not in con_rutas]
+    if not quitar:
+        return
+    for i in quitar:
+        log(f"     {lideres.at[i, 'nombre']} ya no tiene rutas en {lideres.at[i, 'mes']}: no se carga en ese mes")
+    filas = set(zip(lideres.loc[quitar, "mes_orden"], lideres.loc[quitar, "fila_excel"]))
+    resultado["LIDERES"] = lideres.drop(index=quitar).reset_index(drop=True)
+    dinero = resultado.get("LIDERES_DINERO")
+    if dinero is not None and len(dinero):
+        resultado["LIDERES_DINERO"] = dinero[[(m, fe) not in filas for m, fe in zip(dinero["mes_orden"], dinero["fila_excel"])]].reset_index(drop=True)
 
 
 def cargar_todas(mostrar=True):
@@ -1041,6 +1155,8 @@ def cargar_todas(mostrar=True):
     union["REGLAS"] = construir_reglas(union)
     for _, fila in union["REGLAS"].iterrows():
         log(f"📐 Reglas {fila['mes']}: comisiona con {describir_llaves(fila['reglas'])}")
+        if fila["reglas"].get("pendientes"):
+            log(f"   ⏳ Pendiente en el dashboard: {', '.join(fila['reglas']['pendientes'])}")
     return archivos, union
 
 

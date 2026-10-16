@@ -27,6 +27,11 @@ Paso 3 · Ejecuta el script otra vez: ahora sí crea las cuentas.
          El mismo Excel queda con el USUARIO y la CONTRASENA de cada uno
          para que los entregues. Guárdalo en un lugar seguro.
 
+Mes nuevo · Después de sincronizar un mes, ejecuta este script: agrega al
+         Excel los líderes, supervisores y rutas que aún no tienen usuario
+         (CREAR = REVISAR). Revisa su NOMBRE, pon CREAR = SI y ejecútalo
+         otra vez para crearles la cuenta.
+
 Roles: admin · consulta · lider · supervisor · ruta
 Usa la misma .env de sincronizar_supabase.py (service_role key).
 ============================================================
@@ -158,6 +163,56 @@ def generar_plantilla(sb):
 
 
 # ------------------------------------------------------------
+# Personas y rutas nuevas (aparecen en un mes nuevo)
+# ------------------------------------------------------------
+def clave_persona(texto):
+    """Mismo nombre aunque cambie el orden, tildes o espacios (igual que en Supabase)."""
+    return " ".join(sorted(re.sub(r"[^A-Z ]", " ", sin_tildes(str(texto)).upper()).split()))
+
+
+def clave_ruta(texto):
+    return re.sub(r"[^A-Z0-9]", "", sin_tildes(str(texto)).upper())
+
+
+def leer_estructura(sb):
+    filas, desde = [], 0
+    while True:
+        lote = sb.table("campo_liquidacion_rutas").select("mes_orden,ruta,lider,supervisor") \
+            .range(desde, desde + 999).execute().data
+        filas += lote
+        if len(lote) < 1000:
+            break
+        desde += 1000
+    df = pd.DataFrame(filas)
+    return df[df["mes_orden"] == df["mes_orden"].max()] if len(df) else df
+
+
+def agregar_nuevos(sb, df):
+    """
+    Agrega al Excel los líderes, supervisores y rutas del mes más reciente que
+    aún no tienen fila. Quedan con CREAR = REVISAR para que revises el NOMBRE
+    (de ahí sale el usuario) antes de crearlos.
+    """
+    estructura = leer_estructura(sb)
+    if not len(estructura):
+        return []
+    ya = {(r.strip().lower(), clave_ruta(a) if r.strip().lower() == "ruta" else clave_persona(a))
+          for r, a in zip(df["ROL"], df["ALCANCE"])}
+    nuevos = []
+    for rol, col in (("lider", "lider"), ("supervisor", "supervisor"), ("ruta", "ruta")):
+        for alcance in sorted(estructura[col].dropna().unique()):
+            clave = clave_ruta(alcance) if rol == "ruta" else clave_persona(alcance)
+            if not clave or (rol, clave) in ya:
+                continue
+            ya.add((rol, clave))
+            nuevos.append({"ROL": rol, "ALCANCE": alcance,
+                           "NOMBRE": f"Ruta {alcance}" if rol == "ruta" else str(alcance).title(),
+                           "USUARIO": "", "CONTRASENA": "", "CREAR": "REVISAR",
+                           "ESTADO": "Nuevo: revisa NOMBRE (Nombres Apellidos) y pon CREAR = SI"})
+    return nuevos
+
+
+# ------------------------------------------------------------
 # Paso 3: crear / actualizar
 # ------------------------------------------------------------
 def usuarios_existentes(sb):
@@ -194,6 +249,15 @@ def crear_usuarios(sb):
         if col not in df.columns:
             df[col] = ""
 
+    # Quien aparece por primera vez en el mes más reciente se agrega al Excel
+    nuevos = agregar_nuevos(sb, df)
+    if nuevos:
+        df = pd.concat([df, pd.DataFrame(nuevos)], ignore_index=True).fillna("")
+        print(f"🆕 {len(nuevos)} nuevos agregados al Excel (CREAR = REVISAR):")
+        for n in nuevos:
+            print(f"     {NOMBRE_ROL[n['ROL']]:<11} {n['ALCANCE']}")
+        print("   Revisa su NOMBRE (Nombres Apellidos), cambia CREAR a SI y vuelve a ejecutar.\n")
+
     existentes = usuarios_existentes(sb)
     usados = set()
     creados = actualizados = errores = 0
@@ -201,6 +265,9 @@ def crear_usuarios(sb):
     for i, f in df.iterrows():
         if f["CREAR"].strip().upper() == "NO":
             df.at[i, "ESTADO"] = "Omitido (CREAR = NO)"
+            continue
+        if f["CREAR"].strip().upper() == "REVISAR":
+            df.at[i, "ESTADO"] = "Nuevo: revisa NOMBRE (Nombres Apellidos) y pon CREAR = SI"
             continue
 
         rol = f["ROL"].strip().lower()
