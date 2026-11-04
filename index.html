@@ -160,6 +160,13 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
   .table-scroll th,.table-scroll td{padding:8px 7px}
   .table-scroll .badge{padding:3px 7px;font-size:10.5px}
 }
+/* Detalle Operativo de Material POP: 12 columnas que caben completas sin scroll lateral */
+@media (min-width:1101px){
+  #pop-detalle .table-scroll table{font-size:10.5px}
+  #pop-detalle .table-scroll th,#pop-detalle .table-scroll td{padding:8px 5px}
+  #pop-detalle .table-scroll td.nw,#pop-detalle .table-scroll td.nw .badge{white-space:normal}
+  #pop-detalle .table-scroll .badge{padding:3px 6px;font-size:10px;line-height:1.3}
+}
 
 /* Rejilla que reparte las tarjetas según cuántas estén visibles */
 .auto-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr))}
@@ -832,6 +839,7 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
                   <th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salida</th><th class="num">Saldo</th>
                   <th class="num">Cumpl.</th><th>Fechas CEDI</th>
                   <th>Alerta recepción</th><th>Estado ejecución</th>
+                  <th>Ejecución</th><th>Alerta de Ejecución</th>
                 </tr>
               </thead>
               <tbody id="pop-tabla"></tbody>
@@ -1385,6 +1393,59 @@ function calcDiasFinalizado(row){
   if(info.tipo !== 'fecha') return '—';
   const diff = daysBetween(new Date(), info.fecha);
   return diff >= 0 ? '—' : `${-diff}d`;
+}
+
+// ---------- Ejecución y Alerta de Ejecución (columna TIEMPO NEGOCIADO) ----------
+// Toma la fecha de INICIO de textos como "15 de agosto a 31 de agosto",
+// "del 15 al 31 de agosto", "jueves, octubre 01, 2026" o "2026-10-01".
+// Sin año explícito se asume el año en curso.
+const DIAS_ALERTA_EJECUCION = 10;
+const MES_RE = '(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)';
+function inicioTiempoNegociado(valor){
+  const raw = String(valor ?? '').trim();
+  if(!raw) return null;
+  const iso = parseDateOnly(raw);
+  if(iso) return iso;
+
+  const t = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const anioTxt = t.match(/\b(20\d{2})\b/);
+  const anio = anioTxt ? +anioTxt[1] : new Date().getFullYear();
+
+  // Candidatos: se usa el que aparezca primero en el texto
+  const candidatos = [];
+  // "del 15 al 31 de agosto" (el mes solo aparece al final del rango)
+  let m = new RegExp('(\\d{1,2})\\s*(?:al?|-)\\s*\\d{1,2}\\s*(?:de\\s+)?' + MES_RE).exec(t);
+  if(m) candidatos.push({ pos:m.index, dia:+m[1], mes:MESES_ES[m[2]] });
+  // "15 de agosto"
+  m = new RegExp('(\\d{1,2})\\s*(?:de\\s+)?' + MES_RE).exec(t);
+  if(m) candidatos.push({ pos:m.index, dia:+m[1], mes:MESES_ES[m[2]] });
+  // "octubre 01, 2026"
+  m = new RegExp(MES_RE + '\\s+(\\d{1,2})\\b').exec(t);
+  if(m) candidatos.push({ pos:m.index, dia:+m[2], mes:MESES_ES[m[1]] });
+  if(!candidatos.length) return null;
+
+  candidatos.sort((a, b) => a.pos - b.pos);
+  const { dia, mes } = candidatos[0];
+  const fecha = new Date(anio, mes, dia);
+  return isNaN(fecha.getTime()) ? null : fecha;
+}
+function fechaDeMesTexto(d){
+  const mes = Object.keys(MESES_ES).find(k => MESES_ES[k] === d.getMonth() && k !== 'setiembre');
+  return `${String(d.getDate()).padStart(2, '0')} de ${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
+}
+function calcEjecucionInicio(row){
+  const inicio = inicioTiempoNegociado(row.TIEMPO_NEGOCIADO);
+  return inicio ? { fecha:inicio, text:fechaDeMesTexto(inicio) } : null;
+}
+function calcAlertaEjecucion(row){
+  const inicio = inicioTiempoNegociado(row.TIEMPO_NEGOCIADO);
+  if(!inicio) return { text:'—', ...TONOS_NEUTRO };
+  const alerta = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() - DIAS_ALERTA_EJECUCION);
+  const text = fechaDeMesTexto(alerta);
+  // Llegada la fecha de alerta (o pasada) se muestra en rojo
+  return daysBetween(alerta, new Date()) >= 0
+    ? { text, ...TONOS.rojo }
+    : { text, fg:'var(--text)', bg:'#F1F5F9' };
 }
 
 
@@ -2786,6 +2847,8 @@ function renderTablaPop(rows, predicados){
     const alerta = calcAlertaRecepcion(r);
     const estado = calcEstadoEjecucion(r);
     const dias = calcDiasFinalizado(r);
+    const ejec = calcEjecucionInicio(r);
+    const alertaEjec = calcAlertaEjecucion(r);
     return `<tr>
       <td><span class="font-bold">${esc(r.POP || r.Articulo)}</span>
         <span class="celda-sub">${esc(r.CAMPAÑA)}</span>
@@ -2803,8 +2866,10 @@ function renderTablaPop(rows, predicados){
       <td><span class="badge" style="color:${alerta.fg};background:${alerta.bg}">${esc(alerta.text)}</span></td>
       <td><span class="badge" style="color:${estado.fg};background:${estado.bg}">${esc(estado.text)}</span>
         ${dias !== '—' ? `<span class="celda-sub">Hace ${dias}</span>` : ''}</td>
+      <td class="nw font-semibold" style="white-space:nowrap">${ejec ? esc(ejec.text) : '—'}</td>
+      <td class="nw"><span class="badge" style="color:${alertaEjec.fg};background:${alertaEjec.bg};white-space:nowrap">${esc(alertaEjec.text)}</span></td>
     </tr>`;
-  }).join('') : emptyRow(10));
+  }).join('') : emptyRow(12));
 
   document.getElementById('pop-tabla-count').textContent = `Mostrando ${formatNumber(filas.length)} de ${formatNumber(DATA.pop.length)} registros`;
   document.getElementById('pop-detalle-filtro').innerHTML = filtrosPop.alerta
@@ -4230,11 +4295,12 @@ function exportarPop(){
   const filas = filasTablaPop(filtrarPop(), ultimosPredicadosPop);
   exportarXLSX('detalle_material_pop',
     ['Campaña','Material POP','Producto foco','Mes ejecución','Canal','Región','Asignado','Llegó','Salida','Saldo','Cumplimiento %',
-     'Fecha esperada','Ingreso CEDI','Última salida','Alerta recepción','Estado ejecución','Días finalizado'],
+     'Fecha esperada','Ingreso CEDI','Última salida','Alerta recepción','Estado ejecución','Días finalizado','Ejecución','Alerta de Ejecución'],
     filas.map(r => [r.CAMPAÑA, r.POP || r.Articulo, r.PRODUCTO_FOCO, r._mes ? mesLabel(r._mes) : '', r.CANAL, r.REGIONAL,
       Number(r.CANTIDAD_ASIGNADA) || 0, Number(r.CANTIDAD_LLEGA) || 0, Number(r.CANTIDAD_SALIDA) || 0, Number(r.SALDO) || 0,
       pctNum(pctSalida([r])), formatDate(r.FECHA_RECEPCION_POP), formatDate(r.FECHA_INGRESO), formatDate(r.FECHA_ULTIMA_SALIDA),
-      calcAlertaRecepcion(r).text, calcEstadoEjecucion(r).text, calcDiasFinalizado(r)]));
+      calcAlertaRecepcion(r).text, calcEstadoEjecucion(r).text, calcDiasFinalizado(r),
+      calcEjecucionInicio(r) ? calcEjecucionInicio(r).text : '', calcAlertaEjecucion(r).text === '—' ? '' : calcAlertaEjecucion(r).text]));
 }
 function exportarArticulos(){
   const filas = filasArticulos(filtrarPop());
