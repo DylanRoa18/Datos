@@ -2655,12 +2655,13 @@ function detalleComposicionPop(g){
             !a.pendientes ? '' : a.pendientes >= a.totalFilas ? ' <small>· sin llegar</small>' : ` <small>· falta en ${a.pendientes} de ${a.totalFilas}</small>`}</span>`
         : '<span class="mora verde">A tiempo</span>';
     const vistaTabla = `<div class="detalle-tablas"><div class="detalle-col"><table>
-      <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num">% Cumpl.</th><th class="num">Mora</th></tr></thead>
+      <thead><tr><th>Artículo</th><th class="num">Asignado</th><th class="num">Llegó</th><th class="num">Salido</th><th class="num" title="Lo que queda en el CEDI">Saldo</th><th class="num">% Cumpl.</th><th class="num">Mora</th></tr></thead>
       <tbody>${[...articulos].sort(porAsignado).map(a => `<tr>
         <td class="font-semibold art">${esc(a.label)}</td>
         <td class="num" data-l="Asignado">${formatNumber(a.asignado)}</td>
         <td class="num" data-l="Llegó">${formatNumber(a.llega)}</td>
         <td class="num" data-l="Salido">${formatNumber(a.salida)}</td>
+        <td class="num font-semibold" data-l="Saldo">${formatNumber(a.saldo)}</td>
         <td class="num" data-l="% Cumpl." style="color:${tono(a.pct, SEMAFORO_POP).fg};font-weight:700">${fmtPct(a.pct)}</td>
         <td class="num" data-l="Mora">${celdaMoraTabla(a)}</td>
       </tr>`).join('')}</tbody></table></div></div>`;
