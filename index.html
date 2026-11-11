@@ -153,6 +153,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .table-scroll th .sort-flecha{font-size:9px;margin-left:3px}
 .num{text-align:right;font-variant-numeric:tabular-nums}
 .celda-sub{display:block;font-size:10.5px;font-weight:500;color:var(--text-muted);margin-top:1px}
+.celda-sub.en-despacho{color:var(--amber);font-weight:700}
 
 /* Pantallas medianas: tablas más compactas para que quepan sin scroll lateral */
 @media (max-width:1440px){
@@ -1296,6 +1297,11 @@ function formatDate(value){
   if(!d) return value ? String(value) : '—';
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
+// Fecha de última salida programada después de hoy: el material aún está en despacho
+function salidaEnDespacho(value){
+  const d = parseDateOnly(value);
+  return !!d && daysBetween(new Date(), d) > 0;
+}
 function fechaCorta(d){
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
@@ -2406,7 +2412,9 @@ function renderFocoPop(rows, t){
     if(codigos.length) resumen.unshift(`Código ${codigos.join(', ')}`);
     if(productos.length) resumen.push(`Producto foco: ${productos.join(', ')}`);
     if(ingreso) resumen.push(`Último ingreso CEDI ${fechaCorta(ingreso)}`);
-    if(salida) resumen.push(`Última salida ${fechaCorta(salida)}`);
+    if(salida) resumen.push(daysBetween(new Date(), salida) > 0
+      ? `Última salida en despacho (${fechaCorta(salida)})`
+      : `Última salida ${fechaCorta(salida)}`);
   }
   const resumenTexto = resumen.join(' · ');
 
@@ -2879,7 +2887,9 @@ function renderTablaPop(rows, predicados){
       <td class="num">${pctBadge(pctSalida([r]), SEMAFORO_POP)}</td>
       <td class="nw"><span class="celda-sub" style="margin:0">Esperada ${formatDate(r.FECHA_RECEPCION_POP)}</span>
         <span class="celda-sub">Ingreso ${formatDate(r.FECHA_INGRESO)}</span>
-        <span class="celda-sub">Salida ${formatDate(r.FECHA_ULTIMA_SALIDA)}</span></td>
+        ${salidaEnDespacho(r.FECHA_ULTIMA_SALIDA)
+          ? `<span class="celda-sub en-despacho" title="La fecha de última salida es posterior a hoy">Última salida en despacho · ${formatDate(r.FECHA_ULTIMA_SALIDA)}</span>`
+          : `<span class="celda-sub">Salida ${formatDate(r.FECHA_ULTIMA_SALIDA)}</span>`}</td>
       <td><span class="badge" style="color:${alerta.fg};background:${alerta.bg}">${esc(alerta.text)}</span></td>
       <td><span class="badge" style="color:${estado.fg};background:${estado.bg}">${esc(estado.text)}</span>
         ${dias !== '—' ? `<span class="celda-sub">Hace ${dias}</span>` : ''}</td>
@@ -4315,7 +4325,8 @@ function exportarPop(){
      'Fecha esperada','Ingreso CEDI','Última salida','Alerta recepción','Estado ejecución','Días finalizado','Ejecución','Alerta de Ejecución'],
     filas.map(r => [r.CAMPAÑA, r.POP || r.Articulo, r.PRODUCTO_FOCO, r._mes ? mesLabel(r._mes) : '', r.CANAL, r.REGIONAL,
       Number(r.CANTIDAD_ASIGNADA) || 0, Number(r.CANTIDAD_LLEGA) || 0, Number(r.CANTIDAD_SALIDA) || 0, Number(r.SALDO) || 0,
-      pctNum(pctSalida([r])), formatDate(r.FECHA_RECEPCION_POP), formatDate(r.FECHA_INGRESO), formatDate(r.FECHA_ULTIMA_SALIDA),
+      pctNum(pctSalida([r])), formatDate(r.FECHA_RECEPCION_POP), formatDate(r.FECHA_INGRESO),
+      salidaEnDespacho(r.FECHA_ULTIMA_SALIDA) ? `En despacho (${formatDate(r.FECHA_ULTIMA_SALIDA)})` : formatDate(r.FECHA_ULTIMA_SALIDA),
       calcAlertaRecepcion(r).text, calcEstadoEjecucion(r).text, calcDiasFinalizado(r),
       calcEjecucionInicio(r) ? calcEjecucionInicio(r).text : '', calcAlertaEjecucion(r).text === '—' ? '' : calcAlertaEjecucion(r).text]));
 }
