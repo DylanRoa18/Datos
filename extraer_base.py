@@ -1077,7 +1077,7 @@ def unificar_alias(resultado, log):
                     nuevos.append(destino)
                 else:
                     nuevos.append(v)
-            df[col] = nuevos
+            df[col] = pd.Series(nuevos, index=df.index, dtype=object)
     for antes, despues in cambios.items():
         log(f"ℹ️  Nombre unificado: {antes}  ->  {despues}")
 
@@ -1196,6 +1196,11 @@ def cargar_todas(mostrar=True):
         log(f"📐 Reglas {fila['mes']}: comisiona con {describir_llaves(fila['reglas'])}")
         if fila["reglas"].get("pendientes"):
             log(f"   ⏳ Pendiente en el dashboard: {', '.join(fila['reglas']['pendientes'])}")
+
+    # Celdas vacías como None (Supabase no acepta NaN)
+    for clave, df in union.items():
+        if clave != "REGLAS" and df is not None and len(df):
+            union[clave] = df.astype(object).where(pd.notna(df), None)
     return archivos, union
 
 
