@@ -272,6 +272,8 @@ REGLAS_POR_DEFECTO = {
 
 # Ventas desde Septiembre 2026: se paga desde el 70% (antes desde el 80%)
 TRAMOS_VENTAS_DESDE_70 = [t for t in TRAMOS_ESCALONADO_ESTANDAR if t["desde"] > 80] + [{"desde": 70, "factor": 0.7}]
+# Ventas desde Octubre 2026: desde el 70% se paga el mismo % de cumplimiento (88,4% -> 88,4%; tope 100%)
+TRAMOS_VENTAS_PROPORCIONAL = [{"desde": 70, "factor": 0.7, "proporcional": True}]
 # FC & DV desde Septiembre 2026: solo se paga con el 100%
 TRAMOS_SOLO_100 = [{"desde": 100, "factor": 1.0}]
 
@@ -303,10 +305,10 @@ REGLAS_MES = {
         "niveles": [{"desde": 95, "factor": 1.0}, {"desde": 60, "factor": 0.6}],
         "pesos": {"tp": 0.5, "ventas": 0.2, "fcdv": 0.3},
         "tp": [{"desde": 90, "factor": 1.0}, {"desde": 60, "factor": 0.6}],
-        "ventas": TRAMOS_VENTAS_DESDE_70,
+        "ventas": TRAMOS_VENTAS_PROPORCIONAL,
         "fcdv": TRAMOS_SOLO_100,
+        # Se dejan de marcar solos cuando el Excel trae los datos (liquidación final)
         "pendientes": ["ventas", "devoluciones"],
-        "nota": "Octubre es un avance del mes: los valores pueden cambiar con la liquidación final.",
     },
 }
 
@@ -368,8 +370,11 @@ def hay_datos(bases, mes_orden, indicador):
         return bool((v.fillna(0) > 0).any())
     if indicador == "devoluciones" and "INDICADORES" in bases and len(bases["INDICADORES"]):
         i = bases["INDICADORES"]
-        v = pd.to_numeric(i.loc[i["mes_orden"] == mes_orden, "pdv_devoluciones"], errors="coerce")
-        return bool((v.fillna(0) > 0).any())
+        del_mes = i[i["mes_orden"] == mes_orden]
+        pdv = pd.to_numeric(del_mes.get("pdv_devoluciones"), errors="coerce")
+        cumpl = pd.to_numeric(del_mes.get("pct_cumpl_devoluciones"), errors="coerce")
+        # Sin datos, el Excel deja a todos cumpliendo devoluciones (100%)
+        return bool((pdv.fillna(0) > 0).any() or (cumpl.dropna() < 100).any())
     return False
 
 
@@ -1040,8 +1045,41 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
         else:
             resultado[clave] = df
 
+    unificar_alias(resultado, log)
     actualizar_supervisores(resultado, log)
     return archivo, resultado
+
+
+# Misma persona escrita distinto entre meses (no solo en otro orden): se deja
+# con el nombre de siempre para no romper su usuario ni su historial.
+# El orden y las tildes no importan ("GIL MARTINEZ JENNIFER" = "JENNIFER GIL MARTÍNEZ").
+ALIAS_PERSONAS = {
+    "MELISSA MARTINEZ": "MELISA MARTINEZ",
+    "EDWIN GONZALEZ": "GONZALEZ BARRANTES EDWIN JESSID",
+    "NATHALY AGUILAR BECERRA": "NATHALY AGUILAR",
+}
+
+
+def unificar_alias(resultado, log):
+    mapa = {clave_persona(k): v for k, v in ALIAS_PERSONAS.items()}
+    cambios = {}
+    for df in resultado.values():
+        if df is None or not len(df):
+            continue
+        for col in ("lider", "supervisor", "lider_alqueria", "nombre"):
+            if col not in df:
+                continue
+            nuevos = []
+            for v in df[col]:
+                destino = mapa.get(clave_persona(v)) if isinstance(v, str) and v.strip() else None
+                if destino and clave_persona(destino) != clave_persona(v):
+                    cambios[v] = destino
+                    nuevos.append(destino)
+                else:
+                    nuevos.append(v)
+            df[col] = nuevos
+    for antes, despues in cambios.items():
+        log(f"ℹ️  Nombre unificado: {antes}  ->  {despues}")
 
 
 def clave_persona(valor):
@@ -1061,8 +1099,9 @@ def actualizar_supervisores(resultado, log):
         return
     actual = {}
     for _, f in ind.iterrows():
-        if f.get("supervisor"):
-            actual[(f["mes_orden"], clave_ruta(f["ruta"]))] = f["supervisor"]
+        sup = f.get("supervisor")
+        if isinstance(sup, str) and sup.strip() and sup.strip().lower() != "nan":
+            actual[(f["mes_orden"], clave_ruta(f["ruta"]))] = sup.strip()
 
     cambios = {}
     for i, f in rutas.iterrows():

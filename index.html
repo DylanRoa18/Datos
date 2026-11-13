@@ -1548,6 +1548,7 @@ function factorTramos(p, tramos){
   if(p === null || p === undefined || isNaN(p)) return 0;
   const r = Math.round(p);
   const t = [...(tramos || [])].sort((a, b) => b.desde - a.desde).find(x => r >= x.desde);
+  if(t && t.proporcional) return Math.min(p, 100) / 100;   // paga el mismo % de cumplimiento
   return t ? t.factor : 0;
 }
 // Nivel de comisión según el promedio de llaves (1 = completa)
@@ -1610,7 +1611,7 @@ function textoTramos(tramos){
       continue;
     }
     const rango = hasta === null ? `${t.desde}% o más` : (hasta === t.desde ? `${t.desde}%` : `${t.desde}% a ${hasta}%`);
-    partes.push(`${rango}: paga ${Math.round(t.factor * 100)}%`);
+    partes.push(t.proporcional ? `${rango}: paga el mismo % (máx. 100%)` : `${rango}: paga ${Math.round(t.factor * 100)}%`);
   }
   partes.push(`menos de ${orden[orden.length - 1].desde}%: no paga`);
   return partes.join(' · ');
@@ -1645,7 +1646,7 @@ function pillsTramos(tramos, base){
       i = j; continue;
     }
     const rango = hasta === null ? `${t.desde}%+` : (hasta === t.desde ? `${t.desde}%` : `${t.desde}–${hasta}%`);
-    pills.push(`<span class="seg-pill">${rango} <b>→ ${valor(t.factor)}</b></span>`);
+    pills.push(`<span class="seg-pill">${rango} <b>→ ${t.proporcional ? (base ? 'mismo %' : 'igual') : valor(t.factor)}</b></span>`);
   }
   pills.push(`<span class="seg-pill cero">&lt;${orden[orden.length - 1].desde}% <b>→ ${base ? '$ 0' : '0'}</b></span>`);
   return pills.join('');
