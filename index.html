@@ -270,6 +270,51 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .detalle-caja.ancha{width:min(1440px,97vw)}
 .detalle-tablas table{width:100%;font-size:12px;border-collapse:collapse}
 .detalle-tablas td.art{min-width:180px}
+/* Ajustes · Actividad de ingresos (solo administradores) */
+.btn-ajustes{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text-muted);transition:color .15s,border-color .15s,transform .3s}
+.btn-ajustes:hover{color:var(--text);border-color:#CBD5E1;transform:rotate(45deg)}
+.btn-ajustes svg{width:18px;height:18px}
+.btn-ajustes.hidden{display:none}
+.acc-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--eficacia-blue)}
+.acc-filtros{display:flex;flex-wrap:wrap;gap:10px 12px;margin:14px 0 4px;padding:12px 14px;border-radius:16px;background:var(--surface-soft);border:1px solid var(--border)}
+.acc-filtros .filter{flex:1 1 150px;max-width:220px;min-width:130px}
+.acc-fecha{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:7px 10px;background:#fff;width:100%}
+.acc-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.acc-kpi{border:1px solid var(--border);border-radius:16px;padding:14px 16px;min-width:0}
+.acc-kpi p{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+.acc-kpi b{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-kpi span{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
+.acc-panel{border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-top:12px;min-width:0}
+.acc-panel h4{font-size:13.5px;font-weight:800}
+.acc-panel-h{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.acc-panel-h p{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+.acc-grafico{width:100%;height:auto;display:block;max-width:100%}
+.acc-kpi b.texto{font-size:18px;line-height:1.5}
+.acc-tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.acc-tres .acc-panel h4{margin-bottom:8px}
+.acc-barra{margin-top:8px}
+.acc-barra-txt{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:4px}
+.acc-barra-txt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-barra .leaderboard-track{height:7px;display:block}
+.acc-tabla-wrap{max-height:340px;overflow:auto;margin-top:6px}
+.acc-tabla{width:100%;font-size:12px;border-collapse:collapse}
+.acc-tabla th{position:sticky;top:0;background:#fff;text-align:left;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);padding:7px 8px;border-bottom:1px solid var(--border)}
+.acc-tabla td{padding:8px;border-bottom:1px solid #F1F5F9;vertical-align:top}
+.acc-tabla .num{text-align:right;font-variant-numeric:tabular-nums}
+.acc-tabla tr.acc-inactivo td{color:var(--text-muted)}
+.acc-sub{display:block;font-size:10.5px;color:var(--text-muted);margin-top:1px}
+.acc-check{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer}
+.acc-vacio{padding:28px 8px;text-align:center;font-size:13px;color:var(--text-muted)}
+.acc-vacio.chico{padding:12px 4px;font-size:12px}
+.acc-error{color:var(--alqueria-red);font-weight:600}
+@media (max-width:900px){.acc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.acc-tres{grid-template-columns:1fr}}
+@media (max-width:640px){
+  .acc-filtros .filter{max-width:none;flex-basis:calc(50% - 6px)}
+  .acc-tabla thead{display:none}
+  .acc-tabla tr{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;padding:8px 0;border-bottom:1px solid #F1F5F9}
+  .acc-tabla td{border:0;padding:2px 0}
+  .acc-tabla .num{text-align:left}
+}
 /* Ventana de detalle POP: resumen + grupos por estado */
 .dz-resumen{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin:14px 0 6px;padding:14px 16px;border-radius:16px;background:var(--surface-soft);border:1px solid var(--border)}
 .dz-resumen-barra{flex:1 1 320px;min-width:0}
@@ -598,6 +643,9 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
     <div class="header-acciones">
       <span id="connection-status" class="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold" style="background:var(--amber-bg);color:var(--amber)">Conectando…</span>
       <span id="updated-label" class="text-xs hidden md:inline font-medium muted"></span>
+      <button id="btn-ajustes" type="button" class="btn-ajustes hidden" onclick="abrirAccesos()" aria-label="Ajustes: actividad de ingresos" title="Ajustes · Actividad de ingresos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
       <button onclick="cargarTodo()" class="btn-actualizar" aria-label="Actualizar datos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
         <span>Actualizar</span>
@@ -1159,6 +1207,21 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
   </div>
 </div>
 </main>
+</div>
+
+<!-- Ajustes · Actividad de ingresos (solo administradores) -->
+<div id="accesos-modal" class="detalle-modal hidden">
+  <div class="detalle-fondo" onclick="cerrarAccesos()"></div>
+  <div id="accesos-caja" class="detalle-caja ancha" role="dialog" aria-modal="true" aria-labelledby="accesos-titulo">
+    <button type="button" class="detalle-cerrar" onclick="cerrarAccesos()" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <p class="acc-eyebrow">Ajustes · Solo administradores</p>
+    <h3 id="accesos-titulo" class="text-lg font-extrabold font-display">Actividad de ingresos</h3>
+    <p class="text-xs muted mt-0.5">Quién entra al tablero, cuántas veces y qué paneles consulta.</p>
+    <div id="accesos-filtros" class="acc-filtros"></div>
+    <div id="accesos-contenido"></div>
+  </div>
 </div>
 
 <!-- Ventana pequeña con el detalle de un ranking -->
@@ -1936,7 +1999,7 @@ function conectarDetalleLb(){
     if(el) abrirDetalleLb(el);
   });
   document.addEventListener('keydown', e => {
-    if(e.key === 'Escape') cerrarDetalleLb();
+    if(e.key === 'Escape'){ cerrarDetalleLb(); cerrarAccesos(); }
     if(e.key === 'Enter' && e.target.classList && e.target.classList.contains('lb-interactivo')) abrirDetalleLb(e.target);
   });
 }
@@ -3565,7 +3628,9 @@ async function iniciarSesion(e){
   document.getElementById('login-boton-texto').textContent = 'Verificando…';
   mensajeLogin('');
 
+  ingresoConClave = true;
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password: clave });
+  if(error) ingresoConClave = false;
 
   boton.disabled = false;
   document.getElementById('login-boton-texto').textContent = 'Iniciar sesión';
@@ -3597,6 +3662,7 @@ async function aplicarSesion(session){
   ['admin', 'consulta', 'lider', 'supervisor', 'ruta'].forEach(r => document.body.classList.toggle(`rol-${r}`, rolActual() === r));
   pintarEstadoSesion();
   mostrarPantalla('app');
+  registrarEntrada();
   setVista('campo');
   await cargarTodo();
 }
@@ -3623,6 +3689,7 @@ function pintarEstadoSesion(){
   document.getElementById('nav-pop').classList.toggle('hidden', !puedePop());
   document.getElementById('nav-liquidacion').classList.toggle('hidden', !puedeDinero());
   document.getElementById('nav-gestion-label').classList.toggle('hidden', !puedePop() && !puedeDinero());
+  document.getElementById('btn-ajustes').classList.toggle('hidden', rolActual() !== 'admin');
 }
 async function cargarLiquidacion(){
   try{
@@ -4371,6 +4438,360 @@ const VISTAS = {
   liquidacion: { titulo:'Liquidación de comisiones', sub:'Valores a pagar por ruta, líder y supervisor' }
 };
 
+/* ============================================================
+   ACTIVIDAD DE INGRESOS (solo administradores)
+   Registra cada entrada al tablero en Supabase (accesos_dashboard)
+   y la muestra en la ventana de Ajustes (icono de engranaje).
+   ============================================================ */
+let ingresoConClave = false;          // true cuando la persona escribió usuario y contraseña
+const vistasRegistradas = new Set();  // un registro por panel en cada carga de la página
+
+function tipoDispositivo(){
+  const ua = navigator.userAgent || '';
+  if(/iPad|Tablet/i.test(ua)) return 'Tablet';
+  if(/Mobi|Android|iPhone/i.test(ua)) return 'Celular';
+  return 'Computador';
+}
+function registrarAcceso(evento, vista){
+  if(!SESION.usuario) return;
+  supabaseClient.rpc('registrar_acceso', { p_evento: evento, p_vista: vista || null, p_dispositivo: tipoDispositivo() })
+    .then(({ error }) => { if(error) console.warn('No se registró el acceso:', error.message); }, () => {});
+}
+// Entrada al tablero: con contraseña = "ingreso"; con sesión guardada = "visita"
+// (una visita por pestaña cada 30 minutos, para no contar cada recarga).
+function registrarEntrada(){
+  if(ingresoConClave){ ingresoConClave = false; registrarAcceso('ingreso'); return; }
+  const clave = 'acceso_visita_' + (SESION.usuario ? SESION.usuario.id : '');
+  try{
+    const ultima = Number(sessionStorage.getItem(clave) || 0);
+    if(Date.now() - ultima < 30 * 60 * 1000) return;
+    sessionStorage.setItem(clave, String(Date.now()));
+  }catch(e){}
+  registrarAcceso('visita');
+}
+function registrarVista(vista){
+  if(!SESION.usuario || vistasRegistradas.has(vista)) return;
+  vistasRegistradas.add(vista);
+  registrarAcceso('vista', vista);
+}
+
+// ---------- Ventana de Ajustes · Actividad ----------
+const ACC = {
+  periodo: '7d', desde: '', hasta: '', agrupar: 'dia', rol: '', usuario: '', contar: 'todos', sinActividad: false,
+  filas: [], usuarios: [], rango: null, cargando: false
+};
+const ACC_PERIODOS = [
+  ['hoy', 'Hoy'], ['7d', 'Últimos 7 días'], ['30d', 'Últimos 30 días'], ['mes', 'Este mes'],
+  ['mesAnterior', 'Mes anterior'], ['90d', 'Últimos 90 días'], ['personalizado', 'Personalizado']
+];
+const ACC_EVENTOS = { ingreso: 'Ingreso con contraseña', visita: 'Abrió el tablero', vista: 'Abrió un panel' };
+const inicioDia = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const sumarDias = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const fechaInput = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+function rangoAccesos(){
+  const hoy = inicioDia(new Date()), manana = sumarDias(hoy, 1);
+  switch(ACC.periodo){
+    case 'hoy': return { desde: hoy, hasta: manana };
+    case '30d': return { desde: sumarDias(hoy, -29), hasta: manana };
+    case '90d': return { desde: sumarDias(hoy, -89), hasta: manana };
+    case 'mes': return { desde: new Date(hoy.getFullYear(), hoy.getMonth(), 1), hasta: manana };
+    case 'mesAnterior': return { desde: new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1), hasta: new Date(hoy.getFullYear(), hoy.getMonth(), 1) };
+    case 'personalizado': {
+      const d = ACC.desde ? new Date(ACC.desde + 'T00:00:00') : sumarDias(hoy, -6);
+      const h = ACC.hasta ? sumarDias(new Date(ACC.hasta + 'T00:00:00'), 1) : manana;
+      return h > d ? { desde: d, hasta: h } : { desde: d, hasta: sumarDias(d, 1) };
+    }
+    default: return { desde: sumarDias(hoy, -6), hasta: manana };
+  }
+}
+
+async function abrirAccesos(){
+  if(rolActual() !== 'admin') return;
+  const modal = document.getElementById('accesos-modal');
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  const caja = document.getElementById('accesos-caja');
+  caja.classList.remove('zoom'); void caja.offsetWidth; caja.classList.add('zoom');
+  pintarFiltrosAccesos();
+  await cargarAccesos();
+}
+function cerrarAccesos(){
+  const modal = document.getElementById('accesos-modal');
+  if(modal.classList.contains('hidden')) return;
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function cargarAccesos(){
+  const rango = rangoAccesos();
+  ACC.rango = rango;
+  ACC.cargando = true;
+  pintarAccesos();
+  try{
+    const filas = [];
+    for(let desde = 0; desde < 50000; desde += 1000){
+      const { data, error } = await supabaseClient.from('accesos_dashboard')
+        .select('creado_en,usuario,nombre,rol,email,evento,vista,dispositivo')
+        .gte('creado_en', rango.desde.toISOString()).lt('creado_en', rango.hasta.toISOString())
+        .order('creado_en', { ascending: false }).range(desde, desde + 999);
+      if(error) throw error;
+      filas.push(...data);
+      if(data.length < 1000) break;
+    }
+    ACC.filas = filas.map(f => ({ ...f, fecha: new Date(f.creado_en), usuario: f.usuario || String(f.email || '').split('@')[0].toUpperCase() }));
+    if(!ACC.usuarios.length){
+      const { data } = await supabaseClient.rpc('usuarios_para_accesos');
+      ACC.usuarios = data || [];
+    }
+    ACC.error = '';
+  }catch(e){
+    ACC.filas = [];
+    ACC.error = /accesos_dashboard|schema cache|registrar_acceso/i.test(e.message || '')
+      ? 'Falta crear la tabla de accesos: ejecuta supabase_accesos.sql en Supabase.'
+      : (e.message || 'No se pudo consultar la actividad.');
+  }
+  ACC.cargando = false;
+  pintarFiltrosAccesos();
+  pintarAccesos();
+}
+
+function cambiarFiltroAccesos(clave, valor){
+  ACC[clave] = valor;
+  if(['periodo', 'desde', 'hasta'].includes(clave)){
+    if(clave === 'periodo' && valor === 'personalizado' && !ACC.desde){
+      const r = rangoAccesos(); ACC.desde = fechaInput(r.desde); ACC.hasta = fechaInput(sumarDias(r.hasta, -1));
+    }
+    if(clave === 'periodo' && ['hoy', '7d'].includes(valor)) ACC.agrupar = 'dia';
+    if(clave === 'periodo' && valor === '90d' && ACC.agrupar === 'dia') ACC.agrupar = 'semana';
+    pintarFiltrosAccesos();
+    cargarAccesos();
+    return;
+  }
+  pintarFiltrosAccesos();
+  pintarAccesos();
+}
+
+function pintarFiltrosAccesos(){
+  const opciones = (lista, actual) => lista.map(([v, t]) => `<option value="${esc(v)}" ${v === actual ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  const roles = [['', 'Todos'], ...Object.entries(ROLES).map(([k, r]) => [k, r.label])];
+  const nombres = {};
+  ACC.usuarios.forEach(u => { if(u.usuario) nombres[u.usuario] = u.nombre || u.usuario; });
+  ACC.filas.forEach(f => { if(f.usuario && !nombres[f.usuario]) nombres[f.usuario] = f.nombre || f.usuario; });
+  const usuarios = [['', 'Todos'], ...Object.entries(nombres).sort((a, b) => a[1].localeCompare(b[1])).map(([u, n]) => [u, `${n} · ${u}`])];
+  const personalizado = ACC.periodo === 'personalizado';
+  document.getElementById('accesos-filtros').innerHTML = `
+    <label class="filter"><span>Periodo</span><select onchange="cambiarFiltroAccesos('periodo', this.value)">${opciones(ACC_PERIODOS, ACC.periodo)}</select></label>
+    ${personalizado ? `
+      <label class="filter"><span>Desde</span><input type="date" class="acc-fecha" value="${ACC.desde}" onchange="cambiarFiltroAccesos('desde', this.value)"></label>
+      <label class="filter"><span>Hasta</span><input type="date" class="acc-fecha" value="${ACC.hasta}" onchange="cambiarFiltroAccesos('hasta', this.value)"></label>` : ''}
+    <label class="filter"><span>Rol</span><select onchange="cambiarFiltroAccesos('rol', this.value)">${opciones(roles, ACC.rol)}</select></label>
+    <label class="filter"><span>Usuario</span><select onchange="cambiarFiltroAccesos('usuario', this.value)">${opciones(usuarios, ACC.usuario)}</select></label>
+    <label class="filter"><span>Contar</span><select onchange="cambiarFiltroAccesos('contar', this.value)">${opciones([['todos', 'Todas las entradas'], ['ingreso', 'Solo con contraseña']], ACC.contar)}</select></label>`;
+}
+
+// Entradas al tablero (ingreso + visita) con los filtros de rol, usuario y tipo
+function accesosFiltrados(incluirVistas = false){
+  return ACC.filas.filter(f =>
+    (incluirVistas ? f.evento === 'vista' : (ACC.contar === 'ingreso' ? f.evento === 'ingreso' : f.evento !== 'vista')) &&
+    (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) &&
+    (!ACC.usuario || f.usuario === ACC.usuario));
+}
+
+// Periodos del gráfico: día, semana (lunes a domingo) o mes, incluyendo los que no tienen entradas
+function cubetasAccesos(){
+  const { desde, hasta } = ACC.rango;
+  const cubetas = [];
+  let cursor = inicioDia(desde);
+  if(ACC.agrupar === 'semana') cursor = sumarDias(cursor, -((cursor.getDay() + 6) % 7));
+  if(ACC.agrupar === 'mes') cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  while(cursor < hasta && cubetas.length < 400){
+    const fin = ACC.agrupar === 'dia' ? sumarDias(cursor, 1)
+      : ACC.agrupar === 'semana' ? sumarDias(cursor, 7)
+      : new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+    const etiqueta = ACC.agrupar === 'dia'
+      ? cursor.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })
+      : ACC.agrupar === 'semana'
+        ? `Sem. ${cursor.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}`
+        : cursor.toLocaleDateString('es-CO', { month: 'short', year: '2-digit' });
+    cubetas.push({ desde: cursor, hasta: fin, etiqueta, total: 0, usuarios: new Set() });
+    cursor = fin;
+  }
+  return cubetas;
+}
+
+function graficoAccesos(cubetas, anchoDisponible){
+  const W = Math.max(300, Math.round(anchoDisponible || 760)), H = W < 520 ? 200 : 240, m = { t: 22, r: 12, b: 34, l: 34 };
+  const max = Math.max(1, ...cubetas.map(c => c.total));
+  const paso = max <= 5 ? 1 : Math.ceil(max / 4);
+  const tope = Math.ceil(max / paso) * paso;
+  const ancho = (W - m.l - m.r) / Math.max(1, cubetas.length);
+  const y = v => m.t + (H - m.t - m.b) * (1 - v / tope);
+  const cadaEtiqueta = Math.max(1, Math.ceil(cubetas.length / Math.max(3, Math.floor(W / 70))));
+  const grilla = [];
+  for(let v = 0; v <= tope; v += paso){
+    grilla.push(`<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="#EEF2F7"/>
+      <text x="${m.l - 6}" y="${y(v) + 3.5}" text-anchor="end" font-size="10" fill="#94A3B8">${v}</text>`);
+  }
+  const barras = cubetas.map((c, i) => {
+    const w = Math.max(2, Math.min(ancho * 0.64, 72)), x = m.l + i * ancho + (ancho - w) / 2, alto = y(0) - y(c.total);
+    const titulo = `${c.etiqueta}: ${c.total} ${c.total === 1 ? 'entrada' : 'entradas'} · ${c.usuarios.size} ${c.usuarios.size === 1 ? 'usuario' : 'usuarios'}`;
+    return `<g><title>${esc(titulo)}</title>
+      <rect x="${x}" y="${y(c.total)}" width="${w}" height="${Math.max(0, alto)}" rx="${Math.min(5, w / 3)}" fill="${c.total ? '#0052CC' : '#E2E8F0'}"/>
+      ${c.total && ancho >= 16 ? `<text x="${x + w / 2}" y="${y(c.total) - 5}" text-anchor="middle" font-size="10" font-weight="700" fill="#1E293B">${c.total}</text>` : ''}
+      ${i % cadaEtiqueta === 0 ? `<text x="${x + w / 2}" y="${H - m.b + 15}" text-anchor="middle" font-size="10" fill="#64748B">${esc(c.etiqueta)}</text>` : ''}
+    </g>`;
+  }).join('');
+  const linea = cubetas.map((c, i) => `${i ? 'L' : 'M'}${(m.l + i * ancho + ancho / 2).toFixed(1)},${y(c.usuarios.size).toFixed(1)}`).join(' ');
+  const puntos = cubetas.map((c, i) => c.usuarios.size
+    ? `<circle cx="${m.l + i * ancho + ancho / 2}" cy="${y(c.usuarios.size)}" r="3" fill="#fff" stroke="#DA291C" stroke-width="2"/>` : '').join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="acc-grafico" role="img" aria-label="Tendencia de entradas al tablero">
+    ${grilla.join('')}${barras}
+    <path d="${linea}" fill="none" stroke="#DA291C" stroke-width="2" stroke-linejoin="round"/>${puntos}
+  </svg>`;
+}
+
+function haceCuanto(fecha){
+  const min = Math.round((Date.now() - fecha.getTime()) / 60000);
+  if(min < 1) return 'hace un momento';
+  if(min < 60) return `hace ${min} min`;
+  const h = Math.round(min / 60);
+  if(h < 24) return `hace ${h} h`;
+  const d = Math.round(h / 24);
+  return d === 1 ? 'ayer' : `hace ${d} días`;
+}
+const fechaHora = d => d.toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+const etiquetaRol = r => (ROLES[String(r || '').toLowerCase()] || {}).label || (r || '—');
+const etiquetaVista = v => (VISTAS[v] || {}).titulo || v || '—';
+
+function pintarAccesos(){
+  const box = document.getElementById('accesos-contenido');
+  if(ACC.cargando){ box.innerHTML = '<p class="acc-vacio">Consultando la actividad…</p>'; return; }
+  if(ACC.error){ box.innerHTML = `<p class="acc-vacio acc-error">${esc(ACC.error)}</p>`; return; }
+
+  const entradas = accesosFiltrados();
+  const vistas = accesosFiltrados(true);
+  const cubetas = cubetasAccesos();
+  entradas.forEach(f => {
+    const c = cubetas.find(c => f.fecha >= c.desde && f.fecha < c.hasta);
+    if(c){ c.total++; c.usuarios.add(f.usuario); }
+  });
+
+  // Por usuario
+  const porUsuario = {};
+  const habilitados = ACC.usuarios.filter(u => u.activo !== false &&
+    (!ACC.rol || String(u.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || u.usuario === ACC.usuario));
+  if(ACC.sinActividad) habilitados.forEach(u => {
+    porUsuario[u.usuario] = { usuario: u.usuario, nombre: u.nombre, rol: u.rol, total: 0, ingresos: 0, dias: new Set(), ultimo: null };
+  });
+  entradas.forEach(f => {
+    const u = porUsuario[f.usuario] = porUsuario[f.usuario] || { usuario: f.usuario, nombre: f.nombre, rol: f.rol, total: 0, ingresos: 0, dias: new Set(), ultimo: null };
+    u.total++;
+    if(f.evento === 'ingreso') u.ingresos++;
+    u.dias.add(fechaInput(f.fecha));
+    if(!u.ultimo || f.fecha > u.ultimo) u.ultimo = f.fecha;
+  });
+  const usuarios = Object.values(porUsuario).sort((a, b) => b.total - a.total || String(a.nombre).localeCompare(String(b.nombre)));
+  const activos = usuarios.filter(u => u.total > 0);
+  const sinEntrar = habilitados.filter(u => !activos.some(a => a.usuario === u.usuario)).length;
+
+  // KPIs
+  const dias = Math.max(1, Math.round((Math.min(ACC.rango.hasta, sumarDias(inicioDia(new Date()), 1)) - ACC.rango.desde) / 86400000));
+  const top = activos[0];
+  const kpi = (titulo, valor, sub, texto) => `<div class="acc-kpi"><p>${titulo}</p><b class="${texto ? 'texto' : ''}" title="${texto ? valor : ''}">${valor}</b><span>${sub}</span></div>`;
+
+  // Por rol, por sección y por dispositivo
+  const conteo = (lista, clave) => {
+    const c = {};
+    lista.forEach(f => { const k = clave(f); c[k] = (c[k] || 0) + 1; });
+    return Object.entries(c).sort((a, b) => b[1] - a[1]);
+  };
+  const barrasLista = (pares, total, color) => pares.length ? pares.map(([n, v]) => `
+    <div class="acc-barra">
+      <div class="acc-barra-txt"><span>${esc(n)}</span><b>${formatNumber(v)}</b></div>
+      <div class="leaderboard-track"><div class="leaderboard-fill" style="width:${(v / Math.max(1, total) * 100).toFixed(1)}%;background:${color}"></div></div>
+    </div>`).join('') : '<p class="acc-vacio chico">Sin registros en el periodo.</p>';
+
+  const porRol = conteo(entradas, f => etiquetaRol(f.rol));
+  const porVista = conteo(vistas, f => etiquetaVista(f.vista));
+  const porDisp = conteo(entradas, f => f.dispositivo || 'Sin dato');
+  const maxRol = Math.max(0, ...porRol.map(p => p[1]));
+  const maxVista = Math.max(0, ...porVista.map(p => p[1]));
+
+  const filasUsuarios = usuarios.map(u => `
+    <tr class="${u.total ? '' : 'acc-inactivo'}">
+      <td><b>${esc(u.nombre || u.usuario)}</b><span class="acc-sub">${esc(u.usuario)}</span></td>
+      <td>${esc(etiquetaRol(u.rol))}</td>
+      <td class="num"><b>${formatNumber(u.total)}</b></td>
+      <td class="num">${formatNumber(u.ingresos)}</td>
+      <td class="num">${formatNumber(u.dias.size)}</td>
+      <td>${u.ultimo ? `${fechaHora(u.ultimo)}<span class="acc-sub">${haceCuanto(u.ultimo)}</span>` : '<span class="acc-sub">Sin entradas</span>'}</td>
+    </tr>`).join('');
+
+  const recientes = ACC.filas.filter(f =>
+    (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || f.usuario === ACC.usuario) &&
+    (ACC.contar !== 'ingreso' || f.evento === 'ingreso')).slice(0, 40);
+
+  box.innerHTML = `
+    <div class="acc-kpis">
+      ${kpi('Entradas al tablero', formatNumber(entradas.length), ACC.contar === 'ingreso' ? 'solo con contraseña' : `${formatNumber(entradas.filter(f => f.evento === 'ingreso').length)} con contraseña`)}
+      ${kpi('Usuarios activos', formatNumber(activos.length), habilitados.length ? `de ${formatNumber(habilitados.length)} habilitados · ${formatNumber(sinEntrar)} sin entrar` : 'con al menos una entrada')}
+      ${kpi('Promedio diario', (entradas.length / dias).toLocaleString('es-CO', { maximumFractionDigits: 1 }), `entradas por día en ${dias} ${dias === 1 ? 'día' : 'días'}`)}
+      ${kpi('Usuario más activo', top ? esc(top.nombre || top.usuario) : '—', top ? `${formatNumber(top.total)} entradas · ${esc(top.usuario)}` : 'sin entradas en el periodo', true)}
+    </div>
+
+    <div class="acc-panel">
+      <div class="acc-panel-h">
+        <div><h4>Tendencia de entradas</h4><p>Barras: entradas al tablero · Línea roja: usuarios distintos que entraron</p></div>
+        <div class="vs-switch" role="tablist">
+          ${[['dia', 'Día'], ['semana', 'Semana'], ['mes', 'Mes']].map(([v, t]) =>
+            `<button type="button" class="${ACC.agrupar === v ? 'is-activo' : ''}" onclick="cambiarFiltroAccesos('agrupar', '${v}')">${t}</button>`).join('')}
+        </div>
+      </div>
+      ${graficoAccesos(cubetas, box.clientWidth - 34)}
+    </div>
+
+    <div class="acc-tres">
+      <div class="acc-panel"><h4>Entradas por rol</h4>${barrasLista(porRol, maxRol, '#0052CC')}</div>
+      <div class="acc-panel"><h4>Paneles más consultados</h4>${barrasLista(porVista, maxVista, '#059669')}</div>
+      <div class="acc-panel"><h4>Dispositivo</h4>${barrasLista(porDisp, Math.max(0, ...porDisp.map(p => p[1])), '#6366F1')}</div>
+    </div>
+
+    <div class="acc-panel">
+      <div class="acc-panel-h">
+        <div><h4>Por usuario</h4><p>Ordenado por número de entradas en el periodo</p></div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <label class="acc-check"><input type="checkbox" ${ACC.sinActividad ? 'checked' : ''} onchange="cambiarFiltroAccesos('sinActividad', this.checked)"> Mostrar quién no ha entrado</label>
+          <button type="button" class="btn-export" onclick="exportarAccesos()">Exportar</button>
+        </div>
+      </div>
+      ${usuarios.length ? `<div class="acc-tabla-wrap"><table class="acc-tabla">
+        <thead><tr><th>Usuario</th><th>Rol</th><th class="num">Entradas</th><th class="num">Con contraseña</th><th class="num">Días activos</th><th>Última entrada</th></tr></thead>
+        <tbody>${filasUsuarios}</tbody></table></div>` : '<p class="acc-vacio chico">Nadie ha entrado en este periodo con los filtros elegidos.</p>'}
+    </div>
+
+    <div class="acc-panel">
+      <h4>Últimos movimientos</h4>
+      ${recientes.length ? `<div class="acc-tabla-wrap"><table class="acc-tabla">
+        <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Movimiento</th><th>Dispositivo</th></tr></thead>
+        <tbody>${recientes.map(f => `<tr>
+          <td>${fechaHora(f.fecha)}</td>
+          <td><b>${esc(f.nombre || f.usuario)}</b><span class="acc-sub">${esc(f.usuario)}</span></td>
+          <td>${esc(etiquetaRol(f.rol))}</td>
+          <td>${esc(ACC_EVENTOS[f.evento] || f.evento)}${f.evento === 'vista' ? `<span class="acc-sub">${esc(etiquetaVista(f.vista))}</span>` : ''}</td>
+          <td>${esc(f.dispositivo || '—')}</td>
+        </tr>`).join('')}</tbody></table></div>` : '<p class="acc-vacio chico">Sin movimientos en el periodo.</p>'}
+    </div>`;
+}
+
+function exportarAccesos(){
+  exportarXLSX('actividad_tablero',
+    ['Fecha y hora', 'Usuario', 'Nombre', 'Rol', 'Movimiento', 'Panel', 'Dispositivo'],
+    ACC.filas.filter(f => (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || f.usuario === ACC.usuario))
+      .map(f => [f.fecha.toLocaleString('es-CO'), f.usuario, f.nombre || '', etiquetaRol(f.rol), ACC_EVENTOS[f.evento] || f.evento,
+        f.evento === 'vista' ? etiquetaVista(f.vista) : '', f.dispositivo || '']));
+}
+
 function setVista(vista){
   // Material POP y Comisiones solo con sesión de administrador
   if((vista === 'pop' && !puedePop()) || (vista === 'liquidacion' && !puedeDinero())) vista = 'campo';
@@ -4381,6 +4802,7 @@ function setVista(vista){
   });
   document.getElementById('vista-titulo').textContent = VISTAS[vista].titulo;
   document.getElementById('vista-subtitulo').textContent = VISTAS[vista].sub;
+  registrarVista(vista);
   toggleMobileNav(false);
   window.scrollTo({ top:0, behavior:'smooth' });
 }
