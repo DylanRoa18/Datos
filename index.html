@@ -141,6 +141,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .table-scroll th{padding:10px 10px;text-align:left;font-weight:700;color:var(--foco,var(--eficacia-blue));line-height:1.25;vertical-align:bottom}
 .table-scroll th.num{text-align:right}
 .table-scroll td{padding:9px 10px;border-top:1px solid var(--border);vertical-align:middle;overflow-wrap:break-word}
+.td-etq{display:none}
 .table-scroll td.whitespace-nowrap{white-space:normal}
 .table-scroll td.truncate{white-space:normal;overflow:visible;text-overflow:clip;max-width:none}
 .table-scroll td.num{white-space:nowrap}
@@ -251,7 +252,22 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .acc-kpi b{font-weight:800;color:var(--text)}
 .acc-kpi b.acc-sube{color:var(--green)}
 .acc-kpi b.acc-baja{color:var(--alqueria-red)}
-.acc-fecha{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:7px 12px;background:#fff;width:100%}
+.acc-fecha{display:block;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:0 12px;height:36px;line-height:36px;background:#fff;width:100%;min-width:0;max-width:100%;-webkit-min-logical-width:0;box-sizing:border-box;text-align:left;color:var(--text);-webkit-appearance:none;appearance:none}
+.acc-fecha::-webkit-date-and-time-value{text-align:left;margin:0}
+.acc-fecha::-webkit-datetime-edit{padding:0}
+.acc-filtros .filter{min-width:0}
+.acc-filtros .filter select{height:36px;padding-top:0;padding-bottom:0}
+@media (max-width:640px){
+  .acc-filtros{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px!important}
+  .acc-filtros .filter{min-width:0;max-width:none}
+  #accesos-contenido .table-scroll{max-height:none!important;overflow:visible}
+  #accesos-contenido .table-scroll tr{padding:2px 0 6px}
+  #accesos-contenido .table-scroll td{padding:5px 14px}
+  #accesos-contenido .table-scroll td:first-child{display:block;text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);margin-bottom:4px}
+  #accesos-contenido .table-scroll td:first-child .td-etq{display:none}
+  #accesos-contenido .table-scroll td:first-child .td-val{text-align:left}
+  #accesos-contenido .card.p-5{padding:16px}
+}
 .acc-leyenda{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;font-weight:700;color:var(--text-muted);margin:4px 0 6px}
 .acc-leyenda span{display:inline-flex;align-items:center;gap:6px}
 .acc-leyenda i{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -306,7 +322,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
   .detalle-caja{padding:18px 16px;border-radius:18px}
   .detalle-caja .foco-stats{grid-template-columns:repeat(3,1fr)}
   .detalle-tablas thead{display:none}
-  .detalle-tablas tr{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 0;border-bottom:1px solid var(--border)}
+  .detalle-tablas tr{display:grid;grid-template-columns:repeat(3,1fr);row-gap:6px;padding:8px 0;border-bottom:1px solid var(--border)}
   .detalle-tablas td{border:none!important;padding:1px 3px}
   .detalle-tablas td:first-child{grid-column:1 / -1;margin-bottom:3px}
   .detalle-tablas td.num::before{content:attr(data-l);display:block;font-size:9.5px;font-weight:600;color:var(--text-muted)}
@@ -476,11 +492,10 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
   .table-scroll thead{display:none}
   .table-scroll tr{border:1px solid var(--border);border-radius:14px;margin-bottom:10px;padding:4px 2px;background:#fff}
   /* etiqueta a la izquierda; el contenido (valor y sus líneas de detalle) a la derecha */
-  .table-scroll td{display:grid;grid-template-columns:minmax(96px,38%) minmax(0,1fr);column-gap:12px;row-gap:2px;align-items:center;border-top:none;padding:6px 12px;text-align:right}
-  .table-scroll td::before{content:attr(data-label);grid-column:1;grid-row:1 / span 4;font-weight:700;color:var(--text-muted);text-align:left}
-  .table-scroll td > *{grid-column:2;justify-self:end;margin-top:0}
+  .table-scroll td{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-top:none;padding:7px 14px;text-align:right}
+  .table-scroll td .td-etq{display:block;flex:0 0 auto;max-width:44%;text-align:left;font-weight:700;color:var(--text-muted);line-height:1.35}
+  .table-scroll td .td-val{display:block;flex:1 1 auto;min-width:0;text-align:right;line-height:1.35}
   .table-scroll td[colspan]{display:block;text-align:center}
-  .table-scroll td[colspan]::before{content:none}
   .auto-grid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){
@@ -516,6 +531,7 @@ body{background:#F4F5F7}
 .topbar-icono:hover{background:#F1F5F9;color:var(--text)}
 .topbar-icono svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .topbar-icono.hidden{display:none}
+.sub-movil{display:none}
 .topbar-titulo{flex:1;min-width:0}
 .topbar-titulo h1{font-size:15px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar-titulo p{font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -541,8 +557,8 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
 
 @media (max-width:1180px){ .topbar-fecha{display:none} }
 @media (max-width:1023px){
-  .sidebar{transform:translateX(-102%);width:min(82vw,280px);box-shadow:16px 0 40px rgba(15,23,42,.22)}
-  .sidebar.is-open{transform:translateX(0)}
+  .sidebar{transform:translateX(-102%);width:min(82vw,280px);box-shadow:none;visibility:hidden;transition:transform .2s ease,visibility 0s linear .2s}
+  .sidebar.is-open{transform:translateX(0);box-shadow:16px 0 40px rgba(15,23,42,.22);visibility:visible;transition:transform .2s ease}
   body.nav-mini .sidebar{width:min(82vw,280px)}
   body.nav-mini .vista-nav-btn{padding:9px 20px;justify-content:flex-start}
   body.nav-mini .vista-nav-btn span,body.nav-mini .firma{display:block}
@@ -556,7 +572,9 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
   .topbar{gap:8px;padding:0 10px}
   .topbar-estado{font-size:0;margin-right:0}
   .topbar-estado span{margin-right:0 !important}
-  .topbar-titulo h1{font-size:14px}
+  .topbar-titulo h1{font-size:14px;line-height:1.25;white-space:normal;overflow:visible;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .topbar-titulo p{display:none}
+  .sub-movil{display:block;font-size:12px;line-height:1.45;color:var(--text-muted);font-weight:500;margin:0 2px 12px}
   .app-main{padding:14px 12px}
 }
 </style>
@@ -701,6 +719,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
 </header>
 
 <main class="app-main">
+  <p id="vista-subtitulo-movil" class="sub-movil"></p>
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
 
@@ -1753,6 +1772,19 @@ function pintarTabla(tbodyId, html){
   const titulos = [...tbody.closest('table').querySelectorAll('thead th')].map(th => th.childNodes[0]?.textContent.trim() || '');
   tbody.querySelectorAll('tr').forEach(tr => {
     [...tr.children].forEach((td, i) => { if(!td.hasAttribute('colspan')) td.dataset.label = titulos[i] || ''; });
+  });
+  etiquetarCeldas(tbody);
+}
+// En celular cada fila es una tarjeta: "etiqueta ......... valor". La etiqueta va como
+// elemento real (no ::before) para que se vea igual en iPhone/Safari y Android.
+function etiquetarCeldas(raiz){
+  if(!raiz) return;
+  raiz.querySelectorAll('td[data-label]').forEach(td => {
+    if(td.hasAttribute('colspan') || td.querySelector(':scope > .td-val')) return;
+    const val = document.createElement('div'); val.className = 'td-val';
+    while(td.firstChild) val.appendChild(td.firstChild);
+    const etq = document.createElement('span'); etq.className = 'td-etq'; etq.textContent = td.dataset.label;
+    td.append(etq, val);
   });
 }
 
@@ -4712,7 +4744,7 @@ function pintarAccesos(){
 
   box.innerHTML = `
     <section class="card p-4 sm:p-5">
-      <div class="flex flex-wrap gap-3 items-end">
+      <div class="flex flex-wrap gap-3 items-end acc-filtros">
         <label class="filter"><span>Periodo</span><select onchange="cambiarFiltroAccesos('periodo', this.value)">${opciones(periodosSelect, ACC.periodo)}</select></label>
         <label class="filter"><span>Desde</span><input type="date" class="acc-fecha" value="${fechaInput(R.desde)}" onchange="cambiarFiltroAccesos('desde', this.value)"></label>
         <label class="filter"><span>Hasta</span><input type="date" class="acc-fecha" value="${fechaInput(sumarDias(R.hasta, -1))}" onchange="cambiarFiltroAccesos('hasta', this.value)"></label>
@@ -4781,12 +4813,12 @@ function pintarAccesos(){
         <table>
           <thead><tr><th>Usuario</th><th>Rol</th><th class="num">Entradas</th><th class="num">Con contraseña</th><th class="num">Días activos</th><th>Última entrada</th></tr></thead>
           <tbody>${usuarios.length ? usuarios.map(u => `<tr class="${u.total ? '' : 'acc-inactivo'}">
-            <td data-l="Usuario"><b>${esc(u.nombre || u.usuario)}</b><span class="celda-sub">${esc(u.usuario)}</span></td>
-            <td data-l="Rol">${esc(etiquetaRol(u.rol))}</td>
-            <td data-l="Entradas" class="num font-bold">${formatNumber(u.total)}</td>
-            <td data-l="Con contraseña" class="num">${formatNumber(u.ingresos)}</td>
-            <td data-l="Días activos" class="num">${formatNumber(u.dias.size)}</td>
-            <td data-l="Última entrada">${u.ultimo ? `${fechaHora(u.ultimo)}<span class="celda-sub">${haceCuanto(u.ultimo)}</span>` : '<span class="celda-sub">Sin entradas</span>'}</td>
+            <td data-label="Usuario"><b>${esc(u.nombre || u.usuario)}</b><span class="celda-sub">${esc(u.usuario)}</span></td>
+            <td data-label="Rol">${esc(etiquetaRol(u.rol))}</td>
+            <td data-label="Entradas" class="num font-bold">${formatNumber(u.total)}</td>
+            <td data-label="Con contraseña" class="num">${formatNumber(u.ingresos)}</td>
+            <td data-label="Días activos" class="num">${formatNumber(u.dias.size)}</td>
+            <td data-label="Última entrada">${u.ultimo ? `${fechaHora(u.ultimo)}<span class="celda-sub">${haceCuanto(u.ultimo)}</span>` : '<span class="celda-sub">Sin entradas</span>'}</td>
           </tr>`).join('') : emptyRow(6, 'Nadie ha entrado en este periodo con los filtros elegidos.')}</tbody>
         </table>
       </div>
@@ -4801,16 +4833,17 @@ function pintarAccesos(){
         <table>
           <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Movimiento</th><th>Dispositivo</th></tr></thead>
           <tbody>${recientes.length ? recientes.map(f => `<tr>
-            <td data-l="Fecha" class="nw">${fechaHora(f.fecha)}</td>
-            <td data-l="Usuario"><b>${esc(f.nombre || f.usuario)}</b><span class="celda-sub">${esc(f.usuario)}</span></td>
-            <td data-l="Rol">${esc(etiquetaRol(f.rol))}</td>
-            <td data-l="Movimiento">${esc(ACC_EVENTOS[f.evento] || f.evento)}${f.evento === 'vista' ? `<span class="celda-sub">${esc(etiquetaVista(f.vista))}</span>` : ''}</td>
-            <td data-l="Dispositivo">${esc(f.dispositivo || '—')}</td>
+            <td data-label="Fecha" class="nw">${fechaHora(f.fecha)}</td>
+            <td data-label="Usuario"><b>${esc(f.nombre || f.usuario)}</b><span class="celda-sub">${esc(f.usuario)}</span></td>
+            <td data-label="Rol">${esc(etiquetaRol(f.rol))}</td>
+            <td data-label="Movimiento">${esc(ACC_EVENTOS[f.evento] || f.evento)}${f.evento === 'vista' ? `<span class="celda-sub">${esc(etiquetaVista(f.vista))}</span>` : ''}</td>
+            <td data-label="Dispositivo">${esc(f.dispositivo || '—')}</td>
           </tr>`).join('') : emptyRow(5, 'Sin movimientos en el periodo.')}</tbody>
         </table>
       </div>
     </section>`;
   // El gráfico se dibuja al ancho real de su tarjeta, para que el texto no se deforme
+  etiquetarCeldas(box);
   const cont = document.getElementById('acc-grafico-cont');
   if(cont) cont.innerHTML = graficoAccesos(cubetas, cont.clientWidth || 600);
 }
@@ -4835,6 +4868,7 @@ function setVista(vista){
   });
   document.getElementById('vista-titulo').textContent = VISTAS[vista].titulo;
   document.getElementById('vista-subtitulo').textContent = VISTAS[vista].sub;
+  document.getElementById('vista-subtitulo-movil').textContent = VISTAS[vista].sub;
   registrarVista(vista);
   toggleMobileNav(false);
   window.scrollTo({ top:0, behavior:'smooth' });
