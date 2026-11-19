@@ -279,6 +279,23 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .acc-barra-suave{fill:#9DB8EC}
 .acc-check{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer}
 .table-scroll tr.acc-inactivo td{color:var(--text-muted)}
+.acc-lista-movil{display:none}
+.acc-item{padding:10px 2px;border-top:1px solid var(--border)}
+.acc-item:first-child{border-top:none;padding-top:2px}
+.acc-item.acc-inactivo b{color:var(--text-muted)}
+.acc-item-linea{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.acc-item-linea b{font-size:13px;font-weight:700;min-width:0}
+.acc-item-linea.muted{font-size:11px;margin-top:2px}
+.acc-item-linea.muted span:last-child{white-space:nowrap;flex-shrink:0}
+.acc-item-num{font-size:14px;font-weight:800;white-space:nowrap}
+.acc-item-num small{font-size:10.5px;font-weight:600;color:var(--text-muted)}
+.acc-item-hora{font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap}
+.acc-ver-mas{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-muted)}
+.acc-ver-mas button{font-size:12px;font-weight:700;color:var(--eficacia-blue);border:1px solid var(--border);border-radius:10px;padding:6px 12px;background:#fff}
+@media (max-width:640px){
+  .acc-lista-movil{display:block}
+  .acc-solo-escritorio{display:none}
+}
 /* Ventana de detalle POP: resumen + grupos por estado */
 .dz-resumen{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin:14px 0 6px;padding:14px 16px;border-radius:16px;background:var(--surface-soft);border:1px solid var(--border)}
 .dz-resumen-barra{flex:1 1 320px;min-width:0}
@@ -4501,7 +4518,7 @@ function registrarVista(vista){
 
 // ---------- Panel "Actividad de ingresos" ----------
 const ACC = {
-  periodo: '7d', desde: '', hasta: '', metrica: 'entradas', rol: '', usuario: '', contar: 'todos', sinActividad: false,
+  periodo: '7d', desde: '', hasta: '', metrica: 'entradas', rol: '', usuario: '', contar: 'todos', sinActividad: false, verUsuarios: 6, verMovs: 6,
   filas: [], usuarios: [], rango: null, cargado: false, cargando: false, error: ''
 };
 const ACC_PERIODOS = [['hoy', 'Hoy'], ['7d', '7 días'], ['30d', '30 días'], ['mes', 'Este mes'], ['anio', 'Este año']];
@@ -4575,8 +4592,10 @@ async function cargarAccesos(){
   pintarAccesos();
 }
 
+const ACC_PASO_MOVIL = 6; // filas que se muestran en celular antes de "Ver más"
 function cambiarFiltroAccesos(clave, valor){
   ACC[clave] = valor;
+  ACC.verUsuarios = ACC.verMovs = ACC_PASO_MOVIL;
   if(['periodo', 'desde', 'hasta'].includes(clave)){
     if(clave !== 'periodo') ACC.periodo = 'personalizado';
     cargarAccesos();
@@ -4585,6 +4604,13 @@ function cambiarFiltroAccesos(clave, valor){
   pintarAccesos();
 }
 
+// "Ver más" de las listas compactas del celular, sin redibujar los filtros
+function verMasAccesos(clave, todo){
+  const y = window.scrollY;
+  ACC[clave] = todo ? Infinity : ACC[clave] + 10;
+  pintarAccesos();
+  window.scrollTo(0, y);
+}
 const coincideFiltros = f => (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || f.usuario === ACC.usuario);
 const esEntrada = f => ACC.contar === 'ingreso' ? f.evento === 'ingreso' : f.evento !== 'vista';
 
@@ -4739,6 +4765,20 @@ function pintarAccesos(){
         <span class="leaderboard-value">${formatNumber(v)}</span>
       </div>`).join('');
   };
+  // Celular: lista compacta (2 líneas por fila) con "Ver más" en vez de 40 tarjetas
+  const listaMovil = (items, clave, fila, vacio) => {
+    if(!items.length) return `<div class="acc-lista-movil">${emptyMsg(vacio)}</div>`;
+    const n = Math.min(items.length, ACC[clave]);
+    const faltan = items.length - n;
+    return `<div class="acc-lista-movil">
+      ${items.slice(0, n).map(fila).join('')}
+      <div class="acc-ver-mas">
+        <span>Mostrando ${n} de ${items.length}</span>
+        ${faltan ? `<span class="flex gap-2"><button type="button" onclick="verMasAccesos('${clave}')">Ver ${Math.min(10, faltan)} más</button>${faltan > 10 ? `<button type="button" onclick="verMasAccesos('${clave}', true)">Ver todos</button>` : ''}</span>`
+          : n > ACC_PASO_MOVIL ? `<button type="button" onclick="ACC['${clave}'] = ACC_PASO_MOVIL; pintarAccesos()">Ver menos</button>` : ''}
+      </div>
+    </div>`;
+  };
   const periodosSelect = [...ACC_PERIODOS, ['personalizado', 'Personalizado']];
   const btnExportar = `<button type="button" onclick="exportarAccesos()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>`;
 
@@ -4809,7 +4849,12 @@ function pintarAccesos(){
           ${btnExportar}
         </div>
       </div>
-      <div class="table-scroll" style="max-height:420px">
+      ${listaMovil(usuarios, 'verUsuarios', u => `
+        <div class="acc-item${u.total ? '' : ' acc-inactivo'}">
+          <div class="acc-item-linea"><b>${esc(u.nombre || u.usuario)}</b><span class="acc-item-num">${formatNumber(u.total)}<small> entr.</small></span></div>
+          <div class="acc-item-linea muted"><span>${esc(etiquetaRol(u.rol))} · ${formatNumber(u.ingresos)} con clave · ${formatNumber(u.dias.size)} día${u.dias.size === 1 ? '' : 's'}</span><span>${u.ultimo ? haceCuanto(u.ultimo) : 'Sin entradas'}</span></div>
+        </div>`, 'Nadie ha entrado en este periodo con los filtros elegidos.')}
+      <div class="table-scroll acc-solo-escritorio" style="max-height:420px">
         <table>
           <thead><tr><th>Usuario</th><th>Rol</th><th class="num">Entradas</th><th class="num">Con contraseña</th><th class="num">Días activos</th><th>Última entrada</th></tr></thead>
           <tbody>${usuarios.length ? usuarios.map(u => `<tr class="${u.total ? '' : 'acc-inactivo'}">
@@ -4829,7 +4874,12 @@ function pintarAccesos(){
         <h3 class="text-base font-bold tracking-tight font-display">Últimos movimientos</h3>
         <p class="text-xs mt-0.5 font-medium muted">Los 40 más recientes del periodo</p>
       </div>
-      <div class="table-scroll" style="max-height:420px">
+      ${listaMovil(recientes, 'verMovs', f => `
+        <div class="acc-item">
+          <div class="acc-item-linea"><b>${esc(f.nombre || f.usuario)}</b><span class="acc-item-hora">${fechaHora(f.fecha)}</span></div>
+          <div class="acc-item-linea muted"><span>${esc(ACC_EVENTOS[f.evento] || f.evento)}${f.evento === 'vista' ? ' · ' + esc(etiquetaVista(f.vista)) : ''}</span><span>${esc(f.dispositivo || '')}</span></div>
+        </div>`, 'Sin movimientos en el periodo.')}
+      <div class="table-scroll acc-solo-escritorio" style="max-height:420px">
         <table>
           <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Movimiento</th><th>Dispositivo</th></tr></thead>
           <tbody>${recientes.length ? recientes.map(f => `<tr>
