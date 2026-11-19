@@ -66,7 +66,9 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 
 /* Botones */
 .btn-export{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text);white-space:nowrap}
-.btn-export .btn-icono{width:15px;height:15px;flex-shrink:0}
+.btn-export::before{content:'';width:15px;height:15px;flex-shrink:0;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11M7 10l5 5 5-5M5 20h14'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11M7 10l5 5 5-5M5 20h14'/%3E%3C/svg%3E") center/contain no-repeat}
 .btn-export:hover{background:var(--surface-soft);border-color:#CBD5E1}
 .search-input{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:8px 14px;width:100%}
 
@@ -126,8 +128,6 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .lb-orden:hover{border-color:var(--foco,var(--eficacia-blue));color:var(--foco,var(--eficacia-blue))}
 
 /* Barra de proyección */
-.proy-track{position:relative;height:10px;border-radius:9999px;background:var(--track);overflow:hidden}
-.proy-fill{height:100%;border-radius:9999px;background:var(--eficacia-blue)}
 
 /* Tablas */
 /* Tablas: ocupan todo el ancho y el texto se acomoda en varias líneas,
@@ -142,7 +142,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .table-scroll th.num{text-align:right}
 .table-scroll td{padding:9px 10px;border-top:1px solid var(--border);vertical-align:middle;overflow-wrap:break-word}
 .td-etq{display:none}
-.table-scroll td.whitespace-nowrap{white-space:normal}
+
 .table-scroll td.truncate{white-space:normal;overflow:visible;text-overflow:clip;max-width:none}
 .table-scroll td.num{white-space:nowrap}
 .table-scroll .badge{white-space:normal;text-align:center}
@@ -209,20 +209,10 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 /* Navegación */
 
 /* Enlace externo: Evaluación Replicadores (mismo estilo discreto que los ítems del menú) */
-.btn-externo{position:relative;display:flex;align-items:center;gap:10px;width:100%;padding:12px 13px;border-radius:12px;color:var(--text-muted);text-align:left;text-decoration:none;font-size:13px;font-weight:600;transition:background .15s ease,color .15s ease}
-.btn-externo:hover{background:var(--surface-soft);color:var(--text)}
-.btn-externo:focus-visible{outline:2px solid var(--eficacia-blue);outline-offset:1px}
-.btn-externo-img{width:30px;height:30px;margin:0 -6px;object-fit:contain;flex-shrink:0}
-.btn-externo-txt{display:block;flex:1;min-width:0;line-height:1.25}
-.btn-externo-txt small{display:block;font-size:10.5px;font-weight:500;color:#94A3B8;margin-top:1px}
-.btn-externo-flecha{width:13px;height:13px;flex-shrink:0;stroke:#94A3B8}
-.btn-externo:hover .btn-externo-flecha{stroke:var(--eficacia-blue)}
 
 /* Encabezado: en escritorio todo en una fila; en móvil logos + botones
    arriba y el título del panel en su propia fila. */
-.btn-actualizar{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;background:var(--alqueria-red);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
-.btn-actualizar:hover{opacity:.9}
-.btn-actualizar svg{width:15px;height:15px}
+
 
 
 /* Al saltar a una sección, que no quede tapada por el encabezado fijo */
@@ -231,7 +221,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 
 /* Ventana de detalle de un ranking (pasar el mouse o tocar) */
 .lb-interactivo{cursor:pointer;border-radius:10px;margin:0 -6px;padding-left:6px!important;padding-right:6px!important;transition:background .15s ease}
-.lb-interactivo:hover,.lb-interactivo.is-abierto{background:var(--surface-soft)}
+.lb-interactivo:hover{background:var(--surface-soft)}
 .detalle-modal{position:fixed;inset:0;z-index:75;display:flex;align-items:center;justify-content:center;padding:16px}
 .detalle-fondo{position:absolute;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fundido .25s ease both}
 .detalle-caja{position:relative;width:min(860px,96vw);max-height:94vh;overflow-y:auto;background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 30px 70px -15px rgba(15,23,42,.45)}
@@ -241,9 +231,7 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .detalle-cerrar svg{width:16px;height:16px}
 .detalle-tablas{display:grid;grid-template-columns:1fr;column-gap:28px}
 @media (min-width:860px){.detalle-tablas.dos{grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);column-gap:22px}}
-.detalle-divisor{background:linear-gradient(to bottom,transparent,var(--border) 8%,var(--border) 92%,transparent);width:1px;align-self:stretch}
-.detalle-parte{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--eficacia-blue);background:var(--eficacia-blue-bg);display:inline-block;padding:3px 9px;border-radius:9999px;margin-bottom:6px}
-@media (max-width:859px){.detalle-divisor{height:1px;width:auto;margin:10px 0;background:var(--border)}}
+
 .detalle-caja.ancha{width:min(1440px,97vw)}
 .detalle-tablas table{width:100%;font-size:12px;border-collapse:collapse}
 .detalle-tablas td.art{min-width:180px}
@@ -280,26 +268,20 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .acc-barra-suave{fill:#9DB8EC}
 .acc-check{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer}
 .table-scroll tr.acc-inactivo td{color:var(--text-muted)}
-/* Saldos de meses anteriores */
-.ant-resumen{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.ant-chip{display:inline-flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border);font-size:11.5px;color:var(--text-muted);font-weight:600}
-.ant-chip b{font-size:13px;font-weight:800;color:var(--text)}
-.ant-mas{display:none}
-.ant-lista{display:none}
-#pop-anteriores{scroll-margin-top:84px}
+/* Sobrante CEDI (ventana) */
+.sob-total{margin-left:auto;display:inline-flex;align-items:center;gap:10px;font-size:12px;white-space:nowrap}
+.sob-total b{font-weight:800;min-width:64px;text-align:right}
+.sob-barra{width:90px;height:6px;border-radius:9999px;background:var(--track);overflow:hidden;display:inline-block}
+.sob-barra i{display:block;height:100%;border-radius:9999px;background:var(--amber)}
+.dz-grupo:has(.sob-total) summary::after{margin-left:12px}
+.sob-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 4px 9px 17px;border-bottom:1px solid #F1F5F9}
+.sob-item:last-child{border-bottom:none}
+@media (max-width:640px){ .sob-barra{display:none} .sob-item{padding-left:4px} }
 .btn-anteriores{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px;border-radius:12px;border:1px solid #FCD9A8;background:#FFF7EB;color:#B45309;font-size:12px;font-weight:700;white-space:nowrap;margin-left:auto}
 .btn-anteriores:hover{background:#FEEFD6}
 .btn-anteriores svg{width:16px;height:16px}
-.btn-anteriores b{font-weight:800;color:#92400E}
 .btn-anteriores.hidden{display:none}
 .btn-anteriores:not(.hidden) + .btn-clear{margin-left:0}
-@media (max-width:1100px){
-  #pop-anteriores .ant-tabla{display:none}
-  .ant-lista{display:block}
-  .ant-mas{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px;font-size:11px;font-weight:600;color:var(--text-muted)}
-  .ant-mas:empty{display:none}
-  .ant-mas button{font-size:12px;font-weight:700;color:var(--eficacia-blue);border:1px solid var(--border);border-radius:10px;padding:6px 12px;background:#fff}
-}
 @media (max-width:640px){ .btn-anteriores{flex:1 1 100%;justify-content:center;margin-left:0} }
 .acc-lista-movil{display:none}
 .acc-item{padding:10px 2px;border-top:1px solid var(--border)}
@@ -371,18 +353,14 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 
 /* Segmentos de Seguimiento de Comisiones: anillos + su desglose */
 .segmento{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px 20px}
-.segmento-cabecera{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 16px;margin-bottom:12px}
-.segmento-anillos{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+
 .seg-fila{display:grid;grid-template-columns:260px minmax(0,1fr);gap:22px;align-items:start}
 .seg-fila .ring-card{height:100%}
 .seg-titulo{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
 .seg-regla{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:#1E3A8A;margin-top:6px}
 .seg-regla svg{width:14px;height:14px;flex-shrink:0}
 .seg-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.seg-pill{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:9999px;background:var(--surface-soft);border:1px solid var(--border);color:var(--text);white-space:nowrap}
-.seg-pill b{color:var(--eficacia-blue);font-weight:800}
-.seg-pill.cero{color:var(--text-muted)}
-.seg-pill.cero b{color:var(--text-muted)}
+
 .badge.pendiente{color:#64748B;background:#F1F5F9;border:1px dashed #CBD5E1}
 .ring-center .pendiente-txt{font-size:15px;font-weight:800;color:#64748B}
 .barra-pendiente{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -401,7 +379,6 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .vs-switch{display:inline-flex;padding:3px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border)}
 .vs-switch button{font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:9px;color:var(--text-muted);white-space:nowrap}
 .vs-switch button.is-activo{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(15,23,42,.12)}
-.vs-proy{position:absolute;top:-5px;bottom:-5px;width:9px;height:9px;border-radius:9999px;border:2px solid #D97706;background:#fff;transform:translate(-4.5px,0);top:50%;margin-top:-4.5px}
 
 /* Firma */
 
@@ -477,19 +454,13 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .login-visual h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:36px;font-weight:800;line-height:1.12;letter-spacing:-.02em;margin:18px 0 12px}
 .login-visual-texto{font-size:15px;line-height:1.55;max-width:420px;opacity:.92}
 .login-vaquita{display:block;width:100%;max-width:440px;height:auto;margin:22px auto 0;filter:drop-shadow(0 14px 28px rgba(80,0,0,.35))}
-.login-tarjetas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:38px;max-width:460px}
-.login-tarjeta{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(6px)}
-.login-anillo{width:56px;height:56px;flex-shrink:0}
-.login-barras{display:flex;align-items:flex-end;gap:5px;height:52px;flex-shrink:0}
-.login-barras i{display:block;width:9px;border-radius:4px;background:#fff}
-.login-tarjeta-titulo{font-size:11.5px;font-weight:600;opacity:.85}
-.login-tarjeta-valor{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800}
+
 .login-firma{position:relative;z-index:1;font-size:12px;font-weight:600;opacity:.85}
 @media (max-width:900px){
   .login-contenedor{grid-template-columns:1fr;gap:28px}
   .login-visual{min-height:auto;padding:28px;order:-1}
   .login-visual h2{font-size:26px}
-  .login-tarjetas{display:none}
+
   .login-vaquita{max-width:260px;margin:12px auto 0}
   .login-titulo{font-size:32px}
   .login-logos{margin-bottom:24px}
@@ -508,15 +479,9 @@ body.rol-supervisor [data-ocultar~="supervisor"],
 body.rol-lider [data-ocultar~="lider"]{display:none!important}
 
 /* Login y sesión */
-.auth-bloque{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-.sesion-info{margin-top:8px;padding:10px 12px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border)}
-.sesion-salir{margin-top:8px;font-size:11px;font-weight:700;color:var(--alqueria-red)}
-.sesion-salir:hover{text-decoration:underline}
+
 .modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal.hidden{display:none}
-.modal-fondo{position:absolute;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(2px)}
-.modal-caja{position:relative;width:100%;max-width:380px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 24px 60px rgba(15,23,42,.25)}
-.modal-caja .filter{min-width:0}
 
 /* ============================================================
    3. RESPONSIVE
@@ -769,8 +734,6 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
   <p id="vista-subtitulo-movil" class="sub-movil"></p>
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
-
-
   <!-- ============================================================
        CONTENIDO
        ============================================================ -->
@@ -795,9 +758,9 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
         <label class="filter"><span>Regional</span><select id="pop-f-regional"></select></label>
         <label class="filter"><span>Canal</span><select id="pop-f-canal"></select></label>
         <label class="filter" style="max-width:320px"><span>Artículo</span><select id="pop-f-articulo"></select></label>
-        <button type="button" id="btn-pop-anteriores" class="btn-anteriores hidden" onclick="irAnteriores()">
+        <button type="button" id="btn-pop-anteriores" class="btn-anteriores hidden" onclick="abrirSobrante(this)" title="Material de meses anteriores que sigue en CEDI">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg>
-          Saldos anteriores <b id="btn-pop-ant-n"></b>
+          Sobrante CEDI
         </button>
         <button class="btn-clear" onclick="limpiarFiltrosPop()">Limpiar ✕</button>
       </div>
@@ -872,38 +835,13 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
 
         <!-- Solo con un Artículo elegido: a dónde falta despachar -->
         <!-- Llegó más material del asignado -->
-        <!-- Material de meses anteriores que sigue en CEDI o pendiente por salir -->
-        <section id="pop-anteriores" class="card p-5 sm:p-6 hidden">
-          <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 mb-4">
-            <div class="min-w-0">
-              <h3 class="text-base font-bold tracking-tight font-display">Saldos de meses anteriores</h3>
-              <p id="pop-ant-sub" class="text-xs mt-0.5 font-medium muted"></p>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <div id="pop-ant-switch" class="vs-switch" role="tablist"></div>
-              <button onclick="exportarAnteriores()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
-            </div>
-          </div>
-          <div id="pop-ant-resumen" class="ant-resumen"></div>
-          <div id="pop-ant-lista" class="ant-lista"></div>
-          <div class="table-scroll ant-tabla" style="max-height:440px">
-            <table>
-              <thead>
-                <tr><th>Material POP</th><th>Regional</th><th>Mes</th><th class="num">Asignado</th><th class="num">Salido</th><th class="num">Saldo en CEDI</th><th class="num">Falta por salir</th></tr>
-              </thead>
-              <tbody id="pop-tabla-ant"></tbody>
-            </table>
-          </div>
-          <div id="pop-ant-mas" class="ant-mas"></div>
-        </section>
-
         <section id="pop-sobre" class="card p-5 sm:p-6 hidden">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <div>
               <h3 class="text-base font-bold tracking-tight font-display">Llegó más de lo asignado</h3>
               <p id="pop-sobre-resumen" class="text-xs mt-0.5 font-medium muted"></p>
             </div>
-            <button onclick="exportarSobre()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+            <button onclick="exportarSobre()" class="btn-export">Exportar</button>
           </div>
           <div class="table-scroll" style="max-height:420px">
             <table>
@@ -921,7 +859,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
               <h3 class="text-base font-bold tracking-tight font-display">Despacho del artículo por Regional</h3>
               <p class="text-xs mt-0.5 font-medium muted">Cuánto se asignó, llegó y salió en cada regional, y a dónde falta despachar.</p>
             </div>
-            <button onclick="exportarDespacho()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+            <button onclick="exportarDespacho()" class="btn-export">Exportar</button>
           </div>
           <div id="pop-despacho-resumen" class="mb-4"></div>
           <div class="table-scroll">
@@ -946,7 +884,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
             </div>
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
               <input id="pop-art-busqueda" type="text" placeholder="Buscar artículo…" class="search-input sm:w-64">
-              <button onclick="exportarArticulos()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+              <button onclick="exportarArticulos()" class="btn-export">Exportar</button>
             </div>
           </div>
           <div class="table-scroll">
@@ -977,7 +915,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
             </div>
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
               <input id="pop-busqueda" type="text" placeholder="Buscar artículo, campaña, región…" class="search-input sm:w-72">
-              <button onclick="exportarPop()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+              <button onclick="exportarPop()" class="btn-export">Exportar</button>
             </div>
           </div>
           <div class="table-scroll">
@@ -1107,7 +1045,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
             <h3 class="text-base font-bold tracking-tight font-display">Líderes y Supervisores</h3>
             <p id="campo-personas-filtro" class="text-xs mt-0.5 font-medium muted">Llaves y cumplimiento de cada persona en el mes.</p>
           </div>
-          <button onclick="exportarPersonas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+          <button onclick="exportarPersonas()" class="btn-export">Exportar</button>
         </div>
         <div class="table-scroll">
           <table>
@@ -1132,7 +1070,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
           </div>
           <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <input id="campo-busqueda" type="text" placeholder="Buscar ruta, supervisor, líder…" class="search-input sm:w-72">
-            <button onclick="exportarRutas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+            <button onclick="exportarRutas()" class="btn-export">Exportar</button>
           </div>
         </div>
         <div class="table-scroll">
@@ -1251,7 +1189,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
           </div>
           <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <input id="liq-busqueda" type="text" placeholder="Buscar ruta, supervisor, líder…" class="search-input sm:w-72">
-            <button onclick="exportarLiqRutas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+            <button onclick="exportarLiqRutas()" class="btn-export">Exportar</button>
           </div>
         </div>
         <div class="table-scroll">
@@ -1275,7 +1213,7 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
             <h3 class="text-base font-bold tracking-tight font-display">Liquidación de Líderes y Supervisores</h3>
             <p class="text-xs mt-0.5 font-medium muted">Comisión propia de cada líder y supervisor.</p>
           </div>
-          <button onclick="exportarLiqPersonas()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+          <button onclick="exportarLiqPersonas()" class="btn-export">Exportar</button>
         </div>
         <div class="table-scroll">
           <table>
@@ -1312,8 +1250,6 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
   </div>
 </div>
 
-
-
 <script>
 /* ============================================================
    1. CONFIGURACIÓN
@@ -1333,15 +1269,11 @@ const TABLAS_CAMPO = {
 // Ideal: cada día hábil equivale a 4.4% (lunes a viernes).
 const PROYECCION = { pctPorDia: 4.4, diasLaborales: [1, 2, 3, 4, 5] };
 
-// Reglas de comisión (iguales para mercaderistas, líderes y supervisores)
-const COMISION = { llaveMinima: 60, pesoTP: 0.6, pesoVentas: 0.2, pesoFcDv: 0.2 };
-
 // Semáforos: [verde desde, ámbar desde]
 const SEMAFORO_POP = [70, 40];
 const SEMAFORO_CAMPO = [80, 60];
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 
 /* ============================================================
    2. ESTADO
@@ -1354,7 +1286,6 @@ const filtrosPop = { meses: [], mes: '', campanas: [], campana: '', regional: ''
 const filtrosCampo = { meses: [], mes: '', mesesIniciados: false, regional: '', lider: '', supervisor: '', ruta: '', busqueda: '', alerta: '', metrica: 'comision', comparar: 'ideal' };
 
 let vistaActual = 'campo';
-
 
 /* ============================================================
    3. UTILIDADES
@@ -1414,7 +1345,6 @@ const TONOS = {
   azul:  { fg:'var(--eficacia-blue)', bg:'var(--eficacia-blue-bg)' },
   morado:{ fg:'var(--purple)', bg:'var(--purple-bg)' }
 };
-
 
 /* ============================================================
    4. FECHAS (material POP)
@@ -1610,7 +1540,6 @@ function calcAlertaEjecucion(row){
     : { text, fg:'var(--text)', bg:'#F1F5F9' };
 }
 
-
 /* ============================================================
    5. PROYECCIÓN (4.4% por día hábil)
    ============================================================ */
@@ -1633,7 +1562,6 @@ function calcProyectado(mesOrden){
   const dias = contarDiasHabiles(anio, mes0, hoy.getDate());
   return { pct:Math.min(100, dias * PROYECCION.pctPorDia), dias, total, estado:'en curso', orden };
 }
-
 
 /* ============================================================
    6. REGLAS DE COMISIÓN POR MES
@@ -1725,37 +1653,6 @@ function textoLlaves(reglas){
   if(modo === 'ambas') return `Comisiona con Captura y Cobertura iguales o mayores a ${minimo}% cada una`;
   return `Comisiona con promedio de llaves (Captura y Cobertura) igual o mayor a ${minimo}%`;
 }
-function textoNiveles(reglas, base){
-  if(!reglas.niveles || !reglas.niveles.length) return '';
-  const orden = [...reglas.niveles].sort((a, b) => b.desde - a.desde);
-  return orden.map((n, i) => {
-    const rango = i === 0 ? `${n.desde}% a 100%` : `${n.desde}% a ${orden[i - 1].desde - 1}%`;
-    const valor = base ? `hasta ${fmtCOP(base * n.factor)}` : (n.factor >= 1 ? 'comisión completa' : `${Math.round(n.factor * 100)}% de la comisión`);
-    return `${rango}: ${valor}`;
-  }).join(' · ');
-}
-function textoTramos(tramos){
-  const orden = [...(tramos || [])].sort((a, b) => b.desde - a.desde);
-  if(!orden.length) return '';
-  const partes = [];
-  for(let i = 0; i < orden.length; i++){
-    const t = orden[i];
-    const hasta = i === 0 ? null : orden[i - 1].desde - 1;
-    // 96%, 97%, 98%, 99% que pagan su mismo % se agrupan
-    const igual = x => Math.round(x.factor * 100) === x.desde && x.desde < 100;
-    if(igual(t) && i + 1 < orden.length && igual(orden[i + 1])){
-      let j = i;
-      while(j + 1 < orden.length && igual(orden[j + 1])) j++;
-      partes.push(`${orden[j].desde}% a ${t.desde}%: paga el mismo %`);
-      i = j;
-      continue;
-    }
-    const rango = hasta === null ? `${t.desde}% o más` : (hasta === t.desde ? `${t.desde}%` : `${t.desde}% a ${hasta}%`);
-    partes.push(t.proporcional ? `${rango}: paga el mismo % (máx. 100%)` : `${rango}: paga ${Math.round(t.factor * 100)}%`);
-  }
-  partes.push(`menos de ${orden[orden.length - 1].desde}%: no paga`);
-  return partes.join(' · ');
-}
 // ---------- Versión corta de las reglas (para los segmentos) ----------
 const ICONO_REGLA = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>`;
 function textoLlavesCorto(reglas){
@@ -1768,50 +1665,10 @@ function textoDesdeCorto(tramos){
   const orden = [...(tramos || [])].sort((a, b) => a.desde - b.desde);
   return orden.length ? `Paga desde ${orden[0].desde}% de cumplimiento` : '';
 }
-// Tramos como etiquetas: "80%+ → 100%", "96–99% → igual", "<60% → 0"
-// Con "base" muestra el valor en pesos en vez del porcentaje.
-function pillsTramos(tramos, base){
-  const orden = [...(tramos || [])].sort((a, b) => b.desde - a.desde);
-  if(!orden.length) return '';
-  const igual = x => Math.round(x.factor * 100) === x.desde && x.desde < 100;
-  const valor = f => base ? fmtCOP(base * f) : `${Math.round(f * 100)}%`;
-  const pills = [];
-  for(let i = 0; i < orden.length; i++){
-    const t = orden[i];
-    const hasta = i === 0 ? null : orden[i - 1].desde - 1;
-    if(igual(t) && i + 1 < orden.length && igual(orden[i + 1])){
-      let j = i;
-      while(j + 1 < orden.length && igual(orden[j + 1])) j++;
-      pills.push(`<span class="seg-pill">${orden[j].desde}–${t.desde}% <b>→ ${base ? 'mismo %' : 'igual'}</b></span>`);
-      i = j; continue;
-    }
-    const rango = hasta === null ? `${t.desde}%+` : (hasta === t.desde ? `${t.desde}%` : `${t.desde}–${hasta}%`);
-    pills.push(`<span class="seg-pill">${rango} <b>→ ${t.proporcional ? (base ? 'mismo %' : 'igual') : valor(t.factor)}</b></span>`);
-  }
-  pills.push(`<span class="seg-pill cero">&lt;${orden[orden.length - 1].desde}% <b>→ ${base ? '$ 0' : '0'}</b></span>`);
-  return pills.join('');
-}
-// "80%+ comisión completa · 60–79% al 60%"
-function textoNivelesCorto(reglas){
-  const orden = [...(reglas.niveles || [])].sort((a, b) => b.desde - a.desde);
-  return orden.map((n, i) => i === 0
-    ? `${n.desde}%+ comisión completa`
-    : `${n.desde}–${orden[i - 1].desde - 1}% al ${Math.round(n.factor * 100)}%`).join(' · ');
-}
-function pillsNiveles(reglas, base){
-  const orden = [...(reglas.niveles || [])].sort((a, b) => b.desde - a.desde);
-  if(!orden.length) return '';
-  return orden.map((n, i) => {
-    const rango = i === 0 ? `${n.desde}–100%` : `${n.desde}–${orden[i - 1].desde - 1}%`;
-    const v = base ? `hasta ${fmtCOP(base * n.factor)}` : (n.factor >= 1 ? 'completa' : `${Math.round(n.factor * 100)}%`);
-    return `<span class="seg-pill">${rango} <b>→ ${v}</b></span>`;
-  }).join('') + `<span class="seg-pill cero">&lt;${reglas.llaves.minimo}% <b>→ no comisiona</b></span>`;
-}
 
 function chipRegla(texto){
   return texto ? `<p class="regla-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg><span>${esc(texto)}</span></p>` : '';
 }
-
 
 /* ============================================================
    7. COMPONENTES VISUALES
@@ -2061,24 +1918,23 @@ let detalleOrigen = null;
 function abrirDetalleLb(el){
   const ranking = RANKINGS[el.dataset.lbId];
   const item = ranking && ranking.visibles[Number(el.dataset.lbI)];
-  if(!item || typeof item.detalle !== 'function') return;
-
+  if(item && typeof item.detalle === 'function') abrirVentana(item.detalle(), el);
+}
+// Abre la ventana de detalle con el contenido dado; el zoom nace en el elemento tocado
+function abrirVentana(html, origen){
   const modal = document.getElementById('lb-detalle');
   const caja = document.getElementById('lb-detalle-caja');
-  document.getElementById('lb-detalle-contenido').innerHTML = item.detalle();
+  document.getElementById('lb-detalle-contenido').innerHTML = html;
   caja.classList.toggle('ancha', !!caja.querySelector('.detalle-tablas.dos'));
   modal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   caja.scrollTop = 0;
-
-  // El zoom nace en el centro del elemento que se tocó
-  const r = el.getBoundingClientRect(), c = caja.getBoundingClientRect();
+  const r = origen.getBoundingClientRect(), c = caja.getBoundingClientRect();
   caja.style.transformOrigin = `${r.left + r.width / 2 - c.left}px ${r.top + r.height / 2 - c.top}px`;
   caja.classList.remove('zoom');
   void caja.offsetWidth;
   caja.classList.add('zoom');
-
-  detalleOrigen = el;
+  detalleOrigen = origen;
   caja.querySelector('.detalle-cerrar').focus({ preventScroll:true });
 }
 function cerrarDetalleLb(){
@@ -2145,7 +2001,6 @@ function deltaVsAnterior(actual, anterior, etiquetaAnterior){
     ? { texto:`▲ ${d.toFixed(1)} pts vs ${etiquetaAnterior}`, color:'var(--green)' }
     : { texto:`▼ ${Math.abs(d).toFixed(1)} pts vs ${etiquetaAnterior}`, color:'var(--alqueria-red)' };
 }
-
 
 /* ============================================================
    8. CARGA DE DATOS
@@ -2419,7 +2274,6 @@ async function cargarTodo(){
   }
 }
 
-
 /* ============================================================
    9. VISTA · MATERIAL POP
    ============================================================ */
@@ -2617,30 +2471,20 @@ function salirFocoPop(){
 
 // Cambio de Regional / Campaña: pantalla de carga breve y entrada animada
 function recargarPopConAnimacion(){
-  const contenido = document.getElementById('pop-contenido');
-  const carga = document.getElementById('pop-cargando');
-  const nombre = seleccionFoco().map(s => s.valor).join(' · ');
   aplicarColorFoco();
-  document.getElementById('pop-cargando-texto').textContent = nombre ? `Cargando visual de ${nombre}…` : 'Cargando vista general…';
-  carga.classList.remove('hidden');
-  const reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const espera = reducir ? 0 : 420;
-
-  setTimeout(() => {
-    renderPop();
-    carga.classList.add('hidden');
-    contenido.classList.remove('anim-entrada');
-    void contenido.offsetWidth;          // reinicia la animación
-    contenido.classList.add('anim-entrada');
-    document.getElementById('vista-pop').scrollIntoView({ behavior:'smooth', block:'start' });
-  }, espera);
+  recargarConAnimacion({
+    contenido:'pop-contenido', carga:'pop-cargando', texto:'pop-cargando-texto', vista:'vista-pop',
+    nombre: seleccionFoco().map(s => s.valor).join(' · '),
+    render: renderPop
+  });
 }
 
 // Recarga genérica con pantalla de carga y entrada animada
+function reduceMovimiento(){ return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
 function recargarConAnimacion({ contenido, carga, texto, vista, nombre, render }){
   document.getElementById(texto).textContent = nombre ? `Cargando visual de ${nombre}…` : 'Cargando vista general…';
   document.getElementById(carga).classList.remove('hidden');
-  const reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducir = reduceMovimiento();
   setTimeout(() => {
     render();
     document.getElementById(carga).classList.add('hidden');
@@ -2962,13 +2806,12 @@ function renderSobreEntregas(rows){
       <span class="celda-sub">${f.pct === null ? 'Sin asignación' : `${fmtPct(f.pct)} de más`}</span></td>
   </tr>`).join(''));
 }
-// ---------- Saldos de meses anteriores ----------
-// Material de campañas cuyo mes de ejecución ya pasó y que sigue en CEDI (sobrante)
-// o que aún no ha salido completo (pendiente). Respeta Campaña, Regional, Canal y
-// Artículo; el mes de referencia es el mes elegido (o el actual si no hay ninguno).
-const popAnt = { modo:'saldo', ver:6 };
+// ---------- Sobrante CEDI (meses anteriores) ----------
+// Material de campañas cuyo mes de ejecución ya pasó y que sigue en CEDI.
+// Respeta Campaña, Regional, Canal y Artículo; el mes de referencia es el
+// mes elegido (o el actual si no hay ninguno). Se ve en una ventana aparte.
 function mesActualOrden(){ const d = new Date(); return d.getFullYear() * 100 + d.getMonth() + 1; }
-function datosAnteriores(){
+function datosSobrante(){
   const ref = Number(mesIdeal(filtrosPop.meses.filter(m => m !== 'sin'))) || mesActualOrden();
   const rows = filtrarPop('meses').filter(r => r._mes && Number(r._mes) < ref);
   const grupos = {};
@@ -2976,79 +2819,76 @@ function datosAnteriores(){
     const k = [r.POP || r.Articulo, r.CAMPAÑA, r.REGIONAL, r._mes].join('|');
     (grupos[k] = grupos[k] || []).push(r);
   });
-  const filas = Object.values(grupos).map(g => ({ r:g[0], ...totalesPop(g) }));
-  return { ref, filas, saldo: filas.filter(f => f.saldo > 0), pendiente: filas.filter(f => f.falta > 0) };
-}
-function filasAnteriores(d){
-  const campo = popAnt.modo === 'saldo' ? 'saldo' : 'falta';
-  return d[popAnt.modo].sort((a, b) => b[campo] - a[campo] || Number(b.r._mes) - Number(a.r._mes));
+  const filas = Object.values(grupos).map(g => ({ r:g[0], canales: unicos(g, x => x.CANAL), ...totalesPop(g) }))
+    .filter(f => f.saldo > 0).sort((a, b) => b.saldo - a.saldo);
+  return { ref, filas, total: suma(filas, f => f.saldo) };
 }
 function renderAnteriores(){
-  const d = datosAnteriores();
-  const seccion = document.getElementById('pop-anteriores');
-  const hay = d.saldo.length || d.pendiente.length;
-  seccion.classList.toggle('hidden', !hay);
-  const btn = document.getElementById('btn-pop-anteriores');
-  btn.classList.toggle('hidden', !hay);
-  document.getElementById('btn-pop-ant-n').textContent = hay ? formatNumber(suma(d.saldo, f => f.saldo)) + ' und' : '';
-  if(!hay) return;
-  if(!d[popAnt.modo].length) popAnt.modo = d.saldo.length ? 'saldo' : 'pendiente';
-
-  const filas = filasAnteriores(d);
-  const lista = d[popAnt.modo];
-  const total = suma(lista, f => popAnt.modo === 'saldo' ? f.saldo : f.falta);
-  const regionales = unicos(lista, f => f.r.REGIONAL).length;
-  const meses = unicos(lista, f => f.r._mes).sort((a, b) => b - a);
-  document.getElementById('pop-ant-sub').textContent =
-    `Campañas ejecutadas antes de ${mesLabel(d.ref)}. ${popAnt.modo === 'saldo' ? 'Material que llegó al CEDI y no ha salido.' : 'Material asignado que aún no ha salido completo.'}`;
-  document.getElementById('pop-ant-switch').innerHTML = [['saldo', 'Sobrante en CEDI', d.saldo.length], ['pendiente', 'Pendiente por salir', d.pendiente.length]]
-    .map(([v, t, n]) => `<button type="button" class="${popAnt.modo === v ? 'is-activo' : ''}" onclick="cambiarModoAnteriores('${v}')">${t} <span class="muted">${n}</span></button>`).join('');
-  const chip = (valor, texto) => `<div class="ant-chip"><b>${valor}</b><span>${texto}</span></div>`;
-  document.getElementById('pop-ant-resumen').innerHTML =
-    chip(formatNumber(total) + ' und', popAnt.modo === 'saldo' ? 'en CEDI' : 'por salir') +
-    chip(formatNumber(unicos(lista, f => f.r.POP || f.r.Articulo).length), 'artículos') +
-    chip(formatNumber(regionales), regionales === 1 ? 'regional' : 'regionales') +
-    (meses.length <= 2 ? chip(meses.map(m => mesLabel(m)).join(', '), meses.length === 1 ? 'mes' : 'meses') : chip(formatNumber(meses.length), 'meses'));
-
-  const destacado = (v, activo, tonoAct) => activo
-    ? `<span class="badge" style="color:${tonoAct.fg};background:${tonoAct.bg}">${formatNumber(v)} und</span>`
-    : formatNumber(v);
-  // Celular / tablet: lista compacta de 2 líneas por registro
+  const d = datosSobrante();
+  document.getElementById('btn-pop-anteriores').classList.toggle('hidden', !d.filas.length);
+}
+let sobranteAgrupar = 'regional';
+function contenidoSobrante(){
+  const d = datosSobrante();
+  if(!d.filas.length) return emptyMsg('No hay sobrante de meses anteriores con los filtros elegidos.');
+  const n = fn => unicos(d.filas, fn).length;
   const mesCorto = m => mesLabel(m).replace(/^(\S{3})\S*/, '$1');
-  document.getElementById('pop-ant-lista').innerHTML = filas.slice(0, popAnt.ver).map(f => {
-    const v = popAnt.modo === 'saldo' ? f.saldo : f.falta, t = popAnt.modo === 'saldo' ? TONOS.ambar : TONOS.rojo;
-    return `<div class="acc-item">
-      <div class="acc-item-linea"><b>${esc(f.r.POP || f.r.Articulo)}</b><span class="badge" style="color:${t.fg};background:${t.bg};white-space:nowrap">${formatNumber(v)} und</span></div>
-      <div class="acc-item-linea muted"><span>${esc(f.r.REGIONAL)} · ${esc(f.r.CAMPAÑA)} · ${esc(mesCorto(f.r._mes))}</span><span>Salió ${formatNumber(f.salida)} de ${formatNumber(f.asignado)}</span></div>
-    </div>`;
-  }).join('');
-  pintarTabla('pop-tabla-ant', filas.map((f, i) => `<tr>
-    <td><span class="font-bold">${esc(f.r.POP || f.r.Articulo)}</span><span class="celda-sub">${esc(f.r.CAMPAÑA)}</span></td>
-    <td><span class="font-semibold">${esc(f.r.REGIONAL)}</span><span class="celda-sub">${esc(f.r.CANAL || '')}</span></td>
-    <td class="nw">${esc(mesLabel(f.r._mes))}</td>
-    <td class="num">${formatNumber(f.asignado)}</td>
-    <td class="num">${formatNumber(f.salida)}</td>
-    <td class="num font-semibold">${destacado(f.saldo, popAnt.modo === 'saldo', TONOS.ambar)}</td>
-    <td class="num font-semibold">${destacado(f.falta, popAnt.modo === 'pendiente', TONOS.rojo)}</td>
-  </tr>`).join(''));
-  // En celular solo las primeras filas, con "Ver más"
-  const n = Math.min(filas.length, popAnt.ver), faltan = filas.length - n;
-  document.getElementById('pop-ant-mas').innerHTML = filas.length > 6 ? `<span>Mostrando ${n} de ${filas.length}</span>
-    ${faltan ? `<span class="flex gap-2"><button type="button" onclick="verMasAnteriores(10)">Ver ${Math.min(10, faltan)} más</button>${faltan > 10 ? '<button type="button" onclick="verMasAnteriores(Infinity)">Ver todos</button>' : ''}</span>`
-      : '<button type="button" onclick="verMasAnteriores(0)">Ver menos</button>'}` : '';
+  const clave = sobranteAgrupar === 'regional' ? (f => f.r.REGIONAL || 'Sin regional') : (f => f.r.CAMPAÑA || 'Sin campaña');
+  const grupos = {};
+  d.filas.forEach(f => (grupos[clave(f)] = grupos[clave(f)] || []).push(f));
+  const lista = Object.entries(grupos).map(([nombre, items]) => ({ nombre, items, total: suma(items, f => f.saldo) }))
+    .sort((a, b) => b.total - a.total);
+  const maxGrupo = Math.max(...lista.map(g => g.total));
+  const dato = (etq, valor) => `<div class="dz-dato"><p>${etq}</p><span class="text-sm font-extrabold">${valor}</span></div>`;
+
+  return `<div class="pr-10">
+      <p class="text-[10.5px] font-extrabold uppercase tracking-wider" style="color:#B45309">Sobrante CEDI · meses anteriores</p>
+      <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <h3 class="text-xl font-extrabold font-display tracking-tight">${formatNumber(d.total)} und en CEDI</h3>
+        <span class="text-xs font-semibold muted">Campañas ejecutadas antes de ${esc(mesLabel(d.ref))} que no han salido</span>
+      </div>
+    </div>
+    <div class="dz-resumen">
+      ${dato('Artículos', formatNumber(n(f => f.r.POP || f.r.Articulo)))}
+      ${dato('Campañas', formatNumber(n(f => f.r.CAMPAÑA)))}
+      ${dato('Regionales', formatNumber(n(f => f.r.REGIONAL)))}
+      ${dato('Meses', unicos(d.filas, f => f.r._mes).sort((a, b) => a - b).map(mesCorto).join(', '))}
+      <button type="button" onclick="exportarAnteriores()" class="btn-export ml-auto">Exportar</button>
+    </div>
+    <div class="flex items-center justify-between gap-3 flex-wrap mt-3">
+      <p class="text-[11px] font-semibold muted">Agrupado por ${sobranteAgrupar === 'regional' ? 'regional' : 'campaña'} · de mayor a menor sobrante</p>
+      <div class="vs-switch" role="tablist">
+        ${[['regional', 'Por regional'], ['campana', 'Por campaña']].map(([v, t]) =>
+          `<button type="button" class="${sobranteAgrupar === v ? 'is-activo' : ''}" onclick="cambiarAgruparSobrante('${v}')">${t}</button>`).join('')}
+      </div>
+    </div>
+    ${lista.map((g, i) => `<details class="dz-grupo"${i === 0 ? ' open' : ''}>
+      <summary>
+        <span class="dz-punto" style="background:${colorFoco(g.nombre)[0]}"></span>
+        <span class="font-bold text-sm min-w-0">${esc(g.nombre)}</span>
+        <span class="dz-conteo">${g.items.length}</span>
+        <span class="sob-total"><span class="sob-barra"><i style="width:${(g.total / maxGrupo * 100).toFixed(1)}%"></i></span><b>${formatNumber(g.total)} und</b></span>
+      </summary>
+      <div>${g.items.map(f => `<div class="sob-item">
+        <div class="min-w-0">
+          <p class="dz-nombre">${esc(f.r.POP || f.r.Articulo)}</p>
+          <p class="dz-sub">${esc(sobranteAgrupar === 'regional' ? f.r.CAMPAÑA : f.r.REGIONAL)} · ${esc(mesCorto(f.r._mes))}${f.canales.length ? ' · ' + esc(f.canales.join(', ')) : ''}</p>
+          <p class="dz-sub">Llegó <b>${formatNumber(f.llega)}</b> · salió <b>${formatNumber(f.salida)}</b> de ${formatNumber(f.asignado)} asignadas</p>
+        </div>
+        <span class="badge" style="color:${TONOS.ambar.fg};background:${TONOS.ambar.bg};white-space:nowrap">${formatNumber(f.saldo)} und</span>
+      </div>`).join('')}</div>
+    </details>`).join('')}`;
 }
-function cambiarModoAnteriores(modo){ popAnt.modo = modo; popAnt.ver = 6; renderAnteriores(); }
-function verMasAnteriores(n){ popAnt.ver = n === 0 ? 6 : popAnt.ver + n; renderAnteriores(); }
-function irAnteriores(){
-  const s = document.getElementById('pop-anteriores');
-  if(!s.classList.contains('hidden')) s.scrollIntoView({ behavior:'smooth', block:'start' });
+function cambiarAgruparSobrante(v){
+  sobranteAgrupar = v;
+  document.getElementById('lb-detalle-contenido').innerHTML = contenidoSobrante();
 }
+function abrirSobrante(boton){ abrirVentana(contenidoSobrante(), boton); }
 function exportarAnteriores(){
-  const d = datosAnteriores();
-  const filas = [...d.saldo, ...d.pendiente.filter(f => f.saldo <= 0)].sort((a, b) => b.saldo - a.saldo || b.falta - a.falta);
-  exportarXLSX('saldos_meses_anteriores',
-    ['Material POP','Código','Campaña','Regional','Canal','Mes de ejecución','Asignado','Llegó','Salido','Saldo en CEDI','Falta por salir'],
-    filas.map(f => [f.r.POP || f.r.Articulo, f.r.Articulo, f.r.CAMPAÑA, f.r.REGIONAL, f.r.CANAL, mesLabel(f.r._mes), f.asignado, f.llega, f.salida, f.saldo, f.falta]));
+  const d = datosSobrante();
+  exportarXLSX('sobrante_cedi_meses_anteriores',
+    ['Material POP','Código','Campaña','Regional','Canal','Mes de ejecución','Asignado','Llegó','Salido','Sobrante en CEDI'],
+    d.filas.map(f => [f.r.POP || f.r.Articulo, f.r.Articulo, f.r.CAMPAÑA, f.r.REGIONAL, f.canales.join(', '), mesLabel(f.r._mes), f.asignado, f.llega, f.salida, f.saldo]));
 }
 function exportarSobre(){
   const filas = filasSobre(filtrarPop());
@@ -3183,7 +3023,6 @@ function limpiarFiltrosPop(){
   document.getElementById('pop-art-busqueda').value = '';
   if(habiaFoco) recargarPopConAnimacion(); else renderPop();
 }
-
 
 /* ============================================================
    10. VISTA · SEGUIMIENTO DE CAMPO
@@ -3758,7 +3597,6 @@ function limpiarFiltrosCampo(){
   if(habiaFoco) recargarCampoConAnimacion(); else renderCampo();
 }
 
-
 /* ============================================================
    11. LOGIN Y VISTA · LIQUIDACIÓN (valores en dinero)
    ============================================================ */
@@ -3855,17 +3693,6 @@ async function aplicarSesion(session){
   registrarEntrada();
   setVista('campo');
   await cargarTodo();
-}
-// Carga Material POP (administradores y líderes)
-async function cargarPopAdmin(){
-  try{
-    const resp = await cargarPop();
-    DATA.pop = prepararPop(resp.records);
-    actualizarTimestamp(resp.lastUpdated);
-    renderPop();
-  }catch(e){
-    mostrarErrores([{ titulo:'Material POP (Google Sheets)', mensaje: e.message }]);
-  }
 }
 function pintarEstadoSesion(){
   const p = SESION.perfil || {};
@@ -4571,7 +4398,6 @@ function exportarLiqPersonas(){
       r.sinSimulacion ? 'No aplica (reglas del mes distintas)' : r.tramos[0] ? r.tramos[0].texto : 'Tope alcanzado', r.tramos[0] ? Math.round(r.tramos[0].ganancia) : 0]));
 }
 
-
 /* ============================================================
    12. EXPORTAR A EXCEL
    ============================================================ */
@@ -4626,7 +4452,6 @@ function exportarPersonas(){
       pctNum(r.pct_tienda_perfecta), pctNum(r.pct_ventas), pctNum(r.pct_fc_dv),
       r.llavesOk ? 'Abiertas' : 'Cerradas', pctNum(r.pctComision), r.comentario || '']));
 }
-
 
 /* ============================================================
    13. NAVEGACIÓN E INICIO
@@ -4939,7 +4764,7 @@ function pintarAccesos(){
     </div>`;
   };
   const periodosSelect = [...ACC_PERIODOS, ['personalizado', 'Personalizado']];
-  const btnExportar = `<button type="button" onclick="exportarAccesos()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>`;
+  const btnExportar = `<button type="button" onclick="exportarAccesos()" class="btn-export">Exportar</button>`;
 
   box.innerHTML = `
     <section class="card p-4 sm:p-5">
@@ -5088,7 +4913,7 @@ function setVista(vista){
     el.classList.add('anim-entrada');
     if(vista === 'actividad' && ACC.cargado) pintarAccesos(); // el gráfico se mide ya visible
   };
-  const reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducir = reduceMovimiento();
   if(cambia && !reducir){
     document.getElementById('vista-cargando-texto').textContent = `Cargando ${VISTAS[vista].titulo}…`;
     carga.classList.remove('hidden');
