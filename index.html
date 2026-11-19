@@ -50,7 +50,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 /* ============================================================
    2. BASE DE COMPONENTES
    ============================================================ */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px -2px rgba(0,0,0,.03)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
 .section-title{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px}
 .badge{display:inline-flex;align-items:center;justify-content:center;padding:4px 10px;border-radius:9999px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;font-variant-numeric:tabular-nums;line-height:1.4}
 .brand-logo{height:28px;width:auto;object-fit:contain}
@@ -205,17 +205,6 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 @keyframes entrada{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* Navegación */
-.sidebar-label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;padding:6px 12px 8px}
-.vista-nav-btn{position:relative;display:flex;align-items:center;gap:10px;padding:12px 13px;border-radius:12px;width:100%;font-size:13px;font-weight:600;color:var(--text-muted);text-align:left}
-.vista-nav-btn svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor}
-.vista-nav-btn small{display:block;font-size:10.5px;font-weight:500;color:#94A3B8;margin-top:1px}
-.vista-nav-btn:hover{background:var(--surface-soft);color:var(--text)}
-.vista-nav-btn.is-active{background:var(--eficacia-blue-bg);color:var(--eficacia-blue);font-weight:700;padding-left:16px}
-.vista-nav-btn.is-active small{color:var(--eficacia-blue);opacity:.75}
-.vista-nav-btn.is-active::before{content:'';position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--eficacia-blue)}
-.mobile-menu-btn{display:none;width:40px;height:40px;border:1px solid var(--border);border-radius:12px;background:#fff;align-items:center;justify-content:center}
-.mobile-menu-btn svg{width:19px;height:19px}
-.mobile-nav-close{display:none}
 
 /* Enlace externo: Evaluación Replicadores (mismo estilo discreto que los ítems del menú) */
 .btn-externo{position:relative;display:flex;align-items:center;gap:10px;width:100%;padding:12px 13px;border-radius:12px;color:var(--text-muted);text-align:left;text-decoration:none;font-size:13px;font-weight:600;transition:background .15s ease,color .15s ease}
@@ -229,24 +218,10 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 
 /* Encabezado: en escritorio todo en una fila; en móvil logos + botones
    arriba y el título del panel en su propia fila. */
-.header-inner{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"marca titulo acciones";align-items:center;column-gap:16px}
-.header-marca{grid-area:marca;display:flex;align-items:center;gap:12px;padding-right:16px;border-right:1px solid var(--border)}
-.header-titulo{grid-area:titulo}
-.header-acciones{grid-area:acciones;display:flex;align-items:center;gap:10px}
 .btn-actualizar{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;background:var(--alqueria-red);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
 .btn-actualizar:hover{opacity:.9}
 .btn-actualizar svg{width:15px;height:15px}
-@media (max-width:640px){
-  .header-inner{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"marca acciones" "titulo titulo";row-gap:10px;padding-top:10px;padding-bottom:10px}
-  .header-marca{border-right:none;padding-right:0;gap:10px;min-width:0}
-  .header-marca .brand-logo{height:22px;max-width:42vw}
-  .header-titulo{padding-top:8px;border-top:1px solid var(--border)}
-  .header-titulo h1{font-size:15px}
-  .header-titulo p{white-space:normal}
-  .btn-actualizar{padding:9px 11px}
-  .btn-actualizar span{display:none}
-  .header-acciones{gap:8px}
-}
+
 
 /* Al saltar a una sección, que no quede tapada por el encabezado fijo */
 section,[id^="vista-"]{scroll-margin-top:96px}
@@ -270,51 +245,24 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .detalle-caja.ancha{width:min(1440px,97vw)}
 .detalle-tablas table{width:100%;font-size:12px;border-collapse:collapse}
 .detalle-tablas td.art{min-width:180px}
-/* Ajustes · Actividad de ingresos (solo administradores) */
-.btn-ajustes{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text-muted);transition:color .15s,border-color .15s,transform .3s}
-.btn-ajustes:hover{color:var(--text);border-color:#CBD5E1;transform:rotate(45deg)}
-.btn-ajustes svg{width:18px;height:18px}
-.btn-ajustes.hidden{display:none}
-.acc-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--eficacia-blue)}
-.acc-filtros{display:flex;flex-wrap:wrap;gap:10px 12px;margin:14px 0 4px;padding:12px 14px;border-radius:16px;background:var(--surface-soft);border:1px solid var(--border)}
-.acc-filtros .filter{flex:1 1 150px;max-width:220px;min-width:130px}
-.acc-fecha{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:7px 10px;background:#fff;width:100%}
-.acc-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
-.acc-kpi{border:1px solid var(--border);border-radius:16px;padding:14px 16px;min-width:0}
-.acc-kpi p{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
-.acc-kpi b{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.acc-kpi span{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
-.acc-panel{border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-top:12px;min-width:0}
-.acc-panel h4{font-size:13.5px;font-weight:800}
-.acc-panel-h{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
-.acc-panel-h p{font-size:11.5px;color:var(--text-muted);margin-top:2px}
-.acc-grafico{width:100%;height:auto;display:block;max-width:100%}
-.acc-kpi b.texto{font-size:18px;line-height:1.5}
-.acc-tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.acc-tres .acc-panel h4{margin-bottom:8px}
-.acc-barra{margin-top:8px}
-.acc-barra-txt{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:4px}
-.acc-barra-txt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.acc-barra .leaderboard-track{height:7px;display:block}
-.acc-tabla-wrap{max-height:340px;overflow:auto;margin-top:6px}
-.acc-tabla{width:100%;font-size:12px;border-collapse:collapse}
-.acc-tabla th{position:sticky;top:0;background:#fff;text-align:left;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);padding:7px 8px;border-bottom:1px solid var(--border)}
-.acc-tabla td{padding:8px;border-bottom:1px solid #F1F5F9;vertical-align:top}
-.acc-tabla .num{text-align:right;font-variant-numeric:tabular-nums}
-.acc-tabla tr.acc-inactivo td{color:var(--text-muted)}
-.acc-sub{display:block;font-size:10.5px;color:var(--text-muted);margin-top:1px}
+/* Panel Actividad de ingresos (solo administradores): usa los estilos del tablero */
+.acc-kpi{cursor:default}
+.acc-kpi:hover{transform:none;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.acc-kpi b{font-weight:800;color:var(--text)}
+.acc-kpi b.acc-sube{color:var(--green)}
+.acc-kpi b.acc-baja{color:var(--alqueria-red)}
+.acc-fecha{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:12px;padding:7px 12px;background:#fff;width:100%}
+.acc-leyenda{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;font-weight:700;color:var(--text-muted);margin:4px 0 6px}
+.acc-leyenda span{display:inline-flex;align-items:center;gap:6px}
+.acc-leyenda i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.acc-grafico{width:100%;height:auto;display:block}
+.acc-grilla{stroke:#EEF2F7;stroke-dasharray:3 3}
+.acc-eje{font-size:10.5px;font-weight:600;fill:#94A3B8;font-family:Inter,sans-serif}
+.acc-valor{font-size:10.5px;font-weight:800;fill:#1E293B;font-family:Inter,sans-serif}
+.acc-barra-fuerte{fill:#0052CC}
+.acc-barra-suave{fill:#9DB8EC}
 .acc-check{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer}
-.acc-vacio{padding:28px 8px;text-align:center;font-size:13px;color:var(--text-muted)}
-.acc-vacio.chico{padding:12px 4px;font-size:12px}
-.acc-error{color:var(--alqueria-red);font-weight:600}
-@media (max-width:900px){.acc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.acc-tres{grid-template-columns:1fr}}
-@media (max-width:640px){
-  .acc-filtros .filter{max-width:none;flex-basis:calc(50% - 6px)}
-  .acc-tabla thead{display:none}
-  .acc-tabla tr{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;padding:8px 0;border-bottom:1px solid #F1F5F9}
-  .acc-tabla td{border:0;padding:2px 0}
-  .acc-tabla .num{text-align:left}
-}
+.table-scroll tr.acc-inactivo td{color:var(--text-muted)}
 /* Ventana de detalle POP: resumen + grupos por estado */
 .dz-resumen{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin:14px 0 6px;padding:14px 16px;border-radius:16px;background:var(--surface-soft);border:1px solid var(--border)}
 .dz-resumen-barra{flex:1 1 320px;min-width:0}
@@ -401,9 +349,6 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .vs-proy{position:absolute;top:-5px;bottom:-5px;width:9px;height:9px;border-radius:9999px;border:2px solid #D97706;background:#fff;transform:translate(-4.5px,0);top:50%;margin-top:-4.5px}
 
 /* Firma */
-.firma{margin-top:14px;padding:12px 12px 2px;border-top:1px solid var(--border);text-align:left;line-height:1.3}
-.firma small{display:block;font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--text-muted);margin-bottom:3px}
-.firma span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;color:#0B1F4B;letter-spacing:-.01em}
 
 /* Selector de varios meses */
 .multi{position:relative}
@@ -497,7 +442,6 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .tend-cambio b{font-weight:800}
 .tend-svg{width:100%;height:auto;display:block;overflow:visible}
 .tend-svg text{font-family:'Inter',sans-serif}
-.sesion-avatar{width:34px;height:34px;border-radius:9999px;background:var(--alqueria-red);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
 /* Lo que cada rol no debe ver */
 body.rol-ruta [data-ocultar~="ruta"],
@@ -518,17 +462,6 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
 /* ============================================================
    3. RESPONSIVE
    ============================================================ */
-@media (max-width:1023px){
-  .mobile-menu-btn{display:inline-flex}
-  #mobile-nav-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.38);z-index:55}
-  #mobile-nav-overlay.is-open{display:block}
-  #dashboard-sidebar{position:fixed;top:0;right:0;bottom:0;width:min(82vw,300px);z-index:60;transform:translateX(105%);transition:transform .24s ease;padding:12px;background:#fff;overflow-y:auto;box-shadow:-16px 0 40px rgba(15,23,42,.18)}
-  #dashboard-sidebar.is-open{transform:translateX(0)}
-  #dashboard-sidebar nav{box-shadow:none;border:none}
-  .mobile-nav-close{display:flex}
-  .mobile-nav-close button{width:36px;height:36px;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center}
-  .mobile-nav-close svg{width:18px;height:18px}
-}
 @media (max-width:640px){
   .card{border-radius:16px}
   .filter{max-width:none;flex:1 1 45%}
@@ -552,6 +485,79 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
+}
+
+/* ============================================================
+   MENÚ LATERAL Y BARRA SUPERIOR (diseño minimalista)
+   ============================================================ */
+:root{--sidebar-bg:#B5141B;--sidebar-ancho:236px;--sidebar-mini:76px;--topbar-alto:64px}
+body{background:#F4F5F7}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-ancho);background:var(--sidebar-bg);color:#fff;display:flex;flex-direction:column;z-index:60;transition:width .2s ease,transform .24s ease;overflow:hidden}
+.sidebar-marca{padding:22px 18px 18px;margin:0 0 4px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(255,255,255,.14)}
+.sidebar-marca .brand-logo{width:calc(50% - 7px);height:auto;max-height:44px;object-fit:contain;filter:brightness(0) invert(1)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sidebar-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.55);padding:14px 20px 6px;white-space:nowrap}
+.vista-nav-btn{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:9px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.86);text-align:left;text-decoration:none;transition:background .15s ease,color .15s ease}
+.vista-nav-btn svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.vista-nav-btn span{white-space:normal;line-height:1.3}
+.vista-nav-btn .nav-ext{width:13px;height:13px;margin-left:auto;opacity:.6}
+.vista-nav-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.vista-nav-btn.is-active{background:rgba(0,0,0,.18);color:#fff;font-weight:700}
+.vista-nav-btn.is-active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:#fff}
+.vista-nav-btn:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.sidebar-pie{border-top:1px solid rgba(255,255,255,.14);padding:6px 0 14px}
+.firma{padding:8px 20px 0;line-height:1.35;white-space:nowrap}
+.firma small{display:block;font-size:10px;color:rgba(255,255,255,.55)}
+.firma span{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)}
+.app-cuerpo{margin-left:var(--sidebar-ancho);min-height:100vh;transition:margin-left .2s ease}
+.app-main{max-width:1680px;margin:0 auto;padding:24px}
+.topbar{position:sticky;top:0;z-index:30;height:var(--topbar-alto);background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 20px}
+.topbar-icono{width:38px;height:38px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:#475569;flex-shrink:0;transition:background .15s ease,color .15s ease}
+.topbar-icono:hover{background:#F1F5F9;color:var(--text)}
+.topbar-icono svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.topbar-icono.hidden{display:none}
+.topbar-titulo{flex:1;min-width:0}
+.topbar-titulo h1{font-size:15px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-titulo p{font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-acciones{display:flex;align-items:center;gap:6px}
+.topbar-estado{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;color:var(--text-muted);white-space:nowrap;margin-right:4px}
+.topbar-fecha{font-size:11.5px;color:var(--text-muted);white-space:nowrap;margin-right:6px}
+.topbar-usuario{display:flex;align-items:center;gap:10px;padding-left:12px;margin-left:6px;border-left:1px solid var(--border);min-width:0}
+.topbar-usuario-txt{min-width:0;line-height:1.25}
+.topbar-usuario-txt p:first-child{font-size:13px;font-weight:700;max-width:170px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+.topbar-usuario-txt p:last-child{font-size:11px;color:var(--text-muted);max-width:170px;line-height:1.3;white-space:normal}
+.sesion-avatar{width:36px;height:36px;border-radius:9999px;background:var(--alqueria-red-bg);color:var(--alqueria-red);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* Menú contraído en escritorio: solo iconos */
+body.nav-mini .sidebar{width:var(--sidebar-mini)}
+body.nav-mini .app-cuerpo{margin-left:var(--sidebar-mini)}
+body.nav-mini .vista-nav-btn{padding:14px 0;justify-content:center}
+body.nav-mini .vista-nav-btn span,body.nav-mini .vista-nav-btn .nav-ext,body.nav-mini .firma{display:none}
+body.nav-mini .sidebar-label{font-size:0;padding:10px 0 4px;margin:0 20px;border-top:1px solid rgba(255,255,255,.14)}
+body.nav-mini .sidebar-label:first-child{border-top:0}
+body.nav-mini .sidebar-marca{padding:20px 10px 14px;justify-content:center}
+body.nav-mini .sidebar-marca .brand-logo:last-child{display:none}
+body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
+
+@media (max-width:1180px){ .topbar-fecha{display:none} }
+@media (max-width:1023px){
+  .sidebar{transform:translateX(-102%);width:min(82vw,280px);box-shadow:16px 0 40px rgba(15,23,42,.22)}
+  .sidebar.is-open{transform:translateX(0)}
+  body.nav-mini .sidebar{width:min(82vw,280px)}
+  body.nav-mini .vista-nav-btn{padding:9px 20px;justify-content:flex-start}
+  body.nav-mini .vista-nav-btn span,body.nav-mini .firma{display:block}
+  .app-cuerpo,body.nav-mini .app-cuerpo{margin-left:0}
+  #mobile-nav-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.38);z-index:55}
+  #mobile-nav-overlay.is-open{display:block}
+  .topbar-usuario-txt{display:none}
+  .topbar-usuario{padding-left:8px;margin-left:2px}
+}
+@media (max-width:640px){
+  .topbar{gap:8px;padding:0 10px}
+  .topbar-estado{font-size:0;margin-right:0}
+  .topbar-estado span{margin-right:0 !important}
+  .topbar-titulo h1{font-size:14px}
+  .app-main{padding:14px 12px}
 }
 </style>
 </head>
@@ -628,93 +634,76 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
 
 <div id="app" class="hidden">
 <!-- ============================================================
-     HEADER
+     MENÚ LATERAL
      ============================================================ -->
-<header class="bg-white border-b sticky top-0 z-30" style="border-color:var(--border)">
-  <div class="header-inner max-w-[1920px] mx-auto px-4 sm:px-6 py-3">
-    <div class="header-marca">
-      <img src="alqueria.png" alt="Grupo Alquería" class="brand-logo">
-      <img src="Eficacia_logo.png" alt="Eficacia SAS" class="brand-logo">
+<aside id="dashboard-sidebar" class="sidebar" aria-label="Menú principal">
+  <div class="sidebar-marca">
+    <img src="alqueria.png" alt="Grupo Alquería" class="brand-logo">
+    <img src="Eficacia_logo.png" alt="Eficacia SAS" class="brand-logo">
+  </div>
+  <nav class="sidebar-nav">
+    <p class="sidebar-label">Paneles</p>
+    <button id="nav-campo" onclick="setVista('campo')" class="vista-nav-btn is-active" title="Seguimiento de Comisiones">
+      <svg viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg><span>Seguimiento de Comisiones</span>
+    </button>
+    <a href="https://plan-canguro.vercel.app/" target="_blank" rel="noopener noreferrer" class="vista-nav-btn" title="Evaluación Replicadores (se abre en otra pestaña)">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg><span>Evaluación Replicadores</span><svg class="nav-ext" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>
+    </a>
+    <div id="auth-activo">
+      <p id="nav-gestion-label" class="sidebar-label">Gestión</p>
+      <button id="nav-pop" onclick="setVista('pop')" class="vista-nav-btn hidden" title="Material POP">
+        <svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg><span>Material POP</span>
+      </button>
+      <button id="nav-liquidacion" onclick="setVista('liquidacion')" class="vista-nav-btn hidden" title="Comisiones">
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg><span>Comisiones</span>
+      </button>
+      <p id="nav-ajustes-label" class="sidebar-label hidden">Ajustes</p>
+      <button id="nav-actividad" onclick="abrirAccesos()" class="vista-nav-btn hidden" title="Actividad de ingresos">
+        <svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg><span>Actividad de ingresos</span>
+      </button>
     </div>
-    <div class="header-titulo min-w-0">
-      <h1 id="vista-titulo" class="text-base font-extrabold tracking-tight font-display truncate">Seguimiento de Comisiones</h1>
-      <p id="vista-subtitulo" class="text-xs font-medium muted truncate">Llaves y cumplimiento de mercaderistas, líderes y supervisores</p>
-    </div>
-    <div class="header-acciones">
-      <span id="connection-status" class="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold" style="background:var(--amber-bg);color:var(--amber)">Conectando…</span>
-      <span id="updated-label" class="text-xs hidden md:inline font-medium muted"></span>
-      <button id="btn-ajustes" type="button" class="btn-ajustes hidden" onclick="abrirAccesos()" aria-label="Ajustes: actividad de ingresos" title="Ajustes · Actividad de ingresos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-      <button onclick="cargarTodo()" class="btn-actualizar" aria-label="Actualizar datos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-        <span>Actualizar</span>
-      </button>
-      <button class="mobile-menu-btn" type="button" aria-label="Abrir menú" onclick="toggleMobileNav(true)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
+  </nav>
+  <div class="sidebar-pie">
+    <button type="button" onclick="cerrarSesion()" class="vista-nav-btn" title="Cerrar sesión">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg><span>Cerrar sesión</span>
+    </button>
+    <div class="firma"><small>Desarrollado por</small><span>Dylan Alejandro Rodriguez Roa</span></div>
+  </div>
+</aside>
+<div id="mobile-nav-overlay" onclick="toggleMobileNav(false)"></div>
+
+<div class="app-cuerpo">
+<header class="topbar">
+  <button class="topbar-icono" type="button" aria-label="Mostrar u ocultar el menú" onclick="toggleMenu()">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div class="topbar-titulo">
+    <h1 id="vista-titulo" class="font-display">Seguimiento de Comisiones</h1>
+    <p id="vista-subtitulo">Llaves y cumplimiento de mercaderistas, líderes y supervisores</p>
+  </div>
+  <div class="topbar-acciones">
+    <span id="connection-status" class="topbar-estado">Conectando…</span>
+    <span id="updated-label" class="topbar-fecha"></span>
+    <button onclick="cargarTodo()" class="topbar-icono" type="button" aria-label="Actualizar datos" title="Actualizar datos">
+      <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    </button>
+    <button id="btn-ajustes" type="button" class="topbar-icono hidden" onclick="abrirAccesos()" aria-label="Ajustes: actividad de ingresos" title="Ajustes · Actividad de ingresos">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <div class="topbar-usuario">
+      <span id="sesion-iniciales" class="sesion-avatar"></span>
+      <div class="topbar-usuario-txt">
+        <p id="sesion-nombre"></p>
+        <p id="sesion-rol"></p>
+      </div>
     </div>
   </div>
 </header>
 
-<main class="max-w-[1920px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+<main class="app-main">
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
-  <!-- ============================================================
-       NAVEGACIÓN
-       ============================================================ -->
-  <aside id="dashboard-sidebar" class="w-full lg:w-60 lg:sticky lg:top-[88px] shrink-0 z-20">
-    <nav class="card p-3">
-      <div class="mobile-nav-close items-center justify-between mb-3">
-        <p class="text-sm font-extrabold">Menú</p>
-        <button type="button" onclick="toggleMobileNav(false)" aria-label="Cerrar menú">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        </button>
-      </div>
-      <p class="sidebar-label">Paneles</p>
-      <div class="flex flex-col gap-1.5">
-        <button id="nav-campo" onclick="setVista('campo')" class="vista-nav-btn is-active">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 11l2 2 4-4"/></svg>
-          <span>Seguimiento de Comisiones<small>Llaves y cumplimiento</small></span>
-        </button>
-        <!-- Enlace externo: Evaluación Replicadores -->
-        <a href="https://plan-canguro.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-externo" aria-label="Abrir Evaluación Replicadores en una pestaña nueva">
-          <img class="btn-externo-img" alt="" src="data:image/png;base64,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">
-          <span class="btn-externo-txt">Evaluación Replicadores<small>Plan Canguro</small></span>
-          <svg class="btn-externo-flecha" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
-        </a>
-      </div>
-      <!-- Acceso con login a la liquidación en dinero -->
-      <div class="auth-bloque">
-        <div id="auth-activo">
-          <p id="nav-gestion-label" class="sidebar-label">Gestión</p>
-          <button id="nav-pop" onclick="setVista('pop')" class="vista-nav-btn hidden">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
-            <span>Material POP<small>Control en CEDI</small></span>
-          </button>
-          <button id="nav-liquidacion" onclick="setVista('liquidacion')" class="vista-nav-btn hidden">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/></svg>
-            <span>Comisiones<small>Valores a pagar</small></span>
-          </button>
-          <div class="sesion-info">
-            <div class="flex items-center gap-2.5">
-              <span id="sesion-iniciales" class="sesion-avatar"></span>
-              <div class="min-w-0">
-                <p id="sesion-nombre" class="text-[13px] font-extrabold truncate"></p>
-                <p id="sesion-rol" class="text-[11px] font-semibold muted truncate"></p>
-              </div>
-            </div>
-            <button type="button" onclick="cerrarSesion()" class="sesion-salir">Cerrar sesión</button>
-          </div>
-        </div>
-      </div>
-      <div class="firma">
-        <small>© Desarrollado por</small>
-        <span>Dylan Alejandro Rodriguez Roa</span>
-      </div>
-    </nav>
-  </aside>
-  <div id="mobile-nav-overlay" onclick="toggleMobileNav(false)"></div>
+
 
   <!-- ============================================================
        CONTENIDO
@@ -1070,6 +1059,13 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
     </div>
 
     <!-- ==========================================================
+         AJUSTES · ACTIVIDAD DE INGRESOS (solo administradores)
+         ========================================================== -->
+    <div id="vista-actividad" class="hidden">
+      <div id="accesos-contenido" class="space-y-6"></div>
+    </div>
+
+    <!-- ==========================================================
          VISTA 3 · LIQUIDACIÓN (solo con login)
          ========================================================== -->
     <div id="vista-liquidacion" class="hidden space-y-6">
@@ -1208,20 +1204,6 @@ body.rol-lider [data-ocultar~="lider"]{display:none!important}
 </div>
 </main>
 </div>
-
-<!-- Ajustes · Actividad de ingresos (solo administradores) -->
-<div id="accesos-modal" class="detalle-modal hidden">
-  <div class="detalle-fondo" onclick="cerrarAccesos()"></div>
-  <div id="accesos-caja" class="detalle-caja ancha" role="dialog" aria-modal="true" aria-labelledby="accesos-titulo">
-    <button type="button" class="detalle-cerrar" onclick="cerrarAccesos()" aria-label="Cerrar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-    </button>
-    <p class="acc-eyebrow">Ajustes · Solo administradores</p>
-    <h3 id="accesos-titulo" class="text-lg font-extrabold font-display">Actividad de ingresos</h3>
-    <p class="text-xs muted mt-0.5">Quién entra al tablero, cuántas veces y qué paneles consulta.</p>
-    <div id="accesos-filtros" class="acc-filtros"></div>
-    <div id="accesos-contenido"></div>
-  </div>
 </div>
 
 <!-- Ventana pequeña con el detalle de un ranking -->
@@ -2057,7 +2039,7 @@ function deltaVsAnterior(actual, anterior, etiquetaAnterior){
 function setStatus(tipo, texto){
   const el = document.getElementById('connection-status');
   const t = tipo === 'ok' ? TONOS.verde : tipo === 'error' ? TONOS.rojo : TONOS.ambar;
-  el.style.background = t.bg; el.style.color = t.fg;
+  el.style.background = 'transparent'; el.style.color = '';
   el.innerHTML = `<span class="w-2 h-2 mr-1.5 rounded-full inline-block${tipo === 'loading' ? ' animate-pulse' : ''}" style="background:${t.fg}"></span>${esc(texto)}`;
 }
 function mostrarErrores(errores){
@@ -3681,15 +3663,24 @@ function pintarEstadoSesion(){
   const p = SESION.perfil || {};
   const rol = ROLES[p.rol] || { label:'' };
   const nombre = p.nombre || (SESION.usuario ? SESION.usuario.email : '');
-  const partes = String(nombre).trim().split(/\s+/);
-  document.getElementById('sesion-nombre').textContent = nombre;
-  document.getElementById('sesion-rol').textContent = rol.label + (p.alcance && !['admin', 'consulta'].includes(p.rol) ? ` · ${p.alcance}` : '');
-  document.getElementById('sesion-rol').title = document.getElementById('sesion-rol').textContent;
-  document.getElementById('sesion-iniciales').textContent = ((partes[0] || '')[0] || '') + ((partes[1] || '')[0] || '');
+  // Nombre corto: primer nombre + primer apellido ("Dylan Alejandro Rodriguez Roa" -> "Dylan Rodriguez").
+  // El nombre completo queda al pasar el mouse.
+  const partes = String(nombre).trim().split(/\s+/).filter(Boolean);
+  const corto = (partes.length >= 4 ? [partes[0], partes[2]] : partes.slice(0, 2))
+    .map(w => /@/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  const elNombre = document.getElementById('sesion-nombre');
+  elNombre.textContent = corto || nombre;
+  elNombre.title = nombre;
+  document.getElementById('sesion-rol').textContent = rol.label + (p.alcance && p.rol === 'ruta' ? ` · ${p.alcance}` : '');
+  document.getElementById('sesion-rol').title = rol.label + (p.alcance && !['admin', 'consulta'].includes(p.rol) ? ` · ${p.alcance}` : '');
+  document.getElementById('sesion-iniciales').textContent = (corto.split(' ').map(w => w[0] || '').join('') || '?').slice(0, 2).toUpperCase();
+  document.querySelector('.topbar-usuario').title = `${nombre}${rol.label ? ' · ' + rol.label : ''}`;
   document.getElementById('nav-pop').classList.toggle('hidden', !puedePop());
   document.getElementById('nav-liquidacion').classList.toggle('hidden', !puedeDinero());
   document.getElementById('nav-gestion-label').classList.toggle('hidden', !puedePop() && !puedeDinero());
   document.getElementById('btn-ajustes').classList.toggle('hidden', rolActual() !== 'admin');
+  document.getElementById('nav-ajustes-label').classList.toggle('hidden', rolActual() !== 'admin');
+  document.getElementById('nav-actividad').classList.toggle('hidden', rolActual() !== 'admin');
 }
 async function cargarLiquidacion(){
   try{
@@ -4435,13 +4426,14 @@ function exportarPersonas(){
 const VISTAS = {
   pop:   { titulo:'Material POP', sub:'Llegada, salida y saldo del material en CEDI' },
   campo: { titulo:'Seguimiento de Comisiones', sub:'Llaves, cumplimiento y comisión alcanzada de rutas, líderes y supervisores' },
-  liquidacion: { titulo:'Liquidación de comisiones', sub:'Valores a pagar por ruta, líder y supervisor' }
+  liquidacion: { titulo:'Liquidación de comisiones', sub:'Valores a pagar por ruta, líder y supervisor' },
+  actividad: { titulo:'Actividad de ingresos', sub:'Quién entra al tablero, cuántas veces y qué paneles consulta' }
 };
 
 /* ============================================================
    ACTIVIDAD DE INGRESOS (solo administradores)
    Registra cada entrada al tablero en Supabase (accesos_dashboard)
-   y la muestra en la ventana de Ajustes (icono de engranaje).
+   y la muestra en el panel "Actividad de ingresos" (engranaje).
    ============================================================ */
 let ingresoConClave = false;          // true cuando la persona escribió usuario y contraseña
 const vistasRegistradas = new Set();  // un registro por panel en cada carga de la página
@@ -4470,20 +4462,17 @@ function registrarEntrada(){
   registrarAcceso('visita');
 }
 function registrarVista(vista){
-  if(!SESION.usuario || vistasRegistradas.has(vista)) return;
+  if(!SESION.usuario || vista === 'actividad' || vistasRegistradas.has(vista)) return;
   vistasRegistradas.add(vista);
   registrarAcceso('vista', vista);
 }
 
-// ---------- Ventana de Ajustes · Actividad ----------
+// ---------- Panel "Actividad de ingresos" ----------
 const ACC = {
-  periodo: '7d', desde: '', hasta: '', agrupar: 'dia', rol: '', usuario: '', contar: 'todos', sinActividad: false,
-  filas: [], usuarios: [], rango: null, cargando: false
+  periodo: '7d', desde: '', hasta: '', metrica: 'entradas', rol: '', usuario: '', contar: 'todos', sinActividad: false,
+  filas: [], usuarios: [], rango: null, cargado: false, cargando: false, error: ''
 };
-const ACC_PERIODOS = [
-  ['hoy', 'Hoy'], ['7d', 'Últimos 7 días'], ['30d', 'Últimos 30 días'], ['mes', 'Este mes'],
-  ['mesAnterior', 'Mes anterior'], ['90d', 'Últimos 90 días'], ['personalizado', 'Personalizado']
-];
+const ACC_PERIODOS = [['hoy', 'Hoy'], ['7d', '7 días'], ['30d', '30 días'], ['mes', 'Este mes'], ['anio', 'Este año']];
 const ACC_EVENTOS = { ingreso: 'Ingreso con contraseña', visita: 'Abrió el tablero', vista: 'Abrió un panel' };
 const inicioDia = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 const sumarDias = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
@@ -4491,37 +4480,35 @@ const fechaInput = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
 
 function rangoAccesos(){
   const hoy = inicioDia(new Date()), manana = sumarDias(hoy, 1);
+  let r;
   switch(ACC.periodo){
-    case 'hoy': return { desde: hoy, hasta: manana };
-    case '30d': return { desde: sumarDias(hoy, -29), hasta: manana };
-    case '90d': return { desde: sumarDias(hoy, -89), hasta: manana };
-    case 'mes': return { desde: new Date(hoy.getFullYear(), hoy.getMonth(), 1), hasta: manana };
-    case 'mesAnterior': return { desde: new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1), hasta: new Date(hoy.getFullYear(), hoy.getMonth(), 1) };
+    case 'hoy': r = { desde: hoy, hasta: manana }; break;
+    case '30d': r = { desde: sumarDias(hoy, -29), hasta: manana }; break;
+    case 'mes': r = { desde: new Date(hoy.getFullYear(), hoy.getMonth(), 1), hasta: manana }; break;
+    case 'anio': r = { desde: new Date(hoy.getFullYear(), 0, 1), hasta: manana }; break;
     case 'personalizado': {
       const d = ACC.desde ? new Date(ACC.desde + 'T00:00:00') : sumarDias(hoy, -6);
       const h = ACC.hasta ? sumarDias(new Date(ACC.hasta + 'T00:00:00'), 1) : manana;
-      return h > d ? { desde: d, hasta: h } : { desde: d, hasta: sumarDias(d, 1) };
+      r = h > d ? { desde: d, hasta: h } : { desde: d, hasta: sumarDias(d, 1) };
+      break;
     }
-    default: return { desde: sumarDias(hoy, -6), hasta: manana };
+    default: r = { desde: sumarDias(hoy, -6), hasta: manana };
   }
+  const dias = Math.round((r.hasta - r.desde) / 86400000);
+  r.dias = dias;
+  r.previoDesde = sumarDias(r.desde, -dias);        // mismo largo justo antes, para comparar
+  r.agrupar = dias <= 45 ? 'dia' : dias <= 120 ? 'semana' : 'mes';
+  return r;
 }
 
-async function abrirAccesos(){
+// Abre el panel (engranaje). Solo administradores.
+function abrirAccesos(){
   if(rolActual() !== 'admin') return;
-  const modal = document.getElementById('accesos-modal');
-  modal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  const caja = document.getElementById('accesos-caja');
-  caja.classList.remove('zoom'); void caja.offsetWidth; caja.classList.add('zoom');
-  pintarFiltrosAccesos();
-  await cargarAccesos();
+  setVista('actividad');
+  if(!ACC.cargado && !ACC.cargando) cargarAccesos();
+  else pintarAccesos();
 }
-function cerrarAccesos(){
-  const modal = document.getElementById('accesos-modal');
-  if(modal.classList.contains('hidden')) return;
-  modal.classList.add('hidden');
-  document.body.style.overflow = '';
-}
+function cerrarAccesos(){}
 
 async function cargarAccesos(){
   const rango = rangoAccesos();
@@ -4530,10 +4517,10 @@ async function cargarAccesos(){
   pintarAccesos();
   try{
     const filas = [];
-    for(let desde = 0; desde < 50000; desde += 1000){
+    for(let desde = 0; desde < 60000; desde += 1000){
       const { data, error } = await supabaseClient.from('accesos_dashboard')
         .select('creado_en,usuario,nombre,rol,email,evento,vista,dispositivo')
-        .gte('creado_en', rango.desde.toISOString()).lt('creado_en', rango.hasta.toISOString())
+        .gte('creado_en', rango.previoDesde.toISOString()).lt('creado_en', rango.hasta.toISOString())
         .order('creado_en', { ascending: false }).range(desde, desde + 999);
       if(error) throw error;
       filas.push(...data);
@@ -4545,6 +4532,7 @@ async function cargarAccesos(){
       ACC.usuarios = data || [];
     }
     ACC.error = '';
+    ACC.cargado = true;
   }catch(e){
     ACC.filas = [];
     ACC.error = /accesos_dashboard|schema cache|registrar_acceso/i.test(e.message || '')
@@ -4552,103 +4540,73 @@ async function cargarAccesos(){
       : (e.message || 'No se pudo consultar la actividad.');
   }
   ACC.cargando = false;
-  pintarFiltrosAccesos();
   pintarAccesos();
 }
 
 function cambiarFiltroAccesos(clave, valor){
   ACC[clave] = valor;
   if(['periodo', 'desde', 'hasta'].includes(clave)){
-    if(clave === 'periodo' && valor === 'personalizado' && !ACC.desde){
-      const r = rangoAccesos(); ACC.desde = fechaInput(r.desde); ACC.hasta = fechaInput(sumarDias(r.hasta, -1));
-    }
-    if(clave === 'periodo' && ['hoy', '7d'].includes(valor)) ACC.agrupar = 'dia';
-    if(clave === 'periodo' && valor === '90d' && ACC.agrupar === 'dia') ACC.agrupar = 'semana';
-    pintarFiltrosAccesos();
+    if(clave !== 'periodo') ACC.periodo = 'personalizado';
     cargarAccesos();
     return;
   }
-  pintarFiltrosAccesos();
   pintarAccesos();
 }
 
-function pintarFiltrosAccesos(){
-  const opciones = (lista, actual) => lista.map(([v, t]) => `<option value="${esc(v)}" ${v === actual ? 'selected' : ''}>${esc(t)}</option>`).join('');
-  const roles = [['', 'Todos'], ...Object.entries(ROLES).map(([k, r]) => [k, r.label])];
-  const nombres = {};
-  ACC.usuarios.forEach(u => { if(u.usuario) nombres[u.usuario] = u.nombre || u.usuario; });
-  ACC.filas.forEach(f => { if(f.usuario && !nombres[f.usuario]) nombres[f.usuario] = f.nombre || f.usuario; });
-  const usuarios = [['', 'Todos'], ...Object.entries(nombres).sort((a, b) => a[1].localeCompare(b[1])).map(([u, n]) => [u, `${n} · ${u}`])];
-  const personalizado = ACC.periodo === 'personalizado';
-  document.getElementById('accesos-filtros').innerHTML = `
-    <label class="filter"><span>Periodo</span><select onchange="cambiarFiltroAccesos('periodo', this.value)">${opciones(ACC_PERIODOS, ACC.periodo)}</select></label>
-    ${personalizado ? `
-      <label class="filter"><span>Desde</span><input type="date" class="acc-fecha" value="${ACC.desde}" onchange="cambiarFiltroAccesos('desde', this.value)"></label>
-      <label class="filter"><span>Hasta</span><input type="date" class="acc-fecha" value="${ACC.hasta}" onchange="cambiarFiltroAccesos('hasta', this.value)"></label>` : ''}
-    <label class="filter"><span>Rol</span><select onchange="cambiarFiltroAccesos('rol', this.value)">${opciones(roles, ACC.rol)}</select></label>
-    <label class="filter"><span>Usuario</span><select onchange="cambiarFiltroAccesos('usuario', this.value)">${opciones(usuarios, ACC.usuario)}</select></label>
-    <label class="filter"><span>Contar</span><select onchange="cambiarFiltroAccesos('contar', this.value)">${opciones([['todos', 'Todas las entradas'], ['ingreso', 'Solo con contraseña']], ACC.contar)}</select></label>`;
-}
+const coincideFiltros = f => (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || f.usuario === ACC.usuario);
+const esEntrada = f => ACC.contar === 'ingreso' ? f.evento === 'ingreso' : f.evento !== 'vista';
 
-// Entradas al tablero (ingreso + visita) con los filtros de rol, usuario y tipo
-function accesosFiltrados(incluirVistas = false){
-  return ACC.filas.filter(f =>
-    (incluirVistas ? f.evento === 'vista' : (ACC.contar === 'ingreso' ? f.evento === 'ingreso' : f.evento !== 'vista')) &&
-    (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) &&
-    (!ACC.usuario || f.usuario === ACC.usuario));
-}
-
-// Periodos del gráfico: día, semana (lunes a domingo) o mes, incluyendo los que no tienen entradas
-function cubetasAccesos(){
-  const { desde, hasta } = ACC.rango;
+// Periodos del gráfico (día, semana o mes), incluyendo los que no tienen entradas
+function cubetasAccesos(desde, hasta, agrupar){
   const cubetas = [];
   let cursor = inicioDia(desde);
-  if(ACC.agrupar === 'semana') cursor = sumarDias(cursor, -((cursor.getDay() + 6) % 7));
-  if(ACC.agrupar === 'mes') cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  if(agrupar === 'semana') cursor = sumarDias(cursor, -((cursor.getDay() + 6) % 7));
+  if(agrupar === 'mes') cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
   while(cursor < hasta && cubetas.length < 400){
-    const fin = ACC.agrupar === 'dia' ? sumarDias(cursor, 1)
-      : ACC.agrupar === 'semana' ? sumarDias(cursor, 7)
-      : new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-    const etiqueta = ACC.agrupar === 'dia'
-      ? cursor.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })
-      : ACC.agrupar === 'semana'
-        ? `Sem. ${cursor.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}`
-        : cursor.toLocaleDateString('es-CO', { month: 'short', year: '2-digit' });
-    cubetas.push({ desde: cursor, hasta: fin, etiqueta, total: 0, usuarios: new Set() });
+    const fin = agrupar === 'dia' ? sumarDias(cursor, 1) : agrupar === 'semana' ? sumarDias(cursor, 7) : new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+    const etiqueta = agrupar === 'mes'
+      ? cursor.toLocaleDateString('es-CO', { month: 'short' }).replace('.', '')
+      : (agrupar === 'semana' ? 'Sem ' : '') + cursor.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }).replace('.', '').replace(' de ', ' ');
+    cubetas.push({ desde: cursor, hasta: fin, etiqueta, total: 0, clave: 0, usuarios: new Set() });
     cursor = fin;
   }
   return cubetas;
 }
 
-function graficoAccesos(cubetas, anchoDisponible){
-  const W = Math.max(300, Math.round(anchoDisponible || 760)), H = W < 520 ? 200 : 240, m = { t: 22, r: 12, b: 34, l: 34 };
-  const max = Math.max(1, ...cubetas.map(c => c.total));
-  const paso = max <= 5 ? 1 : Math.ceil(max / 4);
+// Gráfico de barras: dos tonos (con contraseña / con sesión guardada) o usuarios distintos
+function graficoAccesos(cubetas, W){
+  W = Math.max(300, Math.round(W || 700));
+  const H = W < 520 ? 210 : 270, m = { t: 18, r: 6, b: 30, l: 30 };
+  const valor = c => ACC.metrica === 'usuarios' ? c.usuarios.size : c.total;
+  const max = Math.max(1, ...cubetas.map(valor));
+  const paso = max <= 5 ? 1 : Math.ceil(max / 5);
   const tope = Math.ceil(max / paso) * paso;
   const ancho = (W - m.l - m.r) / Math.max(1, cubetas.length);
   const y = v => m.t + (H - m.t - m.b) * (1 - v / tope);
-  const cadaEtiqueta = Math.max(1, Math.ceil(cubetas.length / Math.max(3, Math.floor(W / 70))));
-  const grilla = [];
+  const cada = Math.max(1, Math.ceil(cubetas.length / Math.max(3, Math.floor(W / 64))));
+  let svg = '';
   for(let v = 0; v <= tope; v += paso){
-    grilla.push(`<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="#EEF2F7"/>
-      <text x="${m.l - 6}" y="${y(v) + 3.5}" text-anchor="end" font-size="10" fill="#94A3B8">${v}</text>`);
+    svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" class="acc-grilla"/><text x="${m.l - 8}" y="${y(v) + 3.5}" text-anchor="end" class="acc-eje">${v}</text>`;
   }
-  const barras = cubetas.map((c, i) => {
-    const w = Math.max(2, Math.min(ancho * 0.64, 72)), x = m.l + i * ancho + (ancho - w) / 2, alto = y(0) - y(c.total);
-    const titulo = `${c.etiqueta}: ${c.total} ${c.total === 1 ? 'entrada' : 'entradas'} · ${c.usuarios.size} ${c.usuarios.size === 1 ? 'usuario' : 'usuarios'}`;
-    return `<g><title>${esc(titulo)}</title>
-      <rect x="${x}" y="${y(c.total)}" width="${w}" height="${Math.max(0, alto)}" rx="${Math.min(5, w / 3)}" fill="${c.total ? '#0052CC' : '#E2E8F0'}"/>
-      ${c.total && ancho >= 16 ? `<text x="${x + w / 2}" y="${y(c.total) - 5}" text-anchor="middle" font-size="10" font-weight="700" fill="#1E293B">${c.total}</text>` : ''}
-      ${i % cadaEtiqueta === 0 ? `<text x="${x + w / 2}" y="${H - m.b + 15}" text-anchor="middle" font-size="10" fill="#64748B">${esc(c.etiqueta)}</text>` : ''}
-    </g>`;
-  }).join('');
-  const linea = cubetas.map((c, i) => `${i ? 'L' : 'M'}${(m.l + i * ancho + ancho / 2).toFixed(1)},${y(c.usuarios.size).toFixed(1)}`).join(' ');
-  const puntos = cubetas.map((c, i) => c.usuarios.size
-    ? `<circle cx="${m.l + i * ancho + ancho / 2}" cy="${y(c.usuarios.size)}" r="3" fill="#fff" stroke="#DA291C" stroke-width="2"/>` : '').join('');
-  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="acc-grafico" role="img" aria-label="Tendencia de entradas al tablero">
-    ${grilla.join('')}${barras}
-    <path d="${linea}" fill="none" stroke="#DA291C" stroke-width="2" stroke-linejoin="round"/>${puntos}
-  </svg>`;
+  cubetas.forEach((c, i) => {
+    const x0 = m.l + i * ancho;
+    const centro = x0 + ancho / 2;
+    if(ACC.metrica === 'usuarios'){
+      const w = Math.max(3, Math.min(ancho * .5, 44));
+      const v = c.usuarios.size;
+      svg += `<g><title>${esc(`${c.etiqueta}: ${v} ${v === 1 ? 'usuario' : 'usuarios'}`)}</title>
+        <rect x="${centro - w / 2}" y="${y(v)}" width="${w}" height="${y(0) - y(v)}" rx="${Math.min(4, w / 3)}" class="acc-barra-fuerte"/>
+        ${v && ancho >= 22 ? `<text x="${centro}" y="${y(v) - 5}" text-anchor="middle" class="acc-valor">${v}</text>` : ''}</g>`;
+    } else {
+      const w = Math.max(2, Math.min(ancho * .32, 32));
+      const visitas = c.total - c.clave;
+      svg += `<g><title>${esc(`${c.etiqueta}: ${c.total} entradas · ${c.clave} con contraseña · ${visitas} con sesión guardada`)}</title>
+        <rect x="${centro - w - 1}" y="${y(c.clave)}" width="${w}" height="${y(0) - y(c.clave)}" rx="${Math.min(3, w / 3)}" class="acc-barra-fuerte"/>
+        <rect x="${centro + 1}" y="${y(visitas)}" width="${w}" height="${y(0) - y(visitas)}" rx="${Math.min(3, w / 3)}" class="acc-barra-suave"/></g>`;
+    }
+    if(i % cada === 0) svg += `<text x="${centro}" y="${H - m.b + 17}" text-anchor="middle" class="acc-eje">${esc(c.etiqueta)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="acc-grafico" role="img" aria-label="Tendencia de entradas">${svg}</svg>`;
 }
 
 function haceCuanto(fecha){
@@ -4663,29 +4621,47 @@ function haceCuanto(fecha){
 const fechaHora = d => d.toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 const etiquetaRol = r => (ROLES[String(r || '').toLowerCase()] || {}).label || (r || '—');
 const etiquetaVista = v => (VISTAS[v] || {}).titulo || v || '—';
-
 function pintarAccesos(){
   const box = document.getElementById('accesos-contenido');
-  if(ACC.cargando){ box.innerHTML = '<p class="acc-vacio">Consultando la actividad…</p>'; return; }
-  if(ACC.error){ box.innerHTML = `<p class="acc-vacio acc-error">${esc(ACC.error)}</p>`; return; }
+  if(!box) return;
+  if(ACC.cargando && !ACC.cargado){ box.innerHTML = `<div class="card p-6">${emptyMsg('Consultando la actividad…')}</div>`; return; }
+  if(ACC.error){ box.innerHTML = `<div class="card p-6 text-sm font-semibold" style="color:var(--alqueria-red)">${esc(ACC.error)}</div>`; return; }
+  const R = ACC.rango || rangoAccesos();
 
-  const entradas = accesosFiltrados();
-  const vistas = accesosFiltrados(true);
-  const cubetas = cubetasAccesos();
+  // Filtros generales (rol, usuario, tipo de entrada)
+  const opciones = (lista, actual) => lista.map(([v, t]) => `<option value="${esc(v)}" ${v === actual ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  const nombres = {};
+  ACC.usuarios.forEach(u => { if(u.usuario) nombres[u.usuario] = u.nombre || u.usuario; });
+  ACC.filas.forEach(f => { if(f.usuario && !nombres[f.usuario]) nombres[f.usuario] = f.nombre || f.usuario; });
+  const listaUsuarios = [['', 'Todos los usuarios'], ...Object.entries(nombres).sort((a, b) => a[1].localeCompare(b[1])).map(([u, n]) => [u, `${n} · ${u}`])];
+  const listaRoles = [['', 'Todos los roles'], ...Object.entries(ROLES).map(([k, r]) => [k, r.label])];
+
+  // Datos del periodo y del periodo anterior
+  const delPeriodo = ACC.filas.filter(f => f.fecha >= R.desde && coincideFiltros(f));
+  const previo = ACC.filas.filter(f => f.fecha < R.desde && coincideFiltros(f));
+  const entradas = delPeriodo.filter(esEntrada);
+  const entradasPrevias = previo.filter(esEntrada);
+  const vistas = delPeriodo.filter(f => f.evento === 'vista');
+  const hoy = inicioDia(new Date());
+  const entradasHoy = entradas.filter(f => f.fecha >= hoy).length;
+
+  const cubetas = cubetasAccesos(R.desde, R.hasta, R.agrupar);
+  const porDia = cubetasAccesos(R.desde, R.hasta, R.dias <= 45 ? 'dia' : 'semana');
   entradas.forEach(f => {
     const c = cubetas.find(c => f.fecha >= c.desde && f.fecha < c.hasta);
-    if(c){ c.total++; c.usuarios.add(f.usuario); }
+    if(c){ c.total++; if(f.evento === 'ingreso') c.clave++; c.usuarios.add(f.usuario); }
+    const d = porDia.find(c => f.fecha >= c.desde && f.fecha < c.hasta);
+    if(d){ d.total++; d.usuarios.add(f.usuario); }
   });
 
   // Por usuario
-  const porUsuario = {};
   const habilitados = ACC.usuarios.filter(u => u.activo !== false &&
     (!ACC.rol || String(u.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || u.usuario === ACC.usuario));
-  if(ACC.sinActividad) habilitados.forEach(u => {
-    porUsuario[u.usuario] = { usuario: u.usuario, nombre: u.nombre, rol: u.rol, total: 0, ingresos: 0, dias: new Set(), ultimo: null };
-  });
+  const porUsuario = {};
+  const nuevoU = (usuario, nombre, rol) => ({ usuario, nombre, rol, total: 0, ingresos: 0, dias: new Set(), ultimo: null });
+  if(ACC.sinActividad) habilitados.forEach(u => { porUsuario[u.usuario] = nuevoU(u.usuario, u.nombre, u.rol); });
   entradas.forEach(f => {
-    const u = porUsuario[f.usuario] = porUsuario[f.usuario] || { usuario: f.usuario, nombre: f.nombre, rol: f.rol, total: 0, ingresos: 0, dias: new Set(), ultimo: null };
+    const u = porUsuario[f.usuario] = porUsuario[f.usuario] || nuevoU(f.usuario, f.nombre, f.rol);
     u.total++;
     if(f.evento === 'ingreso') u.ingresos++;
     u.dias.add(fechaInput(f.fecha));
@@ -4694,107 +4670,164 @@ function pintarAccesos(){
   const usuarios = Object.values(porUsuario).sort((a, b) => b.total - a.total || String(a.nombre).localeCompare(String(b.nombre)));
   const activos = usuarios.filter(u => u.total > 0);
   const sinEntrar = habilitados.filter(u => !activos.some(a => a.usuario === u.usuario)).length;
+  const adopcion = habilitados.length ? activos.length / habilitados.length * 100 : null;
 
-  // KPIs
-  const dias = Math.max(1, Math.round((Math.min(ACC.rango.hasta, sumarDias(inicioDia(new Date()), 1)) - ACC.rango.desde) / 86400000));
-  const top = activos[0];
-  const kpi = (titulo, valor, sub, texto) => `<div class="acc-kpi"><p>${titulo}</p><b class="${texto ? 'texto' : ''}" title="${texto ? valor : ''}">${valor}</b><span>${sub}</span></div>`;
-
-  // Por rol, por sección y por dispositivo
+  // Tarjetas
+  const diasTranscurridos = Math.max(1, Math.round((Math.min(R.hasta, sumarDias(hoy, 1)) - R.desde) / 86400000));
+  const diasActivos = new Set(entradas.map(f => fechaInput(f.fecha))).size;
+  const variacion = entradasPrevias.length ? (entradas.length - entradasPrevias.length) / entradasPrevias.length * 100 : null;
+  // Ranking y desgloses
   const conteo = (lista, clave) => {
     const c = {};
     lista.forEach(f => { const k = clave(f); c[k] = (c[k] || 0) + 1; });
     return Object.entries(c).sort((a, b) => b[1] - a[1]);
   };
-  const barrasLista = (pares, total, color) => pares.length ? pares.map(([n, v]) => `
-    <div class="acc-barra">
-      <div class="acc-barra-txt"><span>${esc(n)}</span><b>${formatNumber(v)}</b></div>
-      <div class="leaderboard-track"><div class="leaderboard-fill" style="width:${(v / Math.max(1, total) * 100).toFixed(1)}%;background:${color}"></div></div>
-    </div>`).join('') : '<p class="acc-vacio chico">Sin registros en el periodo.</p>';
+  const recientes = ACC.filas.filter(f => f.fecha >= R.desde && coincideFiltros(f) && (ACC.contar !== 'ingreso' || f.evento === 'ingreso')).slice(0, 40);
 
-  const porRol = conteo(entradas, f => etiquetaRol(f.rol));
-  const porVista = conteo(vistas, f => etiquetaVista(f.vista));
-  const porDisp = conteo(entradas, f => f.dispositivo || 'Sin dato');
-  const maxRol = Math.max(0, ...porRol.map(p => p[1]));
-  const maxVista = Math.max(0, ...porVista.map(p => p[1]));
-
-  const filasUsuarios = usuarios.map(u => `
-    <tr class="${u.total ? '' : 'acc-inactivo'}">
-      <td><b>${esc(u.nombre || u.usuario)}</b><span class="acc-sub">${esc(u.usuario)}</span></td>
-      <td>${esc(etiquetaRol(u.rol))}</td>
-      <td class="num"><b>${formatNumber(u.total)}</b></td>
-      <td class="num">${formatNumber(u.ingresos)}</td>
-      <td class="num">${formatNumber(u.dias.size)}</td>
-      <td>${u.ultimo ? `${fechaHora(u.ultimo)}<span class="acc-sub">${haceCuanto(u.ultimo)}</span>` : '<span class="acc-sub">Sin entradas</span>'}</td>
-    </tr>`).join('');
-
-  const recientes = ACC.filas.filter(f =>
-    (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || f.usuario === ACC.usuario) &&
-    (ACC.contar !== 'ingreso' || f.evento === 'ingreso')).slice(0, 40);
+  const icono = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const kpi = (tono, ic, valor, titulo, lineas) => `
+    <div class="card alert-card acc-kpi">
+      <div class="alert-icon" style="background:${tono.bg};color:${tono.fg}">${icono(ic)}</div>
+      <div class="min-w-0">
+        <p class="text-2xl font-extrabold tabular font-display tracking-tight">${valor}</p>
+        <p class="text-xs font-bold mt-0.5">${titulo}</p>
+        ${lineas.map(l => `<p class="text-[11px] font-medium mt-0.5 muted">${l}</p>`).join('')}
+      </div>
+    </div>`;
+  const ranking = (pares, color) => {
+    if(!pares.length) return emptyMsg('Sin registros en el periodo.');
+    const max = Math.max(...pares.map(p => p[1]));
+    return pares.map(([n, v, det], i) => `
+      <div class="leaderboard-item">
+        <div class="leaderboard-rank">#${i + 1}</div>
+        <div class="min-w-0 flex-1">
+          <div class="lb-linea"><p class="leaderboard-nombre">${esc(n)}</p>${det ? `<p class="leaderboard-detalle">${esc(det)}</p>` : ''}</div>
+          <div class="leaderboard-track"><div class="leaderboard-fill" style="width:${(v / Math.max(1, max) * 100).toFixed(1)}%;background:${color}"></div></div>
+        </div>
+        <span class="leaderboard-value">${formatNumber(v)}</span>
+      </div>`).join('');
+  };
+  const periodosSelect = [...ACC_PERIODOS, ['personalizado', 'Personalizado']];
+  const btnExportar = `<button type="button" onclick="exportarAccesos()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>`;
 
   box.innerHTML = `
-    <div class="acc-kpis">
-      ${kpi('Entradas al tablero', formatNumber(entradas.length), ACC.contar === 'ingreso' ? 'solo con contraseña' : `${formatNumber(entradas.filter(f => f.evento === 'ingreso').length)} con contraseña`)}
-      ${kpi('Usuarios activos', formatNumber(activos.length), habilitados.length ? `de ${formatNumber(habilitados.length)} habilitados · ${formatNumber(sinEntrar)} sin entrar` : 'con al menos una entrada')}
-      ${kpi('Promedio diario', (entradas.length / dias).toLocaleString('es-CO', { maximumFractionDigits: 1 }), `entradas por día en ${dias} ${dias === 1 ? 'día' : 'días'}`)}
-      ${kpi('Usuario más activo', top ? esc(top.nombre || top.usuario) : '—', top ? `${formatNumber(top.total)} entradas · ${esc(top.usuario)}` : 'sin entradas en el periodo', true)}
-    </div>
-
-    <div class="acc-panel">
-      <div class="acc-panel-h">
-        <div><h4>Tendencia de entradas</h4><p>Barras: entradas al tablero · Línea roja: usuarios distintos que entraron</p></div>
-        <div class="vs-switch" role="tablist">
-          ${[['dia', 'Día'], ['semana', 'Semana'], ['mes', 'Mes']].map(([v, t]) =>
-            `<button type="button" class="${ACC.agrupar === v ? 'is-activo' : ''}" onclick="cambiarFiltroAccesos('agrupar', '${v}')">${t}</button>`).join('')}
-        </div>
+    <section class="card p-4 sm:p-5">
+      <div class="flex flex-wrap gap-3 items-end">
+        <label class="filter"><span>Periodo</span><select onchange="cambiarFiltroAccesos('periodo', this.value)">${opciones(periodosSelect, ACC.periodo)}</select></label>
+        <label class="filter"><span>Desde</span><input type="date" class="acc-fecha" value="${fechaInput(R.desde)}" onchange="cambiarFiltroAccesos('desde', this.value)"></label>
+        <label class="filter"><span>Hasta</span><input type="date" class="acc-fecha" value="${fechaInput(sumarDias(R.hasta, -1))}" onchange="cambiarFiltroAccesos('hasta', this.value)"></label>
+        <label class="filter"><span>Rol</span><select onchange="cambiarFiltroAccesos('rol', this.value)">${opciones(listaRoles, ACC.rol)}</select></label>
+        <label class="filter"><span>Usuario</span><select onchange="cambiarFiltroAccesos('usuario', this.value)">${opciones(listaUsuarios, ACC.usuario)}</select></label>
+        <label class="filter"><span>Contar</span><select onchange="cambiarFiltroAccesos('contar', this.value)">${opciones([['todos', 'Todas las entradas'], ['ingreso', 'Solo con contraseña']], ACC.contar)}</select></label>
       </div>
-      ${graficoAccesos(cubetas, box.clientWidth - 34)}
+    </section>
+
+    <section>
+      <h3 class="section-title">Resumen del periodo</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        ${kpi(TONOS.azul, '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>', formatNumber(entradas.length), 'Entradas al tablero', [
+          `Vs. periodo anterior: <b class="${variacion === null ? '' : variacion >= 0 ? 'acc-sube' : 'acc-baja'}">${variacion === null ? '—' : (variacion >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(variacion)) + '%'}</b>`,
+          `Hoy: <b>${formatNumber(entradasHoy)}</b> · Con contraseña: <b>${formatNumber(entradas.filter(f => f.evento === 'ingreso').length)}</b>`])}
+        ${kpi(TONOS.verde, '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M21.5 20c0-2.8-1.8-4.9-4.5-5.7"/>', formatNumber(activos.length), 'Usuarios activos', [
+          habilitados.length ? `Sin entrar: <b>${formatNumber(sinEntrar)}</b> de ${formatNumber(habilitados.length)}` : 'Usuarios con al menos una entrada'])}
+        ${kpi(TONOS.morado, '<path d="M3 3v18h18"/><path d="M7 15l4-6 3 4 5-8"/>', (entradas.length / diasTranscurridos).toLocaleString('es-CO', { maximumFractionDigits: 1 }), 'Promedio diario', [
+          `Días con actividad: <b>${diasActivos}</b> de ${diasTranscurridos}`])}
+        ${kpi(TONOS.rojo, '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', adopcion === null ? '—' : Math.round(adopcion) + '%', 'Adopción', [
+          'de los usuarios habilitados entró en el periodo'])}
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <section class="card p-5 sm:p-6 xl:col-span-2 min-w-0">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-2">
+          <div>
+            <h3 class="text-base font-bold tracking-tight font-display">${ACC.metrica === 'usuarios' ? 'Usuarios distintos que entraron' : 'Tendencia de entradas'}</h3>
+            <p class="text-xs mt-0.5 font-medium muted">${R.agrupar === 'dia' ? 'Por día' : R.agrupar === 'semana' ? 'Por semana' : 'Por mes'}, con los filtros aplicados. Pasa el mouse sobre una barra para ver el detalle.</p>
+          </div>
+          <div class="vs-switch" role="tablist">
+            ${[['entradas', 'Entradas'], ['usuarios', 'Usuarios']].map(([v, t]) =>
+              `<button type="button" class="${ACC.metrica === v ? 'is-activo' : ''}" onclick="cambiarFiltroAccesos('metrica', '${v}')">${t}</button>`).join('')}
+          </div>
+        </div>
+        ${ACC.metrica === 'usuarios' ? '' : '<div class="acc-leyenda"><span><i style="background:#0052CC"></i>Con contraseña</span><span><i style="background:#9DB8EC"></i>Con sesión guardada</span></div>'}
+        <div id="acc-grafico-cont"></div>
+        ${ACC.cargando ? '<p class="text-[11px] font-semibold muted mt-1">Actualizando…</p>' : ''}
+      </section>
+      <section class="card p-5 sm:p-6 min-w-0">
+        <h3 class="text-base font-bold tracking-tight font-display">Ranking de usuarios</h3>
+        <p class="text-xs mt-0.5 mb-2 font-medium muted">Quién más entra en el periodo</p>
+        ${ranking(activos.slice(0, 7).map(u => [u.nombre || u.usuario, u.total, etiquetaRol(u.rol)]), 'var(--eficacia-blue)')}
+      </section>
     </div>
 
-    <div class="acc-tres">
-      <div class="acc-panel"><h4>Entradas por rol</h4>${barrasLista(porRol, maxRol, '#0052CC')}</div>
-      <div class="acc-panel"><h4>Paneles más consultados</h4>${barrasLista(porVista, maxVista, '#059669')}</div>
-      <div class="acc-panel"><h4>Dispositivo</h4>${barrasLista(porDisp, Math.max(0, ...porDisp.map(p => p[1])), '#6366F1')}</div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <section class="card p-5 min-w-0"><h3 class="text-base font-bold tracking-tight font-display mb-2">Entradas por rol</h3>${ranking(conteo(entradas, f => etiquetaRol(f.rol)), 'var(--eficacia-blue)')}</section>
+      <section class="card p-5 min-w-0"><h3 class="text-base font-bold tracking-tight font-display mb-2">Paneles más consultados</h3>${ranking(conteo(vistas, f => etiquetaVista(f.vista)), 'var(--green)')}</section>
+      <section class="card p-5 min-w-0"><h3 class="text-base font-bold tracking-tight font-display mb-2">Dispositivo</h3>${ranking(conteo(entradas, f => f.dispositivo || 'Sin dato'), 'var(--purple)')}</section>
     </div>
 
-    <div class="acc-panel">
-      <div class="acc-panel-h">
-        <div><h4>Por usuario</h4><p>Ordenado por número de entradas en el periodo</p></div>
+    <section class="card p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold tracking-tight font-display">Por usuario</h3>
+          <p class="text-xs mt-0.5 font-medium muted">Ordenado por número de entradas en el periodo</p>
+        </div>
         <div class="flex items-center gap-3 flex-wrap">
           <label class="acc-check"><input type="checkbox" ${ACC.sinActividad ? 'checked' : ''} onchange="cambiarFiltroAccesos('sinActividad', this.checked)"> Mostrar quién no ha entrado</label>
-          <button type="button" class="btn-export" onclick="exportarAccesos()">Exportar</button>
+          ${btnExportar}
         </div>
       </div>
-      ${usuarios.length ? `<div class="acc-tabla-wrap"><table class="acc-tabla">
-        <thead><tr><th>Usuario</th><th>Rol</th><th class="num">Entradas</th><th class="num">Con contraseña</th><th class="num">Días activos</th><th>Última entrada</th></tr></thead>
-        <tbody>${filasUsuarios}</tbody></table></div>` : '<p class="acc-vacio chico">Nadie ha entrado en este periodo con los filtros elegidos.</p>'}
-    </div>
+      <div class="table-scroll" style="max-height:420px">
+        <table>
+          <thead><tr><th>Usuario</th><th>Rol</th><th class="num">Entradas</th><th class="num">Con contraseña</th><th class="num">Días activos</th><th>Última entrada</th></tr></thead>
+          <tbody>${usuarios.length ? usuarios.map(u => `<tr class="${u.total ? '' : 'acc-inactivo'}">
+            <td data-l="Usuario"><b>${esc(u.nombre || u.usuario)}</b><span class="celda-sub">${esc(u.usuario)}</span></td>
+            <td data-l="Rol">${esc(etiquetaRol(u.rol))}</td>
+            <td data-l="Entradas" class="num font-bold">${formatNumber(u.total)}</td>
+            <td data-l="Con contraseña" class="num">${formatNumber(u.ingresos)}</td>
+            <td data-l="Días activos" class="num">${formatNumber(u.dias.size)}</td>
+            <td data-l="Última entrada">${u.ultimo ? `${fechaHora(u.ultimo)}<span class="celda-sub">${haceCuanto(u.ultimo)}</span>` : '<span class="celda-sub">Sin entradas</span>'}</td>
+          </tr>`).join('') : emptyRow(6, 'Nadie ha entrado en este periodo con los filtros elegidos.')}</tbody>
+        </table>
+      </div>
+    </section>
 
-    <div class="acc-panel">
-      <h4>Últimos movimientos</h4>
-      ${recientes.length ? `<div class="acc-tabla-wrap"><table class="acc-tabla">
-        <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Movimiento</th><th>Dispositivo</th></tr></thead>
-        <tbody>${recientes.map(f => `<tr>
-          <td>${fechaHora(f.fecha)}</td>
-          <td><b>${esc(f.nombre || f.usuario)}</b><span class="acc-sub">${esc(f.usuario)}</span></td>
-          <td>${esc(etiquetaRol(f.rol))}</td>
-          <td>${esc(ACC_EVENTOS[f.evento] || f.evento)}${f.evento === 'vista' ? `<span class="acc-sub">${esc(etiquetaVista(f.vista))}</span>` : ''}</td>
-          <td>${esc(f.dispositivo || '—')}</td>
-        </tr>`).join('')}</tbody></table></div>` : '<p class="acc-vacio chico">Sin movimientos en el periodo.</p>'}
-    </div>`;
+    <section class="card p-5 sm:p-6">
+      <div class="mb-4">
+        <h3 class="text-base font-bold tracking-tight font-display">Últimos movimientos</h3>
+        <p class="text-xs mt-0.5 font-medium muted">Los 40 más recientes del periodo</p>
+      </div>
+      <div class="table-scroll" style="max-height:420px">
+        <table>
+          <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Movimiento</th><th>Dispositivo</th></tr></thead>
+          <tbody>${recientes.length ? recientes.map(f => `<tr>
+            <td data-l="Fecha" class="nw">${fechaHora(f.fecha)}</td>
+            <td data-l="Usuario"><b>${esc(f.nombre || f.usuario)}</b><span class="celda-sub">${esc(f.usuario)}</span></td>
+            <td data-l="Rol">${esc(etiquetaRol(f.rol))}</td>
+            <td data-l="Movimiento">${esc(ACC_EVENTOS[f.evento] || f.evento)}${f.evento === 'vista' ? `<span class="celda-sub">${esc(etiquetaVista(f.vista))}</span>` : ''}</td>
+            <td data-l="Dispositivo">${esc(f.dispositivo || '—')}</td>
+          </tr>`).join('') : emptyRow(5, 'Sin movimientos en el periodo.')}</tbody>
+        </table>
+      </div>
+    </section>`;
+  // El gráfico se dibuja al ancho real de su tarjeta, para que el texto no se deforme
+  const cont = document.getElementById('acc-grafico-cont');
+  if(cont) cont.innerHTML = graficoAccesos(cubetas, cont.clientWidth || 600);
 }
 
 function exportarAccesos(){
+  const R = ACC.rango || rangoAccesos();
   exportarXLSX('actividad_tablero',
     ['Fecha y hora', 'Usuario', 'Nombre', 'Rol', 'Movimiento', 'Panel', 'Dispositivo'],
-    ACC.filas.filter(f => (!ACC.rol || String(f.rol || '').toLowerCase() === ACC.rol) && (!ACC.usuario || f.usuario === ACC.usuario))
+    ACC.filas.filter(f => f.fecha >= R.desde && coincideFiltros(f))
       .map(f => [f.fecha.toLocaleString('es-CO'), f.usuario, f.nombre || '', etiquetaRol(f.rol), ACC_EVENTOS[f.evento] || f.evento,
         f.evento === 'vista' ? etiquetaVista(f.vista) : '', f.dispositivo || '']));
 }
+window.addEventListener('resize', () => { if(vistaActual === 'actividad' && ACC.cargado) { clearTimeout(window.__accResize); window.__accResize = setTimeout(pintarAccesos, 200); } });
 
 function setVista(vista){
   // Material POP y Comisiones solo con sesión de administrador
-  if((vista === 'pop' && !puedePop()) || (vista === 'liquidacion' && !puedeDinero())) vista = 'campo';
+  if((vista === 'pop' && !puedePop()) || (vista === 'liquidacion' && !puedeDinero()) || (vista === 'actividad' && rolActual() !== 'admin')) vista = 'campo';
   vistaActual = vista;
   Object.keys(VISTAS).forEach(v => {
     document.getElementById(`vista-${v}`).classList.toggle('hidden', v !== vista);
@@ -4806,6 +4839,14 @@ function setVista(vista){
   toggleMobileNav(false);
   window.scrollTo({ top:0, behavior:'smooth' });
 }
+// Botón de menú: en escritorio contrae a solo iconos; en celular abre el menú
+function toggleMenu(){
+  if(window.innerWidth >= 1024){
+    const mini = document.body.classList.toggle('nav-mini');
+    try{ localStorage.setItem('menu_mini', mini ? '1' : '0'); }catch(e){}
+  } else toggleMobileNav(!document.getElementById('dashboard-sidebar').classList.contains('is-open'));
+}
+try{ if(localStorage.getItem('menu_mini') === '1') document.body.classList.add('nav-mini'); }catch(e){}
 function toggleMobileNav(abrir){
   document.getElementById('dashboard-sidebar').classList.toggle('is-open', abrir);
   document.getElementById('mobile-nav-overlay').classList.toggle('is-open', abrir);
