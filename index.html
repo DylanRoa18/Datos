@@ -39,7 +39,7 @@
 }
 *{box-sizing:border-box}
 /* Componentes con display propio que también se ocultan con .hidden */
-.foco-cargando.hidden,.modal.hidden,.lb-orden.hidden,.vista-nav-btn.hidden,.detalle-modal.hidden{display:none}
+.foco-cargando.hidden,.vista-cargando.hidden,.modal.hidden,.lb-orden.hidden,.vista-nav-btn.hidden,.detalle-modal.hidden{display:none}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,.font-display{font-family:'Plus Jakarta Sans',sans-serif}
 .tabular{font-variant-numeric:tabular-nums}
@@ -203,6 +203,7 @@ select:focus,button:focus-visible,input:focus{outline:2px solid var(--eficacia-b
 .foco-spinner{width:38px;height:38px;border-radius:9999px;border:4px solid var(--track);border-top-color:var(--foco,var(--eficacia-blue));animation:girar .7s linear infinite}
 @keyframes girar{to{transform:rotate(360deg)}}
 .anim-entrada{animation:entrada .45s ease both}
+.vista-cargando{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:calc(100vh - var(--topbar-alto) - 120px);font-size:13px;font-weight:700;color:var(--text-muted)}
 @keyframes entrada{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* Navegación */
@@ -279,6 +280,27 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .acc-barra-suave{fill:#9DB8EC}
 .acc-check{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer}
 .table-scroll tr.acc-inactivo td{color:var(--text-muted)}
+/* Saldos de meses anteriores */
+.ant-resumen{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.ant-chip{display:inline-flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border);font-size:11.5px;color:var(--text-muted);font-weight:600}
+.ant-chip b{font-size:13px;font-weight:800;color:var(--text)}
+.ant-mas{display:none}
+.ant-lista{display:none}
+#pop-anteriores{scroll-margin-top:84px}
+.btn-anteriores{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px;border-radius:12px;border:1px solid #FCD9A8;background:#FFF7EB;color:#B45309;font-size:12px;font-weight:700;white-space:nowrap;margin-left:auto}
+.btn-anteriores:hover{background:#FEEFD6}
+.btn-anteriores svg{width:16px;height:16px}
+.btn-anteriores b{font-weight:800;color:#92400E}
+.btn-anteriores.hidden{display:none}
+.btn-anteriores:not(.hidden) + .btn-clear{margin-left:0}
+@media (max-width:1100px){
+  #pop-anteriores .ant-tabla{display:none}
+  .ant-lista{display:block}
+  .ant-mas{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px;font-size:11px;font-weight:600;color:var(--text-muted)}
+  .ant-mas:empty{display:none}
+  .ant-mas button{font-size:12px;font-weight:700;color:var(--eficacia-blue);border:1px solid var(--border);border-radius:10px;padding:6px 12px;background:#fff}
+}
+@media (max-width:640px){ .btn-anteriores{flex:1 1 100%;justify-content:center;margin-left:0} }
 .acc-lista-movil{display:none}
 .acc-item{padding:10px 2px;border-top:1px solid var(--border)}
 .acc-item:first-child{border-top:none;padding-top:2px}
@@ -391,7 +413,11 @@ section,[id^="vista-"]{scroll-margin-top:96px}
 .multi.abierto .multi-btn svg{transform:rotate(180deg)}
 .multi-panel{display:none;position:absolute;z-index:45;top:calc(100% + 4px);left:0;min-width:100%;width:max-content;max-width:280px;max-height:300px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 14px 34px -8px rgba(15,23,42,.22);padding:6px}
 .multi.abierto .multi-panel{display:block}
-.multi-op{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+@media (max-width:640px){ .multi-panel{width:100%;max-width:none} }
+.multi-op{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.3}
+.multi-op.hidden{display:none}
+.multi-op input{flex-shrink:0}
+.multi-buscar{width:100%;font-size:12px;border:1px solid var(--border);border-radius:9px;padding:6px 9px;margin-bottom:4px}
 .multi-op:hover{background:var(--surface-soft)}
 .multi-op input{width:15px;height:15px;accent-color:var(--eficacia-blue)}
 .multi-op.todos{border-bottom:1px solid var(--border);border-radius:9px 9px 0 0;margin-bottom:4px}
@@ -736,6 +762,10 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
 </header>
 
 <main class="app-main">
+  <div id="vista-cargando" class="vista-cargando hidden" aria-live="polite">
+    <div class="foco-spinner" style="--foco:var(--alqueria-red)"></div>
+    <p id="vista-cargando-texto"></p>
+  </div>
   <p id="vista-subtitulo-movil" class="sub-movil"></p>
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -761,10 +791,14 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
           </div>
         </label>
         <label class="filter"><span>Mes de ejecución</span><div id="pop-f-mes" class="multi"></div></label>
-        <label class="filter"><span>Campaña</span><select id="pop-f-campana"></select></label>
+        <label class="filter"><span>Campaña</span><div id="pop-f-campana" class="multi"></div></label>
         <label class="filter"><span>Regional</span><select id="pop-f-regional"></select></label>
         <label class="filter"><span>Canal</span><select id="pop-f-canal"></select></label>
         <label class="filter" style="max-width:320px"><span>Artículo</span><select id="pop-f-articulo"></select></label>
+        <button type="button" id="btn-pop-anteriores" class="btn-anteriores hidden" onclick="irAnteriores()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg>
+          Saldos anteriores <b id="btn-pop-ant-n"></b>
+        </button>
         <button class="btn-clear" onclick="limpiarFiltrosPop()">Limpiar ✕</button>
       </div>
 
@@ -838,6 +872,31 @@ body.nav-mini .sidebar-marca .brand-logo:first-child{width:100%;max-height:30px}
 
         <!-- Solo con un Artículo elegido: a dónde falta despachar -->
         <!-- Llegó más material del asignado -->
+        <!-- Material de meses anteriores que sigue en CEDI o pendiente por salir -->
+        <section id="pop-anteriores" class="card p-5 sm:p-6 hidden">
+          <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 mb-4">
+            <div class="min-w-0">
+              <h3 class="text-base font-bold tracking-tight font-display">Saldos de meses anteriores</h3>
+              <p id="pop-ant-sub" class="text-xs mt-0.5 font-medium muted"></p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div id="pop-ant-switch" class="vs-switch" role="tablist"></div>
+              <button onclick="exportarAnteriores()" class="btn-export"><svg class="btn-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Exportar</button>
+            </div>
+          </div>
+          <div id="pop-ant-resumen" class="ant-resumen"></div>
+          <div id="pop-ant-lista" class="ant-lista"></div>
+          <div class="table-scroll ant-tabla" style="max-height:440px">
+            <table>
+              <thead>
+                <tr><th>Material POP</th><th>Regional</th><th>Mes</th><th class="num">Asignado</th><th class="num">Salido</th><th class="num">Saldo en CEDI</th><th class="num">Falta por salir</th></tr>
+              </thead>
+              <tbody id="pop-tabla-ant"></tbody>
+            </table>
+          </div>
+          <div id="pop-ant-mas" class="ant-mas"></div>
+        </section>
+
         <section id="pop-sobre" class="card p-5 sm:p-6 hidden">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <div>
@@ -1291,7 +1350,7 @@ const DATA = { pop: [], rutas: [], indicadores: [], lideres: [], reglas: {} };
 const MESES_SEGUIMIENTO = new Set();   // meses aún en seguimiento (sin liquidación oficial)
 const etiquetaMes = v => mesLabel(v) + (MESES_SEGUIMIENTO.has(Number(v)) ? ' · seguimiento' : '');
 
-const filtrosPop = { meses: [], mes: '', campana: '', regional: '', canal: '', articulo: '', busqueda: '', alerta: '' };
+const filtrosPop = { meses: [], mes: '', campanas: [], campana: '', regional: '', canal: '', articulo: '', busqueda: '', alerta: '' };
 const filtrosCampo = { meses: [], mes: '', mesesIniciados: false, regional: '', lider: '', supervisor: '', ruta: '', busqueda: '', alerta: '', metrica: 'comision', comparar: 'ideal' };
 
 let vistaActual = 'campo';
@@ -1899,10 +1958,16 @@ function pintarMulti(id){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
     </button>
     <div class="multi-panel" role="listbox" aria-multiselectable="true">
+      ${m.opciones.length > 8 ? `<input type="text" class="multi-buscar" placeholder="Buscar…" oninput="filtrarMulti(this)" onclick="event.stopPropagation()">` : ''}
       <label class="multi-op todos"><input type="checkbox" ${!m.seleccion.length || m.seleccion.length === m.opciones.length ? 'checked' : ''} onchange="multiTodos('${id}')"><span>${esc(m.textoTodos)}</span></label>
       ${m.opciones.map(o => `<label class="multi-op"><input type="checkbox" value="${esc(o.value)}" ${m.seleccion.includes(String(o.value)) ? 'checked' : ''}
         onchange="multiCambio('${id}', this.value, this.checked)"><span>${esc(o.label)}</span></label>`).join('')}
     </div>`;
+}
+function filtrarMulti(input){
+  const q = normKey(input.value);
+  input.closest('.multi-panel').querySelectorAll('.multi-op:not(.todos)').forEach(op =>
+    op.classList.toggle('hidden', !!q && !normKey(op.textContent).includes(q)));
 }
 function toggleMulti(id){
   document.querySelectorAll('.multi.abierto').forEach(x => { if(x.id !== id) x.classList.remove('abierto'); });
@@ -2361,7 +2426,7 @@ async function cargarTodo(){
 const FILTROS_POP = [
   { key:'meses', id:'pop-f-mes', campo:r => r._mes ? String(r._mes) : 'sin',
     label:v => v === 'sin' ? 'Sin mes identificado' : mesLabel(v), todos:'Todos', orden:'mes' },
-  { key:'campana', id:'pop-f-campana', campo:r => r.CAMPAÑA, todos:'Todas' },
+  { key:'campanas', id:'pop-f-campana', campo:r => r.CAMPAÑA, todos:'Todas', multi:true },
   { key:'regional', id:'pop-f-regional', campo:r => r.REGIONAL, todos:'Todas' },
   { key:'canal', id:'pop-f-canal', campo:r => r.CANAL, todos:'Todos' },
   { key:'articulo', id:'pop-f-articulo', campo:r => r.POP || r.Articulo, todos:'Todos' }
@@ -2436,11 +2501,12 @@ function renderFiltrosPop(){
     if(f.orden === 'mes') valores.sort((a, b) => (b === 'sin' ? -1 : a === 'sin' ? 1 : Number(b) - Number(a)));
     else valores.sort((a, b) => a.localeCompare(b, 'es'));
     const opciones = valores.map(v => ({ value:v, label:f.label ? f.label(v) : v }));
-    filtrosPop[f.key] = f.key === 'meses'
-      ? renderMulti(f.id, opciones, filtrosPop.meses, f.todos, sel => cambiarFiltroPop('meses', sel))
+    filtrosPop[f.key] = (f.key === 'meses' || f.multi)
+      ? renderMulti(f.id, opciones, filtrosPop[f.key], f.todos, sel => cambiarFiltroPop(f.key, sel))
       : llenarSelect(f.id, opciones, filtrosPop[f.key], f.todos);
   });
   filtrosPop.mes = mesUnico(filtrosPop.meses);
+  filtrosPop.campana = mesUnico(filtrosPop.campanas); // una sola campaña = vista propia de esa campaña
 }
 
 // ---------- Vista propia de Regional / Campaña ----------
@@ -2466,7 +2532,8 @@ function seleccionFoco(){
   const { regional, campana, canal, articulo } = filtrosPop;
   return [
     regional ? { tipo:'Regional', valor:regional } : null,
-    campana ? { tipo:'Campaña', valor:campana } : null,
+    campana ? { tipo:'Campaña', valor:campana }
+      : filtrosPop.campanas.length > 1 ? { tipo:'Campañas', valor: filtrosPop.campanas.length <= 3 ? filtrosPop.campanas.join(', ') : `${filtrosPop.campanas.length} campañas` } : null,
     canal ? { tipo:'Canal', valor:canal } : null,
     articulo ? { tipo:'Artículo', valor:articulo } : null
   ].filter(Boolean);
@@ -2474,14 +2541,15 @@ function seleccionFoco(){
 
 function renderFocoPop(rows, t){
   const box = document.getElementById('pop-foco');
-  const { regional, campana, canal, articulo } = filtrosPop;
+  const { regional, canal, articulo } = filtrosPop;
+  const campana = filtrosPop.campana || (filtrosPop.campanas.length > 1 ? 'varias' : '');
   const seleccion = seleccionFoco();
   const enFoco = seleccion.length > 0;
 
   // Tarjetas que sobran cuando ya se eligió una Regional, Campaña o Canal
   document.getElementById('card-pop-regional').classList.toggle('hidden', !!regional);
   document.getElementById('card-pop-saldo').classList.toggle('hidden', !!regional);
-  document.getElementById('card-pop-campana').classList.toggle('hidden', !!campana);
+  document.getElementById('card-pop-campana').classList.toggle('hidden', !!filtrosPop.campana);
   document.getElementById('card-pop-canal').classList.toggle('hidden', !!canal);
   document.getElementById('pop-articulos').classList.toggle('hidden', !!articulo);
   document.getElementById('pop-seguimiento-titulo').textContent =
@@ -2540,6 +2608,7 @@ function renderFocoPop(rows, t){
 function salirFocoPop(){
   filtrosPop.regional = '';
   filtrosPop.campana = '';
+  filtrosPop.campanas = [];
   filtrosPop.canal = '';
   filtrosPop.articulo = '';
   filtrosPop.alerta = '';
@@ -2629,6 +2698,7 @@ function renderPop(){
   renderTablaArticulos(rows);
   renderDespachoArticulo(rows);
   renderSobreEntregas(rows);
+  renderAnteriores();
   renderTablaPop(rows, alertas.predicados);
 }
 
@@ -2892,6 +2962,94 @@ function renderSobreEntregas(rows){
       <span class="celda-sub">${f.pct === null ? 'Sin asignación' : `${fmtPct(f.pct)} de más`}</span></td>
   </tr>`).join(''));
 }
+// ---------- Saldos de meses anteriores ----------
+// Material de campañas cuyo mes de ejecución ya pasó y que sigue en CEDI (sobrante)
+// o que aún no ha salido completo (pendiente). Respeta Campaña, Regional, Canal y
+// Artículo; el mes de referencia es el mes elegido (o el actual si no hay ninguno).
+const popAnt = { modo:'saldo', ver:6 };
+function mesActualOrden(){ const d = new Date(); return d.getFullYear() * 100 + d.getMonth() + 1; }
+function datosAnteriores(){
+  const ref = Number(mesIdeal(filtrosPop.meses.filter(m => m !== 'sin'))) || mesActualOrden();
+  const rows = filtrarPop('meses').filter(r => r._mes && Number(r._mes) < ref);
+  const grupos = {};
+  rows.forEach(r => {
+    const k = [r.POP || r.Articulo, r.CAMPAÑA, r.REGIONAL, r._mes].join('|');
+    (grupos[k] = grupos[k] || []).push(r);
+  });
+  const filas = Object.values(grupos).map(g => ({ r:g[0], ...totalesPop(g) }));
+  return { ref, filas, saldo: filas.filter(f => f.saldo > 0), pendiente: filas.filter(f => f.falta > 0) };
+}
+function filasAnteriores(d){
+  const campo = popAnt.modo === 'saldo' ? 'saldo' : 'falta';
+  return d[popAnt.modo].sort((a, b) => b[campo] - a[campo] || Number(b.r._mes) - Number(a.r._mes));
+}
+function renderAnteriores(){
+  const d = datosAnteriores();
+  const seccion = document.getElementById('pop-anteriores');
+  const hay = d.saldo.length || d.pendiente.length;
+  seccion.classList.toggle('hidden', !hay);
+  const btn = document.getElementById('btn-pop-anteriores');
+  btn.classList.toggle('hidden', !hay);
+  document.getElementById('btn-pop-ant-n').textContent = hay ? formatNumber(suma(d.saldo, f => f.saldo)) + ' und' : '';
+  if(!hay) return;
+  if(!d[popAnt.modo].length) popAnt.modo = d.saldo.length ? 'saldo' : 'pendiente';
+
+  const filas = filasAnteriores(d);
+  const lista = d[popAnt.modo];
+  const total = suma(lista, f => popAnt.modo === 'saldo' ? f.saldo : f.falta);
+  const regionales = unicos(lista, f => f.r.REGIONAL).length;
+  const meses = unicos(lista, f => f.r._mes).sort((a, b) => b - a);
+  document.getElementById('pop-ant-sub').textContent =
+    `Campañas ejecutadas antes de ${mesLabel(d.ref)}. ${popAnt.modo === 'saldo' ? 'Material que llegó al CEDI y no ha salido.' : 'Material asignado que aún no ha salido completo.'}`;
+  document.getElementById('pop-ant-switch').innerHTML = [['saldo', 'Sobrante en CEDI', d.saldo.length], ['pendiente', 'Pendiente por salir', d.pendiente.length]]
+    .map(([v, t, n]) => `<button type="button" class="${popAnt.modo === v ? 'is-activo' : ''}" onclick="cambiarModoAnteriores('${v}')">${t} <span class="muted">${n}</span></button>`).join('');
+  const chip = (valor, texto) => `<div class="ant-chip"><b>${valor}</b><span>${texto}</span></div>`;
+  document.getElementById('pop-ant-resumen').innerHTML =
+    chip(formatNumber(total) + ' und', popAnt.modo === 'saldo' ? 'en CEDI' : 'por salir') +
+    chip(formatNumber(unicos(lista, f => f.r.POP || f.r.Articulo).length), 'artículos') +
+    chip(formatNumber(regionales), regionales === 1 ? 'regional' : 'regionales') +
+    (meses.length <= 2 ? chip(meses.map(m => mesLabel(m)).join(', '), meses.length === 1 ? 'mes' : 'meses') : chip(formatNumber(meses.length), 'meses'));
+
+  const destacado = (v, activo, tonoAct) => activo
+    ? `<span class="badge" style="color:${tonoAct.fg};background:${tonoAct.bg}">${formatNumber(v)} und</span>`
+    : formatNumber(v);
+  // Celular / tablet: lista compacta de 2 líneas por registro
+  const mesCorto = m => mesLabel(m).replace(/^(\S{3})\S*/, '$1');
+  document.getElementById('pop-ant-lista').innerHTML = filas.slice(0, popAnt.ver).map(f => {
+    const v = popAnt.modo === 'saldo' ? f.saldo : f.falta, t = popAnt.modo === 'saldo' ? TONOS.ambar : TONOS.rojo;
+    return `<div class="acc-item">
+      <div class="acc-item-linea"><b>${esc(f.r.POP || f.r.Articulo)}</b><span class="badge" style="color:${t.fg};background:${t.bg};white-space:nowrap">${formatNumber(v)} und</span></div>
+      <div class="acc-item-linea muted"><span>${esc(f.r.REGIONAL)} · ${esc(f.r.CAMPAÑA)} · ${esc(mesCorto(f.r._mes))}</span><span>Salió ${formatNumber(f.salida)} de ${formatNumber(f.asignado)}</span></div>
+    </div>`;
+  }).join('');
+  pintarTabla('pop-tabla-ant', filas.map((f, i) => `<tr>
+    <td><span class="font-bold">${esc(f.r.POP || f.r.Articulo)}</span><span class="celda-sub">${esc(f.r.CAMPAÑA)}</span></td>
+    <td><span class="font-semibold">${esc(f.r.REGIONAL)}</span><span class="celda-sub">${esc(f.r.CANAL || '')}</span></td>
+    <td class="nw">${esc(mesLabel(f.r._mes))}</td>
+    <td class="num">${formatNumber(f.asignado)}</td>
+    <td class="num">${formatNumber(f.salida)}</td>
+    <td class="num font-semibold">${destacado(f.saldo, popAnt.modo === 'saldo', TONOS.ambar)}</td>
+    <td class="num font-semibold">${destacado(f.falta, popAnt.modo === 'pendiente', TONOS.rojo)}</td>
+  </tr>`).join(''));
+  // En celular solo las primeras filas, con "Ver más"
+  const n = Math.min(filas.length, popAnt.ver), faltan = filas.length - n;
+  document.getElementById('pop-ant-mas').innerHTML = filas.length > 6 ? `<span>Mostrando ${n} de ${filas.length}</span>
+    ${faltan ? `<span class="flex gap-2"><button type="button" onclick="verMasAnteriores(10)">Ver ${Math.min(10, faltan)} más</button>${faltan > 10 ? '<button type="button" onclick="verMasAnteriores(Infinity)">Ver todos</button>' : ''}</span>`
+      : '<button type="button" onclick="verMasAnteriores(0)">Ver menos</button>'}` : '';
+}
+function cambiarModoAnteriores(modo){ popAnt.modo = modo; popAnt.ver = 6; renderAnteriores(); }
+function verMasAnteriores(n){ popAnt.ver = n === 0 ? 6 : popAnt.ver + n; renderAnteriores(); }
+function irAnteriores(){
+  const s = document.getElementById('pop-anteriores');
+  if(!s.classList.contains('hidden')) s.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function exportarAnteriores(){
+  const d = datosAnteriores();
+  const filas = [...d.saldo, ...d.pendiente.filter(f => f.saldo <= 0)].sort((a, b) => b.saldo - a.saldo || b.falta - a.falta);
+  exportarXLSX('saldos_meses_anteriores',
+    ['Material POP','Código','Campaña','Regional','Canal','Mes de ejecución','Asignado','Llegó','Salido','Saldo en CEDI','Falta por salir'],
+    filas.map(f => [f.r.POP || f.r.Articulo, f.r.Articulo, f.r.CAMPAÑA, f.r.REGIONAL, f.r.CANAL, mesLabel(f.r._mes), f.asignado, f.llega, f.salida, f.saldo, f.falta]));
+}
 function exportarSobre(){
   const filas = filasSobre(filtrarPop());
   exportarXLSX('llego_mas_de_lo_asignado',
@@ -3003,7 +3161,8 @@ function renderTablaPop(rows, predicados){
 function cambiarFiltroPop(key, valor){
   filtrosPop[key] = valor;
   filtrosPop.alerta = '';
-  if(['regional', 'campana', 'canal', 'articulo'].includes(key)) recargarPopConAnimacion();
+  if(key === 'campanas') filtrosPop.campana = mesUnico(valor);
+  if(['regional', 'campanas', 'canal', 'articulo'].includes(key)) recargarPopConAnimacion();
   else renderPop();
 }
 function toggleAlertaPop(id){
@@ -3019,7 +3178,7 @@ function toggleAlertaPop(id){
 }
 function limpiarFiltrosPop(){
   const habiaFoco = seleccionFoco().length > 0;
-  Object.assign(filtrosPop, { meses:[], mes:'', campana:'', regional:'', canal:'', articulo:'', busqueda:'', alerta:'' });
+  Object.assign(filtrosPop, { meses:[], mes:'', campanas:[], campana:'', regional:'', canal:'', articulo:'', busqueda:'', alerta:'' });
   document.getElementById('pop-busqueda').value = '';
   document.getElementById('pop-art-busqueda').value = '';
   if(habiaFoco) recargarPopConAnimacion(); else renderPop();
@@ -4911,11 +5070,30 @@ window.addEventListener('resize', () => { if(vistaActual === 'actividad' && ACC.
 function setVista(vista){
   // Material POP y Comisiones solo con sesión de administrador
   if((vista === 'pop' && !puedePop()) || (vista === 'liquidacion' && !puedeDinero()) || (vista === 'actividad' && rolActual() !== 'admin')) vista = 'campo';
+  const cambia = vistaActual !== vista;
   vistaActual = vista;
   Object.keys(VISTAS).forEach(v => {
-    document.getElementById(`vista-${v}`).classList.toggle('hidden', v !== vista);
+    document.getElementById(`vista-${v}`).classList.add('hidden');
     document.getElementById(`nav-${v}`).classList.toggle('is-active', v === vista);
   });
+  // Círculo de carga breve al cambiar de sección y entrada suave de la nueva
+  clearTimeout(setVista.t);
+  const carga = document.getElementById('vista-cargando');
+  const mostrar = () => {
+    carga.classList.add('hidden');
+    if(vistaActual !== vista) return;
+    const el = document.getElementById(`vista-${vista}`);
+    el.classList.remove('hidden', 'anim-entrada');
+    void el.offsetWidth;
+    el.classList.add('anim-entrada');
+    if(vista === 'actividad' && ACC.cargado) pintarAccesos(); // el gráfico se mide ya visible
+  };
+  const reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(cambia && !reducir){
+    document.getElementById('vista-cargando-texto').textContent = `Cargando ${VISTAS[vista].titulo}…`;
+    carga.classList.remove('hidden');
+    setVista.t = setTimeout(mostrar, 450);
+  } else mostrar();
   document.getElementById('vista-titulo').textContent = VISTAS[vista].titulo;
   document.getElementById('vista-subtitulo').textContent = VISTAS[vista].sub;
   document.getElementById('vista-subtitulo-movil').textContent = VISTAS[vista].sub;
@@ -4956,8 +5134,9 @@ function conectarEventos(){
       { key:'canal', tipo:'Canal', valores: unicos(rows, r => r.CANAL) }
     ];
   }, (key, valor) => {
-    Object.assign(filtrosPop, { campana:'', regional:'', canal:'', articulo:'', alerta:'' });
+    Object.assign(filtrosPop, { campanas:[], campana:'', regional:'', canal:'', articulo:'', alerta:'' });
     filtrosPop[key] = String(valor);
+    if(key === 'campana') filtrosPop.campanas = [String(valor)];
     recargarPopConAnimacion();
   });
   const fuentesCampo = meses => () => {
@@ -4986,7 +5165,7 @@ function conectarEventos(){
     filtrosLiq.busqueda = e.target.value.trim().toLowerCase(); renderLiquidacion();
   });
 
-  FILTROS_POP.filter(f => f.key !== 'meses').forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroPop(f.key, e.target.value)));
+  FILTROS_POP.filter(f => f.key !== 'meses' && !f.multi).forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroPop(f.key, e.target.value)));
   document.querySelectorAll('#tabla-articulos th[data-sort]').forEach(th => th.addEventListener('click', () => ordenarArticulos(th.dataset.sort)));
   document.getElementById('pop-art-busqueda').addEventListener('input', () => renderTablaArticulos());
   FILTROS_CAMPO.filter(f => f.key !== 'meses').forEach(f => document.getElementById(f.id).addEventListener('change', e => cambiarFiltroCampo(f.key, e.target.value)));
