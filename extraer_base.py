@@ -310,6 +310,16 @@ REGLAS_MES = {
         # Se dejan de marcar solos cuando el Excel trae los datos (liquidación final)
         "pendientes": ["ventas", "devoluciones"],
     },
+    # Noviembre 2026: mismas reglas de Octubre (imagen "Indicadores Noviembre").
+    #   Ventas y Devoluciones quedan pendientes hasta que Alquería entregue la información.
+    "2026-11": {
+        "niveles": [{"desde": 95, "factor": 1.0}, {"desde": 60, "factor": 0.6}],
+        "pesos": {"tp": 0.5, "ventas": 0.2, "fcdv": 0.3},
+        "tp": [{"desde": 90, "factor": 1.0}, {"desde": 60, "factor": 0.6}],
+        "ventas": TRAMOS_VENTAS_PROPORCIONAL,
+        "fcdv": TRAMOS_SOLO_100,
+        "pendientes": ["ventas", "devoluciones"],
+    },
 }
 
 
@@ -343,6 +353,41 @@ def describir_llaves(reglas):
     return f"promedio de % CAPTURA y % COBERTURA ≥ {m}%"
 
 
+# Meses cuya hoja de líderes/supervisores es copia exacta del mes anterior
+# (pasa en las preliquidaciones de avance: la hoja aún no se ha actualizado).
+MESES_LIDERES_COPIADOS = set()
+
+
+def quitar_meses_copiados(union, log=print):
+    """
+    Si la hoja de líderes y supervisores de un mes trae exactamente los mismos
+    valores que el mes anterior, es una copia sin actualizar: ese mes no se
+    carga para líderes/supervisores (así no se muestran datos de otro mes).
+    """
+    MESES_LIDERES_COPIADOS.clear()
+    if "LIDERES" not in union or not len(union["LIDERES"]):
+        return
+    L = union["LIDERES"]
+    cols = [c for c in L.columns if c.startswith("pct_")]
+    meses = sorted(int(m) for m in L["mes_orden"].dropna().unique())
+
+    def firma(m):
+        x = L[L["mes_orden"] == m][["cargo", "nombre"] + cols].copy()
+        x[cols] = x[cols].apply(pd.to_numeric, errors="coerce").round(2)
+        return x.sort_values(["cargo", "nombre"]).astype(str).reset_index(drop=True)
+
+    for anterior, mes in zip(meses, meses[1:]):
+        if firma(mes).equals(firma(anterior)):
+            MESES_LIDERES_COPIADOS.add(mes)
+            nombre = f"{NOMBRES_MES[mes % 100]} {mes // 100}"
+            log(f"⚠️  La hoja de líderes y supervisores de {nombre} es igual a la de "
+                f"{NOMBRES_MES[anterior % 100]}: aún no está actualizada en el Excel. "
+                f"No se carga para {nombre} (el dashboard lo muestra como pendiente).")
+            for clave in ("LIDERES", "LIDERES_DINERO"):
+                if clave in union and len(union[clave]):
+                    union[clave] = union[clave][union[clave]["mes_orden"] != mes].reset_index(drop=True)
+
+
 def construir_reglas(bases):
     """Una fila por mes cargado, con sus reglas en formato JSON."""
     meses = set()
@@ -358,6 +403,10 @@ def construir_reglas(bases):
             nombres = {"ventas": "Ventas", "devoluciones": "Devoluciones", "fcdv": "Fechas cortas y Devoluciones"}
             que = " y ".join(nombres.get(p, p) for p in pendientes)
             reglas["mensaje_pendientes"] = MENSAJE_PENDIENTES.format(que=que)
+        if m in MESES_LIDERES_COPIADOS:
+            reglas["lideres_pendiente"] = True
+            reglas["mensaje_pendientes"] = (reglas.get("mensaje_pendientes", "") + " La liquidación de líderes y "
+                                            "supervisores de este mes aún no está disponible en la preliquidación.").strip()
         filas.append({"mes_orden": m, "mes": f"{NOMBRES_MES[m % 100]} {m // 100}", "reglas": reglas})
     return pd.DataFrame(filas)
 
@@ -1047,7 +1096,59 @@ def cargar_preliquidacion(archivo=None, mostrar=True):
 
     unificar_alias(resultado, log)
     actualizar_supervisores(resultado, log)
+    agregar_rutas_nuevas(resultado, archivo, nombres_hojas, mes_respaldo, log)
     return archivo, resultado
+
+
+def agregar_rutas_nuevas(resultado, archivo, nombres_hojas, mes_respaldo, log):
+    """
+    Rutas que están en la hoja Indicadores pero aún no en la liquidación
+    (rutas nuevas del mes). Se agregan con sus % para verlas en Seguimiento,
+    sin valores en dinero (fuente = "indicadores_nueva"; Comisiones no las suma).
+    """
+    rutas = resultado.get("RUTAS")
+    hoja = buscar_hoja(nombres_hojas, "Indicadores")
+    if rutas is None or not len(rutas) or hoja is None:
+        return
+    try:
+        nuevas, _ = preparar_hoja(leer_hoja(archivo, hoja, "RUTA"), CONFIG_SEGUIMIENTO, mes_respaldo)
+    except Exception as error:
+        log(f"⚠️  No se pudieron revisar rutas nuevas en Indicadores: {error}")
+        return
+    ya = {clave_ruta(r) for r in rutas["ruta"]}
+    nuevas = nuevas[[clave_ruta(r) not in ya and bool(clave_ruta(r)) for r in nuevas["ruta"]]].copy()
+    if not len(nuevas):
+        return
+
+    mes_orden = int(rutas["mes_orden"].iloc[0])
+    reglas = reglas_de_mes(mes_orden)
+    # Supervisor con el nombre de la liquidación y su líder; regional por prefijo de la ruta
+    sup_nombre = {clave_persona(v): v for v in rutas["supervisor"].dropna()}
+    lider_de = rutas.dropna(subset=["supervisor", "lider"]).groupby(
+        rutas["supervisor"].map(clave_persona))["lider"].agg(lambda x: x.mode().iloc[0]).to_dict()
+    regional_de = rutas.dropna(subset=["regional"]).groupby(
+        rutas["ruta"].map(lambda r: re.sub(r"_?\d+$", "", clave_ruta(r))))["regional"].agg(lambda x: x.mode().iloc[0]).to_dict()
+
+    nuevas["mes_orden"], nuevas["mes"] = mes_orden, rutas["mes"].iloc[0]
+    nuevas["supervisor"] = [sup_nombre.get(clave_persona(v), v) if isinstance(v, str) else None for v in nuevas["supervisor"]]
+    nuevas["lider"] = [lider_de.get(clave_persona(v)) if isinstance(v, str) else None for v in nuevas["supervisor"]]
+    nuevas["regional"] = [regional_de.get(re.sub(r"_?\d+$", "", clave_ruta(r))) or
+                          (re.sub(r"^REGIONAL\s+", "", reg, flags=re.I) if isinstance(reg, str) else None)
+                          for r, reg in zip(nuevas["ruta"], nuevas["regional"])]
+    cap = pd.to_numeric(nuevas["pct_captura"], errors="coerce")
+    cob = pd.to_numeric(nuevas["pct_cobertura"], errors="coerce")
+    nuevas["pct_promedio_llaves"] = ((cap + cob) / 2).round(2)
+    nuevas["corresponde_comision"] = ["SI" if cumple_llaves(a, b, reglas) else "NO" for a, b in zip(cap, cob)]
+    nuevas["umbral_llave"] = reglas["llaves"]["minimo"]
+    nuevas["lider_alqueria"] = None
+    nuevas["observaciones"] = "Ruta nueva: aún no está en la liquidación del Excel"
+    nuevas["pct_comision"] = None
+    nuevas["fuente"] = "indicadores_nueva"
+    nuevas["fila_excel"] = None
+    nuevas = nuevas[[c for c in rutas.columns if c in nuevas.columns]]
+    resultado["RUTAS"] = pd.concat([rutas, nuevas], ignore_index=True).astype(object)
+    resultado["RUTAS"] = resultado["RUTAS"].where(pd.notna(resultado["RUTAS"]), None)
+    log(f"ℹ️  Rutas nuevas (solo en Indicadores, sin liquidación): {', '.join(sorted(nuevas['ruta']))}")
 
 
 # Misma persona escrita distinto entre meses (no solo en otro orden): se deja
@@ -1191,6 +1292,7 @@ def cargar_todas(mostrar=True):
             else:
                 union[clave] = df
 
+    quitar_meses_copiados(union, log)
     union["REGLAS"] = construir_reglas(union)
     for _, fila in union["REGLAS"].iterrows():
         log(f"📐 Reglas {fila['mes']}: comisiona con {describir_llaves(fila['reglas'])}")

@@ -51,6 +51,9 @@ from supabase import create_client
 
 CARPETA = Path(__file__).resolve().parent
 ARCHIVO = CARPETA / "usuarios_dashboard.xlsx"
+# Opcional: usuarios ya preparados (mismas columnas). Si existe, sus filas se
+# suman al Excel principal y se crean al ejecutar. Después puedes borrarlo.
+ARCHIVO_NUEVOS = CARPETA / "usuarios_nuevos.xlsx"
 
 # Supabase necesita un correo por cuenta: se arma uno interno a partir del
 # usuario (nunca se envían correos). Debe ser IGUAL al del index.html.
@@ -205,16 +208,44 @@ def agregar_nuevos(sb, df):
             if not clave or (rol, clave) in ya:
                 continue
             ya.add((rol, clave))
-            nuevos.append({"ROL": rol, "ALCANCE": alcance,
-                           "NOMBRE": f"Ruta {alcance}" if rol == "ruta" else str(alcance).title(),
-                           "USUARIO": "", "CONTRASENA": "", "CREAR": "REVISAR",
-                           "ESTADO": "Nuevo: revisa NOMBRE (Nombres Apellidos) y pon CREAR = SI"})
+            if rol == "ruta":
+                # El nombre de una ruta siempre es "Ruta X": se crea de una vez
+                nuevos.append({"ROL": rol, "ALCANCE": alcance, "NOMBRE": f"Ruta {alcance}",
+                               "USUARIO": "", "CONTRASENA": "", "CREAR": "SI", "ESTADO": "Nueva ruta"})
+            else:
+                nuevos.append({"ROL": rol, "ALCANCE": alcance, "NOMBRE": str(alcance).title(),
+                               "USUARIO": "", "CONTRASENA": "", "CREAR": "REVISAR",
+                               "ESTADO": "Nuevo: revisa NOMBRE (Nombres Apellidos) y pon CREAR = SI"})
     return nuevos
 
 
 # ------------------------------------------------------------
 # Paso 3: crear / actualizar
 # ------------------------------------------------------------
+def sumar_preparados(df):
+    if not ARCHIVO_NUEVOS.exists():
+        return df
+    extra = pd.read_excel(ARCHIVO_NUEVOS, dtype=str).fillna("")
+    extra.columns = [c.strip().upper() for c in extra.columns]
+    def clave(rol, alcance):
+        rol = str(rol).strip().lower()
+        return rol, (clave_ruta(alcance) if rol == "ruta" else clave_persona(alcance))
+    sumados = 0
+    for _, f in extra.iterrows():
+        k = clave(f.get("ROL", ""), f.get("ALCANCE", ""))
+        iguales = [i for i, (r, a) in enumerate(zip(df["ROL"], df["ALCANCE"])) if clave(r, a) == k]
+        if iguales and all(df.at[df.index[i], "CREAR"].strip().upper() != "REVISAR" and df.at[df.index[i], "USUARIO"].strip()
+                           for i in iguales):
+            print(f"ℹ️  {f.get('ALCANCE')} ya tenía usuario: se deja el que está en {ARCHIVO.name}.")
+            continue  # ya existe y está creado: no se toca
+        df = df.drop(index=[df.index[i] for i in iguales])
+        df = pd.concat([df, pd.DataFrame([f.to_dict()])], ignore_index=True).fillna("")
+        sumados += 1
+    if sumados:
+        print(f"📥 {sumados} usuarios tomados de {ARCHIVO_NUEVOS.name}\n")
+    return df
+
+
 def usuarios_existentes(sb):
     existentes, pagina = {}, 1
     while True:
@@ -249,14 +280,19 @@ def crear_usuarios(sb):
         if col not in df.columns:
             df[col] = ""
 
+    # Usuarios ya preparados en usuarios_nuevos.xlsx (reemplazan filas que seguían en REVISAR)
+    df = sumar_preparados(df)
+
     # Quien aparece por primera vez en el mes más reciente se agrega al Excel
     nuevos = agregar_nuevos(sb, df)
     if nuevos:
         df = pd.concat([df, pd.DataFrame(nuevos)], ignore_index=True).fillna("")
-        print(f"🆕 {len(nuevos)} nuevos agregados al Excel (CREAR = REVISAR):")
+        print(f"🆕 {len(nuevos)} nuevos agregados al Excel:")
         for n in nuevos:
-            print(f"     {NOMBRE_ROL[n['ROL']]:<11} {n['ALCANCE']}")
-        print("   Revisa su NOMBRE (Nombres Apellidos), cambia CREAR a SI y vuelve a ejecutar.\n")
+            print(f"     {NOMBRE_ROL[n['ROL']]:<11} {n['ALCANCE']}  ({'se crea ahora' if n['CREAR'] == 'SI' else 'CREAR = REVISAR'})")
+        if any(n["CREAR"] == "REVISAR" for n in nuevos):
+            print("   Los que quedan en REVISAR: revisa su NOMBRE (Nombres Apellidos), cambia CREAR a SI y vuelve a ejecutar.")
+        print()
 
     existentes = usuarios_existentes(sb)
     usados = set()
